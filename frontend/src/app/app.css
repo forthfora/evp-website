@@ -1,48 +1,26 @@
 @import 'tailwindcss';
 
-@theme {
-	--color-main: var(--main);
-	--color-contrast: var(--contrast);
+@theme inline {
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--color-foreground-muted: var(--foreground-muted);
 	--color-accent: #adadad;
 
-	--font-sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-}
-
-@utility custom-scrollbar {
-	scrollbar-width: thin;
-	scrollbar-color: var(--main);
-
-	&::-webkit-scrollbar {
-		width: 8px;
-		height: 8px;
-	}
-
-	&::-webkit-scrollbar-track {
-		background: var(--main, #1a1a1a);
-	}
-
-	&::-webkit-scrollbar-thumb {
-		background: var(--main, #2d2d2d);
-		border-radius: 9999px;
-		border: 2px solid var(--main, #1a1a1a);
-
-		&:hover {
-			background: var(--main, #4a4a4a);
-		}
-	}
+	--font-sans: system-ui, 'Segoe UI', 'Roboto', sans-serif;
+	--font-title: 'Outfit', sans-serif;
 }
 
 /* Light mode */
 :root,
 [data-theme='light'] {
-	--main: #f4f4f4;
-	--contrast: #111827;
-	--contrast-muted: #4b5563;
+	--background: #f4f4f4;
+	--foreground: #111827;
+	--foreground-muted: #4b5563;
 }
 
 /* Dark mode */
 [data-theme='dark'] {
-	--main: #111827;
-	--contrast: #f9fafb;
-	--contrast-muted: #9ca3af;
+	--background: #111827;
+	--foreground: #f9fafb;
+	--foreground-muted: #9ca3af;
 }
