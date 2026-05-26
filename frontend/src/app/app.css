@@ -1,5 +1,14 @@
 @import 'tailwindcss';
 
+html,
+body,
+#root {
+	min-height: 100%;
+	background-color: var(--background);
+	color: var(--foreground);
+	@apply scrollbar-thumb-fore scrollbar-thin scrollbar-track-transparent;
+}
+
 @theme inline {
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
