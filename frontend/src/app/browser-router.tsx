@@ -1,16 +1,21 @@
 import { createBrowserRouter } from 'react-router';
-import { HomePage } from '../pages/home/HomePage';
 import { AppLayout } from './app-layout.ui';
+import { HomePage } from '../pages/home/HomePage';
+import { AboutPage } from '../pages/about/AboutPage';
 
 export const browserRouter = createBrowserRouter([
-  {
-    path: '/',
-    element: <AppLayout />,
-    children: [
-      {
-        path: '',
-        element: <HomePage />,
-      },
-    ],
-  },
+	{
+		path: '/',
+		element: <AppLayout />,
+		children: [
+			{
+				index: true,
+				element: <HomePage />,
+			},
+			{
+				path: 'about',
+				element: <AboutPage />,
+			},
+		],
+	},
 ]);

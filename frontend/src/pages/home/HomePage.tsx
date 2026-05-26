@@ -1,13 +1,9 @@
 export function HomePage() {
-  return (
-    <div style={{ 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center', 
-      height: '100vh',
-      fontFamily: 'sans-serif'
-    }}>
-      <h1>Hello World!</h1>
-    </div>
-  );
+	return (
+		<div className="p-6">
+			{Array.from({ length: 100 }).map((_, index) => (
+				<h1 key={index}>Hello World! ({index + 1})</h1>
+			))}
+		</div>
+	);
 }
