@@ -6,30 +6,31 @@ body,
 	min-height: 100%;
 	background-color: var(--background);
 	color: var(--foreground);
-	@apply scrollbar-thumb-fore scrollbar-thin scrollbar-track-transparent;
+	@apply scrollbar-thumb-foreground scrollbar-thin scrollbar-track-transparent;
 }
 
 @theme inline {
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-foreground-muted: var(--foreground-muted);
-	--color-accent: #adadad;
+	--color-accent: #ff0000;
 
-	--font-sans: system-ui, 'Segoe UI', 'Roboto', sans-serif;
-	--font-title: 'Outfit', sans-serif;
+	--font-title: 'Playfair Display', 'Georgia', serif;
+	--font-heading: 'Inter', system-ui, sans-serif;
+	--font-text: 'Inter', system-ui, sans-serif;
 }
 
 /* Light mode */
 :root,
 [data-theme='light'] {
 	--background: #f4f4f4;
-	--foreground: #111827;
-	--foreground-muted: #4b5563;
+	--foreground: #272727;
+	--foreground-muted: #636363;
 }
 
 /* Dark mode */
 [data-theme='dark'] {
 	--background: #111827;
-	--foreground: #f9fafb;
-	--foreground-muted: #9ca3af;
+	--foreground: #e5e5e5;
+	--foreground-muted: #86868b;
 }

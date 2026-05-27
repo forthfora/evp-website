@@ -17,8 +17,8 @@ const NAV_LINKS = [
 	{ path: '/events', label: 'events' },
 ];
 
-const SCROLL_DOWN_SHRINK_THRESHOLD = 200;
-const SCROLL_UP_EXPAND_THRESHOLD = 150;
+const SCROLL_DOWN_SHRINK_THRESHOLD = 150;
+const SCROLL_UP_EXPAND_THRESHOLD = 100;
 const FADE_DURATION_MS = 800;
 
 const EASING = `cubic-bezier(0.22, 1, 0.36, 1)`;
@@ -62,19 +62,22 @@ export function Header() {
 			className={cn(
 				'fixed z-50 w-full transition-all duration-400',
 				isMini
-					? 'bg-background/70 shadow-md backdrop-blur-xs'
-					: 'y-10 bg-transparen py-50 text-shadow-2xs',
+					? 'bg-background/70 py-7.5 shadow-md backdrop-blur-xs'
+					: 'bg-transparent py-80 text-shadow-2xs',
 			)}
 		>
+			{/* Large */}
 			<div
-				className="absolute inset-0 flex flex-col items-center justify-center px-6 py-8"
+				className="absolute inset-0 flex flex-col items-center justify-center"
 				style={fadeStyle(!isMini)}
 				aria-hidden={isMini}
 			>
+				{/* Fade */}
 				<div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-					<div className="bg-background/30 h-50 w-400 rounded-full blur-3xl" />
+					<div className="bg-background/60 h-100 w-400 rounded-full blur-3xl" />
 				</div>
 
+				{/* Title & Buttons */}
 				<div className="relative flex w-full max-w-7xl flex-col items-center gap-6">
 					<LogoAndTitle size="large" />
 					<nav className="flex flex-wrap items-center gap-4 md:gap-6">
@@ -83,29 +86,16 @@ export function Header() {
 				</div>
 			</div>
 
+			{/* Mini */}
 			<div
-				className="absolute inset-0 flex items-center px-6 py-3"
+				className="absolute inset-0 flex items-center"
 				style={fadeStyle(isMini)}
 				aria-hidden={!isMini}
 			>
+				{/* Title & Buttons */}
 				<div className="mx-auto flex w-full max-w-7xl items-center justify-between">
 					<LogoAndTitle size="small" />
 					<nav className="flex flex-wrap items-center gap-4 md:gap-6">
-						<NavLinks toggleTheme={toggleTheme} theme={theme} />
-					</nav>
-				</div>
-			</div>
-
-			<div
-				className="pointer-events-none invisible flex flex-col items-center px-6 py-8"
-				aria-hidden
-				style={{
-					transition: `all ${FADE_DURATION_MS}ms ${EASING}`,
-					...(isMini ? { padding: '0.75rem 1.5rem' } : {}),
-				}}
-			>
-				<div className="flex flex-col items-center gap-6">
-					<nav className="pointer-events-none flex items-center gap-4 opacity-0">
 						<NavLinks toggleTheme={toggleTheme} theme={theme} />
 					</nav>
 				</div>
@@ -155,7 +145,7 @@ function NavLinks({ toggleTheme, theme }: { toggleTheme: () => void; theme: stri
 				<span key={link.path} className="flex items-center gap-4 md:gap-6">
 					<NavLinkItem to={link.path} label={link.label} />
 					{i < NAV_LINKS.length - 1 && (
-						<span className="text-muted-foreground select-none" aria-hidden>
+						<span className="text-foreground-muted select-none" aria-hidden>
 							|
 						</span>
 					)}
