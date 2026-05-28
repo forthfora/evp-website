@@ -75,7 +75,7 @@ export function HomePageHero({
 
 	return (
 		<div
-			className="fixed inset-0 z-40 flex flex-col items-center justify-center text-shadow-2xs"
+			className="fixed inset-0 z-40 flex flex-col items-center justify-center overflow-hidden text-shadow-2xs"
 			style={{
 				transition,
 				opacity: visible ? 1 : 0,
@@ -84,29 +84,33 @@ export function HomePageHero({
 			}}
 			aria-hidden={!visible}
 		>
-			{/* Soft background glow */}
+			{/* Soft background glow - Removed fixed w-400 to prevent horizontal overflow */}
 			<div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-				<div className="bg-background/75 h-100 w-400 rounded-full blur-3xl" />
+				<div className="bg-background/75 h-64 w-full max-w-xs rounded-full blur-3xl md:h-100 md:max-w-4xl" />
 			</div>
 
-			{/* Content */}
-			<div className="relative flex w-full max-w-7xl flex-col items-center gap-6 px-6">
+			{/* Content - Center everything on mobile */}
+			<div className="relative flex w-full max-w-7xl flex-col items-center gap-6 px-6 text-center">
 				<LogoAndTitle size="large" isVisible={visible} />
 
-				<div className="animate-shimmer bg-[linear-gradient(135deg,var(--color-foreground)_35%,var(--color-highlight-inverted)_50%,var(--color-foreground)_65%)] bg-size-[300%_300%] bg-clip-text text-4xl leading-tight font-bold whitespace-nowrap text-transparent [animation-delay:1.2s]">
+				{/* Scaled text sizes for mobile, allowed text wrapping, kept nowrap for md+ */}
+				<div className="animate-shimmer bg-[linear-gradient(135deg,var(--color-foreground)_35%,var(--color-highlight-inverted)_50%,var(--color-foreground)_65%)] bg-size-[300%_300%] bg-clip-text text-2xl leading-tight font-bold whitespace-normal text-transparent [animation-delay:1.2s] md:text-4xl md:whitespace-nowrap">
 					<i>where students build and invest.</i>
 				</div>
 
-				<div>
+				<div className="max-w-md text-sm md:max-w-none md:text-base">
 					Led by students, for students. EVP is launching Scotland's next generation of venture
 					talent.
 				</div>
 
-				<div className="text-foreground-muted my-4 w-150 border" />
+				{/* Responsive divider line */}
+				<div className="text-foreground-muted my-2 w-32 border md:w-64" />
 
-				<nav className="flex flex-wrap items-center gap-10">
+				{/* Tighter gap on mobile, wrap links if necessary */}
+				<nav className="flex flex-wrap items-center justify-center gap-4 md:gap-10">
 					<HeaderNavButtons />
 				</nav>
+
 				<AccountAndSettings />
 			</div>
 		</div>

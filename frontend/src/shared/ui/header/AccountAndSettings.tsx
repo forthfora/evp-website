@@ -20,7 +20,7 @@ export function AccountAndSettings() {
 					<Sun key="sun" size={18} className="button-spin" />
 				)}
 			</button>
-			<span className="text-foreground-muted select-none" aria-hidden>
+			<span className="text-foreground-muted hidden select-none md:inline" aria-hidden>
 				|
 			</span>
 			<button
