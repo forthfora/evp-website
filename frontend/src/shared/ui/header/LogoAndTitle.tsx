@@ -1,7 +1,10 @@
 import { Link, useLocation } from 'react-router-dom';
-import evpLogo from '../../assets/evp-logo.png';
-import '../../styles/button-underline.css';
 import { cn } from '../../lib/utils';
+
+import evpLogo from '../../assets/evp-logo.png';
+
+import '../../styles/button-underline.css';
+import '../../styles/logo-build.css';
 
 interface LogoAndTitleProps {
 	size: 'large' | 'small';
@@ -21,15 +24,17 @@ export function LogoAndTitle({ size, isVisible = true }: LogoAndTitleProps) {
 			className={cn('group drop-shadow-10xl flex items-center', isLarge ? 'gap-10' : 'gap-5')}
 			onClick={isHome ? () => window.scrollTo({ top: 0, behavior: 'instant' }) : undefined}
 		>
-			<img
-				src={evpLogo}
-				alt="Edinburgh VenturePoint Logo"
-				className="object-contain"
-				style={{
-					width: isLarge ? '14rem' : '5rem',
-					height: isLarge ? '14rem' : '5rem',
-				}}
-			/>
+			<div className="logo-container">
+				<img
+					src={evpLogo}
+					alt="Edinburgh VenturePoint Logo"
+					className="logo-build object-contain"
+					style={{
+						width: isLarge ? '14rem' : '5rem',
+						height: isLarge ? '14rem' : '5rem',
+					}}
+				/>
+			</div>
 			<div
 				key={`${size}-${location.pathname}-${isVisible}`}
 				className={cn(

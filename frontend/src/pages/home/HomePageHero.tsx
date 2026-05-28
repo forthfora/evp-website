@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { LogoAndTitle } from '../../shared/ui/header/LogoAndTitle';
-import { NavLinkButtons } from '../../shared/ui/header/NavLinkButtons';
+import { HeaderNavButtons } from '../../shared/ui/header/NavLinkButtons';
 import { AccountAndSettings } from '../../shared/ui/header/AccountAndSettings';
 
 interface HomePageHeroProps {
@@ -86,16 +86,27 @@ export function HomePageHero({
 		>
 			{/* Soft background glow */}
 			<div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-				<div className="bg-background/60 h-100 w-400 rounded-full blur-3xl" />
+				<div className="bg-background/75 h-100 w-400 rounded-full blur-3xl" />
 			</div>
 
 			{/* Content */}
 			<div className="relative flex w-full max-w-7xl flex-col items-center gap-6 px-6">
 				<LogoAndTitle size="large" isVisible={visible} />
+
+				<div className="animate-shimmer bg-[linear-gradient(135deg,var(--color-foreground)_35%,var(--color-highlight-inverted)_50%,var(--color-foreground)_65%)] bg-size-[300%_300%] bg-clip-text text-4xl leading-tight font-bold whitespace-nowrap text-transparent [animation-delay:1.2s]">
+					<i>where students build and invest.</i>
+				</div>
+
+				<div>
+					Led by students, for students. EVP is launching Scotland's next generation of venture
+					talent.
+				</div>
+
+				<div className="text-foreground-muted my-4 w-150 border" />
+
 				<nav className="flex flex-wrap items-center gap-10">
-					<NavLinkButtons />
+					<HeaderNavButtons />
 				</nav>
-				<div className="text-foreground-muted my-4 w-100 border" />
 				<AccountAndSettings />
 			</div>
 		</div>

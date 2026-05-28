@@ -6,6 +6,7 @@ body,
 	min-height: 100%;
 	background-color: var(--background);
 	color: var(--foreground);
+
 	@apply scrollbar-thumb-foreground scrollbar-thin scrollbar-track-transparent;
 }
 

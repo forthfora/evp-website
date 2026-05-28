@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { cn } from '../../lib/utils';
 import { LogoAndTitle } from './LogoAndTitle';
-import { NavLinkButtons } from './NavLinkButtons';
+import { HeaderNavButtons } from './NavLinkButtons';
 import { AccountAndSettings } from './AccountAndSettings';
 
 interface HeaderProps {
@@ -77,7 +77,7 @@ export function Header({
 			<div className="mx-auto flex w-full max-w-7xl items-center justify-between px-6">
 				<LogoAndTitle size="small" />
 				<nav className="flex flex-wrap items-center gap-4 md:gap-6">
-					<NavLinkButtons />
+					<HeaderNavButtons />
 				</nav>
 				<AccountAndSettings />
 			</div>

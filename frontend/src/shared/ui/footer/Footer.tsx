@@ -9,8 +9,16 @@ export function Footer() {
 					{/* LEFT BLOCK: General Info */}
 					<div className="max-w-lg">
 						<p className="text-md">
-							Edinburgh VenturePoint is an entrepreneurship and venture capital society at The
-							University of Edinburgh.
+							Edinburgh VenturePoint is an entrepreneurship and venture capital society at{' '}
+							<a
+								href="https://www.ed.ac.uk/"
+								target="_blank"
+								rel="noopener noreferrer"
+								className="button-underline font-bold underline underline-offset-4"
+							>
+								The University of Edinburgh
+							</a>
+							.
 						</p>
 						<br />
 						<p className="text-foreground-muted text-sm">
@@ -19,10 +27,11 @@ export function Footer() {
 								href="https://comp-soc.com/"
 								target="_blank"
 								rel="noopener noreferrer"
-								className="button-underline font-bold underline underline-offset-4"
+								className="button-underline font-bold underline underline-offset-3"
 							>
-								CompSoc.
+								CompSoc
 							</a>
+							.
 						</p>
 					</div>
 
@@ -62,7 +71,7 @@ export function Footer() {
 								href="mailto:s2787162@ed.ac.uk"
 								className="button-underline font-bold underline underline-offset-3"
 							>
-								Contact the developer here.
+								Please report them here.
 							</a>
 						</div>
 					</div>
