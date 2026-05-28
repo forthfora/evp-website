@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import './NavLinkItem.css';
+import '../../styles/button-underline.css';
 
 interface NavLinkItemProps {
 	to: string;
@@ -10,7 +10,7 @@ export function NavLinkItem({ to, label }: NavLinkItemProps) {
 	return (
 		<Link
 			to={to}
-			className="nav-link content-center font-medium no-underline transition-opacity hover:opacity-70"
+			className="button-underline content-center text-lg no-underline transition-opacity hover:opacity-70"
 		>
 			{label}
 		</Link>

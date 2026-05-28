@@ -7,7 +7,8 @@ import { cn } from '../../lib/utils';
 
 import evpLogo from '../../assets/evp-logo.png';
 
-import './ThemeToggle.css';
+import '../../styles/button-spin.css';
+import '../../styles/button-underline.css';
 
 const NAV_LINKS = [
 	{ path: '/about', label: 'about' },
@@ -25,7 +26,6 @@ const EASING = `cubic-bezier(0.22, 1, 0.36, 1)`;
 const FADE_TRANSITION = `opacity ${FADE_DURATION_MS}ms ${EASING}`;
 
 export function Header() {
-	const { theme, toggleTheme } = useTheme();
 	const location = useLocation();
 	const isHomePage = location.pathname === '/';
 	const [isMini, setIsMini] = useState(!isHomePage);
@@ -63,7 +63,7 @@ export function Header() {
 				'fixed z-50 w-full transition-all duration-400',
 				isMini
 					? 'bg-background/70 py-7.5 shadow-md backdrop-blur-xs'
-					: 'bg-transparent py-80 text-shadow-2xs',
+					: 'bg-transparent py-90 text-shadow-2xs',
 			)}
 		>
 			{/* Large */}
@@ -80,9 +80,11 @@ export function Header() {
 				{/* Title & Buttons */}
 				<div className="relative flex w-full max-w-7xl flex-col items-center gap-6">
 					<LogoAndTitle size="large" />
-					<nav className="flex flex-wrap items-center gap-4 md:gap-6">
-						<NavLinks toggleTheme={toggleTheme} theme={theme} />
+					<nav className="flex flex-wrap items-center gap-10">
+						<NavLinks />
 					</nav>
+					<div className="text-foreground-muted my-4 w-100 border" />
+					<AccountSettings />
 				</div>
 			</div>
 
@@ -96,8 +98,9 @@ export function Header() {
 				<div className="mx-auto flex w-full max-w-7xl items-center justify-between">
 					<LogoAndTitle size="small" />
 					<nav className="flex flex-wrap items-center gap-4 md:gap-6">
-						<NavLinks toggleTheme={toggleTheme} theme={theme} />
+						<NavLinks />
 					</nav>
+					<AccountSettings />
 				</div>
 			</div>
 		</header>
@@ -138,7 +141,7 @@ function LogoAndTitle({ size }: { size: 'large' | 'small' }) {
 	);
 }
 
-function NavLinks({ toggleTheme, theme }: { toggleTheme: () => void; theme: string }) {
+function NavLinks() {
 	return (
 		<>
 			{NAV_LINKS.map((link, i) => (
@@ -151,17 +154,41 @@ function NavLinks({ toggleTheme, theme }: { toggleTheme: () => void; theme: stri
 					)}
 				</span>
 			))}
+		</>
+	);
+}
+
+function AccountSettings() {
+	const { theme, toggleTheme } = useTheme();
+
+	return (
+		<div className="flex items-center gap-2">
+			{/* Theme toggle */}
 			<button
 				onClick={toggleTheme}
 				className="flex cursor-pointer items-center justify-center border-none bg-transparent p-2"
 				aria-label="Toggle theme"
 			>
 				{theme === 'dark' ? (
-					<Moon key="moon" size={18} className="theme-icon" />
+					<Moon key="moon" size={18} className="button-spin" />
 				) : (
-					<Sun key="sun" size={18} className="theme-icon" />
+					<Sun key="sun" size={18} className="button-spin" />
 				)}
 			</button>
-		</>
+			<span className="text-foreground-muted select-none" aria-hidden>
+				|
+			</span>
+
+			<div className="flex items-center gap-2">
+				<button
+					onClick={() => {
+						/* TODO: navigate to login */
+					}}
+					className="button-underline text-md cursor-pointer px-3 py-1.5 font-medium"
+				>
+					Already a member? <b>Sign in</b>
+				</button>
+			</div>
+		</div>
 	);
 }

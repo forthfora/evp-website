@@ -4,9 +4,9 @@ import { Footer } from '../shared/ui/footer/Footer';
 
 export function AppLayout() {
 	return (
-		<div className="bg-background text-foreground font-sans transition-colors duration-200">
+		<div className="bg-background text-foreground flex min-h-screen flex-col justify-between font-sans transition-colors duration-200">
 			<Header />
-			<main className="mx-auto flex max-w-6xl">
+			<main className="mb-auto flex">
 				<Outlet />
 			</main>
 			<Footer />

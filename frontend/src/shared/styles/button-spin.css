@@ -9,6 +9,6 @@
 	}
 }
 
-.theme-icon {
+.button-spin {
 	animation: spin-in 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
