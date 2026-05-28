@@ -1,0 +1,103 @@
+import { useEffect, useState } from 'react';
+import { LogoAndTitle } from '../../shared/ui/header/LogoAndTitle';
+import { NavLinkButtons } from '../../shared/ui/header/NavLinkButtons';
+import { AccountAndSettings } from '../../shared/ui/header/AccountAndSettings';
+
+interface HomePageHeroProps {
+	/**
+	 * How far the user must scroll DOWN (px) before the hero fades out.
+	 * @default 150
+	 */
+	fadeOutAt?: number;
+	/**
+	 * How far the user must scroll back UP (px) before the hero fades in again.
+	 * @default 100
+	 */
+	fadeInAt?: number;
+	/** Transition duration in milliseconds. @default 600 */
+	transitionDuration?: number;
+	/**
+	 * How far (px) the hero slides upward when leaving / slides back from when entering.
+	 * Positive = slides up when dismissing.
+	 * @default 300
+	 */
+	slideDistance?: number;
+	/**
+	 * Delay before the mount fade-in starts, in milliseconds.
+	 * @default 100
+	 */
+	mountDelay?: number;
+}
+
+const EASING = 'cubic-bezier(0.22, 1, 0.36, 1)';
+
+export function HomePageHero({
+	fadeOutAt = 150,
+	fadeInAt = 100,
+	transitionDuration = 600,
+	slideDistance = 300,
+	mountDelay = 100,
+}: HomePageHeroProps) {
+	// Always start hidden so the fade-in transition fires on mount.
+	const [visible, setVisible] = useState(false);
+
+	// Mount fade-in — evaluates scroll AFTER the delay to account for async scroll restoration
+	useEffect(() => {
+		const id = setTimeout(() => {
+			// If the browser restored scroll down the page during the delay, this prevents the fade-in.
+			if (window.scrollY <= fadeOutAt) {
+				setVisible(true);
+			}
+		}, mountDelay);
+
+		return () => clearTimeout(id);
+	}, [fadeOutAt, mountDelay]);
+
+	// Scroll listener — always active.
+	useEffect(() => {
+		const handleScroll = () => {
+			const y = window.scrollY;
+
+			// React automatically bails out of state updates if the new value is the same as the old one,
+			// so we don't need to check `prev` before returning false/true.
+			setVisible((prev) => {
+				if (y > fadeOutAt) return false;
+				if (y < fadeInAt) return true;
+				return prev;
+			});
+		};
+
+		window.addEventListener('scroll', handleScroll, { passive: true });
+		return () => window.removeEventListener('scroll', handleScroll);
+	}, [fadeOutAt, fadeInAt]);
+
+	const transition = `opacity ${transitionDuration}ms ${EASING}, transform ${transitionDuration}ms ${EASING}`;
+
+	return (
+		<div
+			className="fixed inset-0 z-40 flex flex-col items-center justify-center text-shadow-2xs"
+			style={{
+				transition,
+				opacity: visible ? 1 : 0,
+				transform: `translateY(${visible ? 0 : -slideDistance}px)`,
+				pointerEvents: visible ? 'auto' : 'none',
+			}}
+			aria-hidden={!visible}
+		>
+			{/* Soft background glow */}
+			<div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+				<div className="bg-background/60 h-100 w-400 rounded-full blur-3xl" />
+			</div>
+
+			{/* Content */}
+			<div className="relative flex w-full max-w-7xl flex-col items-center gap-6 px-6">
+				<LogoAndTitle size="large" isVisible={visible} />
+				<nav className="flex flex-wrap items-center gap-10">
+					<NavLinkButtons />
+				</nav>
+				<div className="text-foreground-muted my-4 w-100 border" />
+				<AccountAndSettings />
+			</div>
+		</div>
+	);
+}

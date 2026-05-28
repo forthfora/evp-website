@@ -1,9 +1,11 @@
 import homepageBkg from '../../shared/assets/homepage-bkg.jpg';
+import { HomePageHero } from './HomePageHero';
 
 export function HomePage() {
 	return (
 		<div className="flex w-full flex-col">
 			{/* Hero */}
+			<HomePageHero />
 			<div className="relative h-screen w-full shrink-0">
 				<img
 					src={homepageBkg}
