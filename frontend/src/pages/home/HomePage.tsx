@@ -202,7 +202,7 @@ function eventsSection() {
 				transition={{ duration: 0.6, ease: 'easeOut' }}
 				className="flex flex-col items-center"
 			>
-				<h1 className="pt-10 pb-5 text-5xl font-bold">join us at our next event!</h1>
+				<h1 className="pt-10 pb-5 text-center text-5xl font-bold">join us at our next event!</h1>
 				<div className="text-foreground-muted my-4 w-100 border text-center" />
 
 				<p className="mx-auto max-w-2xl py-5 text-center text-2xl">

@@ -1,0 +1,18 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /api/
+
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: Anthropic-AI
+Disallow: /
+
+User-agent: PerplexityBot
+Disallow: /
+
+Sitemap: https://www.edinburghventurepoint.com/sitemap.xml

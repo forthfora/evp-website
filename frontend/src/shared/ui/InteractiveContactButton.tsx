@@ -3,16 +3,6 @@ import { Link } from 'react-router-dom';
 
 import '../../shared/styles/button-underline.css';
 
-const blobs = [
-	{ color: 'var(--color-accent)', size: '60%', x: '0%', y: '0%' },
-	{ color: '#ffffff', size: '55%', x: '60%', y: '40%' },
-	{ color: '#c084fc', size: '50%', x: '20%', y: '70%' },
-];
-
-const background = blobs
-	.map((b) => `radial-gradient(circle ${b.size} at ${b.x} ${b.y}, ${b.color}, transparent)`)
-	.join(', ');
-
 export default function InteractiveContactButton() {
 	const wrapperRef = useRef<HTMLDivElement>(null);
 	const [mousePos, setMousePos] = useState({ x: 0, y: 0 });

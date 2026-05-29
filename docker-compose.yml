@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+  # --- 1. THE FRONTEND (Vite + Nginx) ---
+  frontend:
+    build:
+      context: ./frontend # Points to your Vite project folder
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80" # Access your website at http://localhost:8080
+    depends_on:
+      - backend
+
+  # --- 2. THE BACKEND (Django) ---
+  backend:
+    build:
+      context: ./backend # Points to your Django project folder
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000" # Access Django directly at http://localhost:8000
+    volumes:
+      - ./backend:/app # Syncs code changes instantly for local dev
+      - /app/.venv # Protects the container's virtual environment from being overwritten
+    environment:
+      - DB_HOST=db
+      - DB_NAME=mydatabase
+      - DB_USER=postgres
+      - DB_PASSWORD=mysecretpassword
+    depends_on:
+      - db # Ensures the database starts before Django tries to connect
+
+  # --- 3. THE DATABASE (PostgreSQL) ---
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=mydatabase
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=mysecretpassword
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Prevents data loss when containers restart
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data: # Names the persistent storage space for your database

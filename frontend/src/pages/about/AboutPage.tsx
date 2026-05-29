@@ -144,7 +144,7 @@ export function AboutPage() {
 					transition={{ duration: 0.5, ease: 'easeIn' }}
 				>
 					<div className="flex flex-col items-center py-15 pt-150">
-						<h1 className="text-6xl font-bold">meet the team</h1>
+						<h1 className="text-center text-6xl font-bold">meet the team</h1>
 						<div className="text-foreground-muted my-4 w-50 border text-center" />
 					</div>
 				</motion.div>
