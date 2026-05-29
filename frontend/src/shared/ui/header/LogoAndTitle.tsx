@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '../../lib/utils';
 
-import evpLogo from '../../assets/evp-logo.png';
+import evpLogo from '../../assets/evp-logo.webp';
 
 import '../../styles/button-underline.css';
 import '../../styles/logo-build.css';

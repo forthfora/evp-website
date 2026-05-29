@@ -12,20 +12,6 @@ export function AboutPage() {
 				We’re a community of the boldest founders and innovators at The University of Edinburgh and
 				across Scotland.
 			</p>
-
-			<p className="text-muted-foreground text-foreground-muted py-5 text-center text-xl">
-				If you’re building something amazing, we’d like to meet you.
-			</p>
-
-			<div className="py-50">
-				<p className="text-4xl">
-					Unfortunately, there don't appear to be any events in the near future...
-				</p>
-
-				<p className="text-foreground-muted py-10 text-2xl">
-					We're always planning something, so check back soon!
-				</p>
-			</div>
 		</div>
 	);
 }

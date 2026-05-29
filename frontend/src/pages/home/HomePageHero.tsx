@@ -84,9 +84,16 @@ export function HomePageHero({
 			}}
 			aria-hidden={!visible}
 		>
-			{/* Soft background glow - Removed fixed w-400 to prevent horizontal overflow */}
-			<div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-				<div className="bg-background/75 h-64 w-full max-w-xs rounded-full blur-3xl md:h-100 md:max-w-4xl" />
+			{/* Soft background glow*/}
+			<div className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden">
+				<div
+					className="bg-background h-100 w-full max-w-3xl md:h-150 md:max-w-7xl"
+					style={{
+						maskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 15%, rgba(0,0,0,0) 70%)',
+						WebkitMaskImage:
+							'radial-gradient(ellipse at center, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 70%)',
+					}}
+				/>
 			</div>
 
 			{/* Content - Center everything on mobile */}
@@ -99,7 +106,7 @@ export function HomePageHero({
 				</div>
 
 				<div className="max-w-md text-sm md:max-w-none md:text-base">
-					Led by students, for students. EVP is launching Scotland's next generation of venture
+					Led by students, for students. EVP is recruiting Scotland's next generation of venture
 					talent.
 				</div>
 

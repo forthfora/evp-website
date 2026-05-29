@@ -28,14 +28,9 @@ body,
 
 	--animate-shimmer: shimmer 1s ease-in-out 1 both;
 
-	@keyframes shimmer {
-		0% {
-			background-position: 100% 100%;
-		}
-		100% {
-			background-position: 0% 0%;
-		}
-	}
+	--animate-blob1: blob1 9s ease-in-out infinite;
+	--animate-blob2: blob2 10s ease-in-out infinite;
+	--animate-blob3: blob3 11s ease-in-out infinite;
 }
 
 /* Light mode */
@@ -57,6 +52,82 @@ body,
 	--foreground-muted: #86868b;
 	--highlight: #ffffff;
 	--highlight-inverted: #3c3c3c;
+}
+
+@keyframes blob1 {
+	0% {
+		transform: translate(0px, 0px) scale(1);
+	}
+	20% {
+		transform: translate(40px, -25px) scale(1.1);
+	}
+	40% {
+		transform: translate(70px, 15px) scale(0.95);
+	}
+	60% {
+		transform: translate(30px, 40px) scale(1.15);
+	}
+	80% {
+		transform: translate(-20px, 20px) scale(0.9);
+	}
+	100% {
+		transform: translate(0px, 0px) scale(1);
+	}
+}
+@keyframes blob2 {
+	0% {
+		transform: translate(0px, 0px) scale(1);
+	}
+	25% {
+		transform: translate(-50px, 20px) scale(1.1);
+	}
+	50% {
+		transform: translate(-80px, -20px) scale(0.85);
+	}
+	75% {
+		transform: translate(40px, -30px) scale(1.2);
+	}
+	100% {
+		transform: translate(0px, 0px) scale(1);
+	}
+}
+@keyframes blob3 {
+	0% {
+		transform: translate(-50%, -50%) scale(1);
+	}
+	20% {
+		transform: translate(calc(-50% - 60px), calc(-50% + 25px)) scale(1.15);
+	}
+	45% {
+		transform: translate(calc(-50% + 70px), calc(-50% - 30px)) scale(0.9);
+	}
+	65% {
+		transform: translate(calc(-50% + 30px), calc(-50% + 40px)) scale(1.1);
+	}
+	85% {
+		transform: translate(calc(-50% - 40px), calc(-50% - 20px)) scale(0.95);
+	}
+	100% {
+		transform: translate(-50%, -50%) scale(1);
+	}
+}
+
+@keyframes shimmer {
+	0% {
+		background-position: 100% 100%;
+	}
+	100% {
+		background-position: 0% 0%;
+	}
+}
+
+@keyframes scroll-left {
+	from {
+		transform: translateX(0);
+	}
+	to {
+		transform: translateX(-50%);
+	}
 }
 
 @keyframes zoom-blur-out {

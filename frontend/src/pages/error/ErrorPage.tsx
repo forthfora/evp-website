@@ -1,6 +1,7 @@
 import { isRouteErrorResponse, useRouteError, Link } from 'react-router-dom';
 import { Header } from '../../shared/ui/header/Header';
 import { Footer } from '../../shared/ui/footer/Footer';
+
 import '../../shared/styles/button-underline.css';
 
 export default function ErrorPage() {
@@ -65,6 +66,7 @@ export default function ErrorPage() {
 				<Link
 					to="/"
 					className="text-accent button-underline px-12 py-2 text-xl font-bold transition-colors"
+					viewTransition
 				>
 					Return to Home
 				</Link>
