@@ -1,4 +1,5 @@
 import '../../styles/button-underline.css';
+import { Mail } from 'lucide-react';
 import { FaInstagram, FaLinkedin } from 'react-icons/fa6';
 
 export function Footer() {
@@ -61,6 +62,14 @@ export function Footer() {
 									aria-label="Instagram"
 								>
 									<FaInstagram size={20} />
+								</a>
+
+								<a
+									href="mailto:edinburghventurepoint@gmail.com"
+									className="hover:text-foreground transition-colors duration-200"
+									aria-label="Email"
+								>
+									<Mail size={20} />
 								</a>
 							</div>
 						</div>

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { EventsBanner } from '../events/EventsBanner';
 
-import InteractiveContactButton from './InteractiveContactButton';
+import InteractiveContactButton from '../../shared/ui/InteractiveContactButton';
 
 import homepageBkg from '../../shared/assets/homepage/homepage-bkg.webp';
 import aboutUsImg from '../../shared/assets/homepage/promo-chairs.webp';
