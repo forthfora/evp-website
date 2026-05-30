@@ -1,7 +1,9 @@
+import '@/shared/styles/button-underline.css';
+import '@/shared/styles/button-spin.css';
+
 import { Moon, Sun } from 'lucide-react';
-import { useTheme } from '../ThemeContext';
-import '../../styles/button-underline.css';
-import '../../styles/button-spin.css';
+
+import { useTheme } from '@/shared/ui/ThemeContext';
 
 export function AccountAndSettings() {
 	const { theme, toggleTheme } = useTheme();

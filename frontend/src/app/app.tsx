@@ -1,8 +1,10 @@
-import { RouterProvider } from 'react-router';
-import { browserRouter } from './browser-router';
-import { ThemeProvider } from '../shared/ui/ThemeContext';
-
 import './app.css';
+
+import { RouterProvider } from 'react-router';
+
+import { ThemeProvider } from '@/shared/ui/ThemeContext';
+
+import { browserRouter } from './browser-router';
 
 export default function App() {
 	return (

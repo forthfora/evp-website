@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { LogoAndTitle } from '../../shared/ui/header/LogoAndTitle';
-import { HeaderNavButtons } from '../../shared/ui/header/NavLinkButtons';
-import { AccountAndSettings } from '../../shared/ui/header/AccountAndSettings';
-import { Socials } from '../../shared/ui/common/Socials';
+
+import { Socials } from '@/shared/ui/common/Socials';
+import { AccountAndSettings } from '@/shared/ui/header/AccountAndSettings';
+import { LogoAndTitle } from '@/shared/ui/header/LogoAndTitle';
+import { HeaderNavButtons } from '@/shared/ui/header/NavLinkButtons';
 
 interface HomePageHeroProps {
 	/**
@@ -99,7 +100,7 @@ export function HomePageHero({
 
 			{/* Content - Center everything on mobile */}
 			<div className="relative flex w-full max-w-7xl flex-col items-center gap-6 px-6 text-center">
-				<LogoAndTitle size="large" isVisible={visible} />
+				<LogoAndTitle isLarge={true} />
 
 				{/* Scaled text sizes for mobile, allowed text wrapping, kept nowrap for md+ */}
 				<div className="animate-shimmer bg-[linear-gradient(135deg,var(--color-foreground)_35%,var(--color-highlight-inverted)_50%,var(--color-foreground)_65%)] bg-size-[300%_300%] bg-clip-text text-2xl leading-tight font-bold whitespace-normal text-transparent [animation-delay:1.2s] md:text-4xl md:whitespace-nowrap">

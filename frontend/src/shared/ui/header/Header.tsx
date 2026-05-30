@@ -1,11 +1,13 @@
+import { AnimatePresence, motion } from 'framer-motion';
+import { Menu, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion'; // 1. Import Framer Motion
-import { cn } from '../../lib/utils';
+
+import { cn } from '@/shared/lib/utils';
+
+import { AccountAndSettings } from './AccountAndSettings';
 import { LogoAndTitle } from './LogoAndTitle';
 import { HeaderNavButtons } from './NavLinkButtons';
-import { AccountAndSettings } from './AccountAndSettings';
 
 interface HeaderProps {
 	fadeInAt?: number;
@@ -68,7 +70,7 @@ export function Header({
 			aria-hidden={!visible}
 		>
 			<div className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-3">
-				<LogoAndTitle size="small" />
+				<LogoAndTitle isLarge={false} />
 
 				<nav className="hidden flex-wrap items-center gap-4 md:flex md:gap-6">
 					<HeaderNavButtons />

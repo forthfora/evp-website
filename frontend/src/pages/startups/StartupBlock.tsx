@@ -1,5 +1,6 @@
-import { type StartupWithSize } from './startups.layout';
 import { motion } from 'framer-motion';
+
+import { type StartupWithSize } from './startups.layout';
 
 interface StartupBlockProps {
 	startup: StartupWithSize;

@@ -1,8 +1,9 @@
-import { isRouteErrorResponse, useRouteError, Link } from 'react-router-dom';
-import { Header } from '../../shared/ui/header/Header';
-import { Footer } from '../../shared/ui/footer/Footer';
+import '@/shared/styles/button-underline.css';
 
-import '../../shared/styles/button-underline.css';
+import { isRouteErrorResponse, Link,useRouteError } from 'react-router-dom';
+
+import { Footer } from '@/shared/ui/footer/Footer';
+import { Header } from '@/shared/ui/header/Header';
 
 export default function ErrorPage() {
 	const error = useRouteError();

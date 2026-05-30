@@ -1,9 +1,12 @@
-import { useMemo } from 'react';
 import { motion } from 'framer-motion';
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
+
+import { PageHeader } from '@/shared/ui/common/PageHeader';
+
+import { StartupBlock } from './StartupBlock';
 import { STARTUPS } from './startups.data';
 import { assignSizes } from './startups.layout';
-import { StartupBlock } from './StartupBlock';
 
 const YOU_LINK = '/contact';
 
@@ -12,32 +15,22 @@ export function StartupsPage() {
 
 	return (
 		<div className="mx-auto flex w-full max-w-6xl flex-col gap-12 px-4 py-20 pt-100">
-			<motion.div
-				initial={{ opacity: 0, y: -30 }}
-				animate={{ opacity: 1, y: 0 }}
-				transition={{ duration: 0.6, ease: 'easeOut' }}
-				className="flex flex-col items-center gap-4 text-center"
-			>
-				<h1 className="text-5xl font-bold md:text-6xl">our start-ups</h1>
-				<div className="text-foreground-muted mx-auto w-100 border" />
-				<p className="text-foreground-muted max-w-xl text-lg md:text-xl">
-					Meet the student-led ventures we've worked with, hover to learn more.
-				</p>
-			</motion.div>
+			<PageHeader title="our start-ups" size="text-5xl md:text-6xl" />
+
+			<p className="text-foreground-muted mx-auto -mt-8 max-w-xl text-center text-lg md:text-xl">
+				Meet the student-led ventures we've worked with, hover to learn more.
+			</p>
 
 			<div
 				className="grid w-full gap-4"
-				style={{
-					gridTemplateColumns: 'repeat(3, 1fr)',
-					gridAutoRows: '220px',
-				}}
+				style={{ gridTemplateColumns: 'repeat(3, 1fr)', gridAutoRows: '220px' }}
 			>
 				{startups.map((startup, i) => (
 					<StartupBlock key={startup.id} startup={startup} index={i} />
 				))}
 			</div>
 
-			{/* You? */}
+			{/* "You?" CTA */}
 			<motion.div
 				initial={{ opacity: 0, y: 24 }}
 				whileInView={{ opacity: 1, y: 0 }}

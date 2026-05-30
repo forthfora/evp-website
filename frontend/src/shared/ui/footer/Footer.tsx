@@ -1,5 +1,6 @@
-import '../../styles/button-underline.css';
-import { Socials } from '../common/Socials';
+import '@/shared/styles/button-underline.css';
+
+import { Socials } from '@/shared/ui/common/Socials';
 
 export function Footer() {
 	return (

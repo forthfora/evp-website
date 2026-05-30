@@ -1,7 +1,7 @@
+import '@/shared/styles/button-underline.css';
+
 import { Mail } from 'lucide-react';
 import { FaInstagram, FaLinkedin } from 'react-icons/fa6';
-
-import '../../styles/button-underline.css';
 
 export function Socials() {
 	return (

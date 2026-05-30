@@ -1,33 +1,43 @@
+import '@/shared/styles/button-underline.css';
+import '@/shared/styles/logo-build.css';
+
 import { Link, useLocation } from 'react-router-dom';
-import { cn } from '../../lib/utils';
 
-import evpLogo from '../../assets/evp-logo.webp';
-
-import '../../styles/button-underline.css';
-import '../../styles/logo-build.css';
+import evpLogo from '@/shared/assets/evp-logo.webp';
+import { cn } from '@/shared/lib/utils';
 
 interface LogoAndTitleProps {
-	size: 'large' | 'small';
-	isVisible?: boolean;
+	isLarge: boolean;
 }
 
-export function LogoAndTitle({ size, isVisible = true }: LogoAndTitleProps) {
-	const isLarge = size === 'large';
+export function LogoAndTitle({ isLarge }: LogoAndTitleProps) {
 	const location = useLocation();
 	const isHome = location.pathname === '/';
 
-	const Wrapper = isLarge ? 'span' : Link;
+	const wrapperClassName = cn(
+		'group drop-shadow-10xl flex items-center justify-center',
+		isLarge ? 'flex-col gap-4 md:flex-row md:gap-10' : 'flex-row gap-5',
+	);
+
+	if (isLarge) {
+		return <span className={wrapperClassName}> {content(isLarge)}</span>;
+	}
 
 	return (
-		<Wrapper
-			{...(!isLarge && ({ to: '/' } as any))}
-			className={cn(
-				'group drop-shadow-10xl flex items-center justify-center',
-				isLarge ? 'flex-col gap-4 md:flex-row md:gap-10' : 'flex-row gap-5',
-			)}
-			onClick={isHome ? () => window.scrollTo({ top: 0, left: 0, behavior: 'smooth' }) : undefined}
+		<Link
+			to="/"
+			className={wrapperClassName}
 			viewTransition={!isHome}
+			onClick={isHome ? () => window.scrollTo({ top: 0, left: 0, behavior: 'smooth' }) : undefined}
 		>
+			{content(isLarge)}
+		</Link>
+	);
+}
+
+function content(isLarge: boolean) {
+	return (
+		<>
 			<div className="logo-container">
 				<img
 					src={evpLogo}
@@ -39,7 +49,6 @@ export function LogoAndTitle({ size, isVisible = true }: LogoAndTitleProps) {
 				/>
 			</div>
 			<div
-				key={`${size}-${location.pathname}-${isVisible}`}
 				className={cn(
 					'font-title bg-[linear-gradient(135deg,var(--color-highlight)_35%,var(--color-highlight-inverted)_50%,var(--color-highlight)_65%)] bg-size-[300%_300%] bg-clip-text leading-tight text-transparent md:whitespace-nowrap',
 					isLarge
@@ -51,6 +60,6 @@ export function LogoAndTitle({ size, isVisible = true }: LogoAndTitleProps) {
 				<br />
 				VenturePoint
 			</div>
-		</Wrapper>
+		</>
 	);
 }

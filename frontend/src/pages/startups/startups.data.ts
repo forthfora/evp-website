@@ -43,7 +43,8 @@ export const STARTUPS: Startup[] = [
 		id: 'melange',
 		name: 'Mélange',
 		tagline: 'The social network for creatives.',
-		description: 'A social platform built specifically for creative minds to share, connect, and grow.',
+		description:
+			'A social platform built specifically for creative minds to share, connect, and grow.',
 		links: [{ label: 'Website', url: 'https://melangerecords.online/home', icon: 'ti-world' }],
 		accent: '#C05FD8',
 	},
