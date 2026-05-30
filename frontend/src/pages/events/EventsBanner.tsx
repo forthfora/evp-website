@@ -1,4 +1,4 @@
-import { ScrollingImageBanner } from '../../shared/ui/ScrollingImageBanner';
+import { ScrollingImageBanner } from '../../shared/ui/common/ScrollingImageBanner';
 
 import eventsImg1 from '../../shared/assets/homepage/events-banner/event-1.webp';
 import eventsImg2 from '../../shared/assets/homepage/events-banner/event-2.webp';

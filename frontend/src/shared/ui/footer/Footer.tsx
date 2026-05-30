@@ -1,6 +1,5 @@
 import '../../styles/button-underline.css';
-import { Mail } from 'lucide-react';
-import { FaInstagram, FaLinkedin } from 'react-icons/fa6';
+import { Socials } from '../common/Socials';
 
 export function Footer() {
 	return (
@@ -38,41 +37,10 @@ export function Footer() {
 
 					{/* RIGHT BLOCK: Socials & Website Support info */}
 					<div className="flex flex-col gap-4 sm:items-end">
-						{/* Socials Group */}
-						<div className="flex flex-col gap-2 sm:items-end">
-							<div className="text-foreground-muted text-sm font-bold tracking-wide uppercase">
-								Socials
-							</div>
-							<div className="flex flex-row items-center gap-4">
-								<a
-									href="https://www.linkedin.com/company/edinburghventurepoint/"
-									target="_blank"
-									rel="noopener noreferrer"
-									className="hover:text-foreground transition-colors duration-200"
-									aria-label="LinkedIn"
-								>
-									<FaLinkedin size={20} />
-								</a>
-
-								<a
-									href="https://www.instagram.com/edinburghventurepoint/"
-									target="_blank"
-									rel="noopener noreferrer"
-									className="hover:text-foreground transition-colors duration-200"
-									aria-label="Instagram"
-								>
-									<FaInstagram size={20} />
-								</a>
-
-								<a
-									href="mailto:edinburghventurepoint@gmail.com"
-									className="hover:text-foreground transition-colors duration-200"
-									aria-label="Email"
-								>
-									<Mail size={20} />
-								</a>
-							</div>
+						<div className="text-foreground-muted text-sm font-bold tracking-wide uppercase">
+							Socials
 						</div>
+						{Socials()}
 
 						<div className="mt-2 max-w-xs text-sm sm:text-right">
 							Issues with the website itself? <br className="hidden sm:inline" />

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-import '../../shared/styles/button-underline.css';
+import '../../../shared/styles/button-underline.css';
 
 export default function InteractiveContactButton() {
 	const wrapperRef = useRef<HTMLDivElement>(null);

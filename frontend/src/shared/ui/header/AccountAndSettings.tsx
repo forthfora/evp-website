@@ -20,17 +20,26 @@ export function AccountAndSettings() {
 					<Sun key="sun" size={18} className="button-spin" />
 				)}
 			</button>
-			<span className="text-foreground-muted hidden select-none md:inline" aria-hidden>
-				|
-			</span>
-			<button
-				onClick={() => {
-					/* TODO: navigate to login */
-				}}
-				className="button-underline text-md cursor-pointer px-3 py-1.5 font-medium"
-			>
-				Already a member? <b>Sign in</b>
-			</button>
+			{/* {account()} */}
 		</div>
 	);
 }
+
+// TODO
+// function account() {
+// 	return (
+// 		<div>
+// 			<span className="text-foreground-muted hidden select-none md:inline" aria-hidden>
+// 				|
+// 			</span>
+// 			<button
+// 				onClick={() => {
+// 					/* TODO: navigate to login */
+// 				}}
+// 				className="button-underline text-md cursor-pointer px-3 py-1.5 font-medium"
+// 			>
+// 				Already a member? <b>Sign in</b>
+// 			</button>
+// 		</div>
+// 	);
+// }

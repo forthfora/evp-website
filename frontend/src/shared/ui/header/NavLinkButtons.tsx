@@ -1,4 +1,4 @@
-import { NavLinkButton } from '../NavLinkButton';
+import { NavLinkButton } from './NavLinkButton';
 
 export const NAV_LINKS = [
 	{ path: '/about', label: 'about us' },

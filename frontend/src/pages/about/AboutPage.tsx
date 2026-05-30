@@ -2,11 +2,30 @@ import { Mail, Globe, User } from 'lucide-react';
 import { FaLinkedin } from 'react-icons/fa6';
 import { motion } from 'framer-motion';
 
-import InteractiveContactButton from '../../shared/ui/InteractiveContactButton';
+import InteractiveContactButton from '../../shared/ui/common/InteractiveContactButton';
 
 import '../../shared/styles/button-underline.css';
 
+import aboutBkg from '../../shared/assets/about/about-bkg.webp';
+import ideaImg from '../../shared/assets/homepage/events-banner/event-2.webp';
 import contactImg from '../../shared/assets/homepage/events-banner/event-2.webp';
+
+// 2026/2027
+import teohImg from '../../shared/assets/about/pictures/teoh.webp';
+import roryImg from '../../shared/assets/about/pictures/rory.webp';
+import georgeImg from '../../shared/assets/about/pictures/george.webp';
+import pahalImg from '../../shared/assets/about/pictures/pahal.webp';
+import laureImg from '../../shared/assets/about/pictures/laure.webp';
+import matisseImg from '../../shared/assets/about/pictures/matisse.webp';
+import xavierImg from '../../shared/assets/about/pictures/xavier.webp';
+
+// 2025/2026
+import zachariasImg from '../../shared/assets/about/pictures/zacharias.webp';
+import guillaumeImg from '../../shared/assets/about/pictures/guillaume.webp';
+import christopherImg from '../../shared/assets/about/pictures/christopher.webp';
+import freddieImg from '../../shared/assets/about/pictures/freddie.webp';
+import arielImg from '../../shared/assets/about/pictures/ariel.webp';
+import tobiImg from '../../shared/assets/about/pictures/tobi.webp';
 
 type Member = {
 	role: string;
@@ -29,37 +48,44 @@ const committeeData: YearData[] = [
 			{
 				role: 'President',
 				name: 'Teoh Yi Zang',
+				image: teohImg,
 				linkedin: 'https://www.linkedin.com/in/teoh-zi-yang/',
 			},
 			{
 				role: 'Head Venture Scout',
 				name: 'Rory Condict',
+				image: roryImg,
 				linkedin: 'https://www.linkedin.com/in/rory-condict/',
 				email: 's2787162@ed.ac.uk',
 			},
 			{
 				role: 'Head of Relations & Treasurer',
 				name: 'George Kelsey',
+				image: georgeImg,
 				linkedin: 'https://www.linkedin.com/in/george-kelsey-77012b28b/',
 			},
 			{
 				role: 'Head of Operations',
 				name: 'Pahal Sethia',
+				image: pahalImg,
 				linkedin: 'https://www.linkedin.com/in/pahal-sethia/',
 			},
 			{
 				role: 'Head of Marketing',
 				name: 'Laure Dehem',
+				image: laureImg,
 				linkedin: 'https://www.linkedin.com/in/laure-dehem-33ab2a1b9',
 			},
 			{
 				role: 'Fund Manager',
 				name: 'Xavier Martorell',
+				image: xavierImg,
 				linkedin: 'https://www.linkedin.com/in/xavier-martorell',
 			},
 			{
 				role: 'Fund Manager',
 				name: 'Matisse Afnan',
+				image: matisseImg,
 				linkedin: 'https://www.linkedin.com/in/matisseafnan/',
 			},
 		],
@@ -70,46 +96,55 @@ const committeeData: YearData[] = [
 			{
 				role: 'Co-founder, President',
 				name: 'Zacharias Onyejiaka',
+				image: zachariasImg,
 				linkedin: 'https://www.linkedin.com/in/zacharias-onyejiaka-405940307/',
 			},
 			{
 				role: 'Co-founder',
 				name: 'Guillaume Verleyen',
+				image: guillaumeImg,
 				linkedin: 'https://www.linkedin.com/in/guillaume-verleyen-23158328a/',
 			},
 			{
 				role: 'Co-founder',
 				name: 'Christopher Wong',
+				image: christopherImg,
 				linkedin: 'https://www.linkedin.com/in/christopherwonghzq/',
 			},
 			{
 				role: 'Head Venture Scout',
 				name: 'Freddie Springett',
+				image: freddieImg,
 				linkedin: 'https://www.linkedin.com/in/freddiespringett/',
 			},
 			{
 				role: 'Head of Operations',
 				name: 'Ariel Rantung',
+				image: arielImg,
 				linkedin: 'https://www.linkedin.com/in/ariel-rantung-934561334/',
 			},
 			{
 				role: 'Venture Scout',
 				name: 'George Kelsey',
+				image: georgeImg,
 				linkedin: 'https://www.linkedin.com/in/george-kelsey-77012b28b/',
 			},
 			{
 				role: 'Venture Scout',
 				name: 'Pahal Sethia',
+				image: pahalImg,
 				linkedin: 'https://www.linkedin.com/in/pahal-sethia/',
 			},
 			{
 				role: 'Venture Scout',
 				name: 'Rory Condict',
+				image: roryImg,
 				linkedin: 'https://www.linkedin.com/in/rory-condict/',
 			},
 			{
 				role: 'Venture Scout',
 				name: 'Tobi Fatona',
+				image: tobiImg,
 				linkedin: 'https://www.linkedin.com/in/tobi-fatona/',
 			},
 		],
@@ -118,24 +153,109 @@ const committeeData: YearData[] = [
 
 export function AboutPage() {
 	return (
-		<div className="flex w-full flex-col py-90">
-			<div className="mx-auto w-full max-w-6xl">
-				{/* Header Text */}
-				<div className="flex flex-col items-center">
-					<h1 className="text-5xl font-bold">about us</h1>
-					<div className="text-foreground-muted my-4 w-100 border text-center" />
+		<div className="flex w-full flex-col">
+			<div className="relative flex min-h-250 w-full items-center justify-center">
+				{/* Background Image */}
+				<img
+					src={aboutBkg}
+					alt="About Background"
+					className="absolute inset-0 h-full w-full object-cover shadow-2xl"
+				/>
+
+				{/* Blur Overlay */}
+				<div className="bg-background/40 absolute inset-0" />
+
+				{/* Soft background glow */}
+				<div className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden">
+					<div
+						className="bg-background h-150 w-full md:h-200"
+						style={{
+							maskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 5%, rgba(0,0,0,0) 70%)',
+							WebkitMaskImage:
+								'radial-gradient(ellipse at center, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 60%)',
+						}}
+					/>
 				</div>
 
-				{/* Paragraphs */}
-				<p className="mx-auto max-w-4xl py-5 text-center text-3xl font-bold">
-					As founders, business owners, and students, we are changing the way students approach
-					their careers.
-				</p>
+				{/* Foreground Content - Automatically centered now */}
+				<div className="relative z-10 mx-auto w-full max-w-6xl px-4">
+					<motion.div
+						initial={{ opacity: 0, y: -50 }}
+						whileInView={{ opacity: 1, y: 0 }}
+						viewport={{ once: true, amount: 1 }}
+						transition={{ duration: 0.5, ease: 'easeIn' }}
+						className="flex flex-col items-center"
+					>
+						<h1 className="text-5xl font-bold">who we are</h1>
+						<div className="text-foreground-muted my-4 w-100 border text-center" />
+					</motion.div>
 
-				<p className="text-muted-foreground text-foreground-muted py-5 text-center text-xl">
-					We provide opportunities to current and prospective student founders and investors.
-				</p>
+					<motion.p
+						initial={{ opacity: 0, y: 30 }}
+						whileInView={{ opacity: 1, y: 0 }}
+						viewport={{ once: true, amount: 1 }}
+						transition={{ duration: 0.5, ease: 'easeIn', delay: 0.15 }}
+						className="mx-auto max-w-4xl py-5 text-center text-3xl font-bold italic"
+					>
+						Built by students, for students.
+					</motion.p>
 
+					<motion.p
+						initial={{ opacity: 0, y: 30 }}
+						whileInView={{ opacity: 1, y: 0 }}
+						viewport={{ once: true, amount: 1 }}
+						transition={{ duration: 0.5, ease: 'easeIn', delay: 0.25 }}
+						className="mx-auto max-w-2xl pb-5 text-center text-xl"
+					>
+						We bridge the gap between visionary student founders and forward-thinking investors.
+					</motion.p>
+
+					<motion.p
+						initial={{ opacity: 0, y: 30 }}
+						whileInView={{ opacity: 1, y: 0 }}
+						viewport={{ once: true, amount: 1 }}
+						transition={{ duration: 0.5, ease: 'easeIn', delay: 0.35 }}
+						className="mx-auto max-w-lg text-center text-xl font-bold"
+					>
+						If you're building something amazing, we want to hear about it.
+					</motion.p>
+				</div>
+			</div>
+
+			<div className="bg-background-muted mx-auto mt-60 w-full py-30">
+				<div className="mx-auto flex w-full max-w-5xl flex-row gap-15">
+					<motion.div
+						initial={{ opacity: 0, x: -50 }}
+						whileInView={{ opacity: 1, x: 0 }}
+						viewport={{ once: true, amount: 0.3 }}
+						transition={{ duration: 0.5, ease: 'easeOut' }}
+					>
+						<h3 className="mb-4 text-5xl leading-16 font-bold italic">
+							Have a great idea, but lack the funding?
+						</h3>
+						<div className="text-foreground-muted my-10 w-100 border text-center" />
+						<p className="text-lg">
+							EVP is committed to connecting the very best talent from across Scotland to top
+							investors who are passionate and ready to hear about what you do.
+						</p>
+						<p className="pt-5 text-xl font-bold italic">
+							We bring the capital, you bring the innovation.
+						</p>
+					</motion.div>
+
+					<motion.img
+						initial={{ opacity: 0, x: 50 }}
+						whileInView={{ opacity: 1, x: 0 }}
+						viewport={{ once: true, amount: 0.3 }}
+						transition={{ duration: 0.5, ease: 'easeOut' }}
+						src={ideaImg}
+						alt="Students collaborating at an event"
+						className="w-full max-w-md rounded-lg object-cover shadow-2xl"
+					/>
+				</div>
+			</div>
+
+			<div className="mx-auto w-full max-w-6xl">
 				{/* Team Section Header */}
 				<motion.div
 					initial={{ opacity: 0, y: -50 }}
@@ -143,9 +263,9 @@ export function AboutPage() {
 					viewport={{ once: true, amount: 1 }}
 					transition={{ duration: 0.5, ease: 'easeIn' }}
 				>
-					<div className="flex flex-col items-center py-15 pt-150">
+					<div className="flex flex-col items-center py-15 pt-50">
 						<h1 className="text-center text-6xl font-bold">meet the team</h1>
-						<div className="text-foreground-muted my-4 w-50 border text-center" />
+						<div className="text-foreground-muted my-4 w-100 border text-center" />
 					</div>
 				</motion.div>
 			</div>
@@ -271,7 +391,7 @@ function generateMemberCards(yearData: YearData): import('react/jsx-runtime').JS
 
 function contactSection() {
 	return (
-		<section className="relative w-full pb-5">
+		<section className="relative w-full pb-30">
 			<div className="relative w-full">
 				<img
 					src={contactImg}

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { LogoAndTitle } from '../../shared/ui/header/LogoAndTitle';
 import { HeaderNavButtons } from '../../shared/ui/header/NavLinkButtons';
 import { AccountAndSettings } from '../../shared/ui/header/AccountAndSettings';
+import { Socials } from '../../shared/ui/common/Socials';
 
 interface HomePageHeroProps {
 	/**
@@ -87,7 +88,7 @@ export function HomePageHero({
 			{/* Soft background glow*/}
 			<div className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden">
 				<div
-					className="bg-background h-100 w-full max-w-3xl md:h-150 md:max-w-7xl"
+					className="bg-background h-150 w-full md:h-200"
 					style={{
 						maskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 15%, rgba(0,0,0,0) 70%)',
 						WebkitMaskImage:
@@ -105,11 +106,6 @@ export function HomePageHero({
 					<i>where students build and invest.</i>
 				</div>
 
-				<div className="max-w-md text-sm md:max-w-none md:text-base">
-					Led by students, for students. EVP is recruiting Scotland's next generation of venture
-					talent.
-				</div>
-
 				{/* Responsive divider line */}
 				<div className="text-foreground-muted my-2 w-32 border md:w-64" />
 
@@ -118,7 +114,13 @@ export function HomePageHero({
 					<HeaderNavButtons />
 				</nav>
 
-				<AccountAndSettings />
+				<div className="flex flex-row items-center gap-7">
+					<Socials />
+					<span className="text-foreground-muted hidden select-none md:inline" aria-hidden>
+						|
+					</span>
+					<AccountAndSettings />
+				</div>
 			</div>
 		</div>
 	);
