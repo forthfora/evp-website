@@ -1,9 +1,10 @@
 import '@/shared/styles/button-underline.css';
 
-import { isRouteErrorResponse, Link,useRouteError } from 'react-router-dom';
+import { isRouteErrorResponse, Link, useRouteError } from 'react-router-dom';
 
 import { Footer } from '@/shared/ui/footer/Footer';
 import { Header } from '@/shared/ui/header/Header';
+import { GlobalBackground } from '@/shared/ui/common/GlobalBackground';
 
 export default function ErrorPage() {
 	const error = useRouteError();
@@ -56,6 +57,7 @@ export default function ErrorPage() {
 	return (
 		<div className="bg-background text-foreground flex min-h-screen flex-col justify-between font-sans transition-colors duration-200">
 			<Header />
+			<GlobalBackground />
 			<div className="mx-auto flex max-w-3xl flex-col items-center justify-center gap-6 px-4 py-60 text-center">
 				<h1 className="text-4xl font-bold md:text-5xl">{title}</h1>
 

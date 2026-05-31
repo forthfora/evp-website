@@ -2,11 +2,12 @@ import { createBrowserRouter } from 'react-router';
 
 import { AboutPage } from '@/pages/about/AboutPage';
 import { ContactPage } from '@/pages/contact/ContactPage';
-import ErrorPage from '@/pages/error/ErrorPage';
 import { EventsPage } from '@/pages/events/EventsPage';
 import { HomePage } from '@/pages/home/HomePage';
 import { PartnersPage } from '@/pages/partners/PartnersPage';
 import { StartupsPage } from '@/pages/startups/StartupsPage';
+
+import ErrorPage from '@/app/error-page';
 
 import { AppLayout } from './app-layout';
 

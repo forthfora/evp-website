@@ -2,15 +2,19 @@ import { Outlet, ScrollRestoration } from 'react-router-dom';
 
 import { Footer } from '@/shared/ui/footer/Footer';
 import { Header } from '@/shared/ui/header/Header';
+import { GlobalBackground } from '@/shared/ui/common/GlobalBackground';
 
 export function AppLayout() {
 	return (
-		<div className="bg-background text-foreground flex min-h-screen flex-col justify-between font-sans transition-colors duration-200">
-			<Header />
-			<main className="mb-auto flex">
-				<Outlet />
-			</main>
-			<Footer />
+		<div className="bg-background text-foreground relative flex min-h-screen flex-col justify-between font-sans transition-colors duration-200">
+			<GlobalBackground />
+			<div className="relative z-10 flex min-h-screen flex-col justify-between">
+				<Header />
+				<main className="mb-auto flex">
+					<Outlet />
+				</main>
+				<Footer />
+			</div>
 			<ScrollRestoration />
 		</div>
 	);
