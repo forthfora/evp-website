@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import { Globe, Mail, User } from 'lucide-react';
 import { FaLinkedin } from 'react-icons/fa6';
 
-import { ContactSection } from '@/shared/ui/common/ContactSection';
+import { ContactSection } from '@/shared/ui/common/contact/ContactSection';
 import { PageHeader } from '@/shared/ui/common/PageHeader';
 import { RadialGlowOverlay } from '@/shared/ui/common/RadialGlowOverlay';
 import { SectionDivider } from '@/shared/ui/common/SectionDivider';
@@ -78,7 +78,7 @@ export function AboutPage() {
 			</div>
 
 			{/* Idea / pitch block */}
-			<div className="bg-background-muted mx-auto mt-60 w-full py-30">
+			<div className="glass-box mx-auto mt-60 w-full py-30">
 				<div className="mx-auto flex w-full max-w-5xl flex-row gap-15">
 					<motion.div
 						initial={{ opacity: 0, x: -50 }}
@@ -138,7 +138,7 @@ export function AboutPage() {
 
 function MemberYearSection({ yearData }: { yearData: YearData }) {
 	return (
-		<div className="bg-background-muted mx-auto mb-50 w-full py-30">
+		<div className="glass-box mx-auto mb-50 w-full py-30">
 			<div className="mx-auto w-full max-w-6xl">
 				<h3 className="text-foreground mb-6 text-4xl font-bold">{yearData.year}</h3>
 				<SectionDivider my="my-4 mb-10" width="w-150" />

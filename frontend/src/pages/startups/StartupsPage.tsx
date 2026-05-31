@@ -8,10 +8,9 @@ import { STARTUPS } from './startups.data';
 import { generateColumns } from './startups.layout';
 import { RadialGlowOverlay } from '@/shared/ui/common/RadialGlowOverlay';
 
-import InteractiveContactButton from '@/shared/ui/common/InteractiveContactButton';
+import InteractiveContactButton from '@/shared/ui/common/contact/InteractiveContactButton';
 
 import startupsBkg from '@assets/startups/startups-bkg.webp';
-import contactBkg from '@assets/startups/promo-college.webp';
 
 export function StartupsPage() {
 	const columns = useMemo(() => generateColumns(STARTUPS), []);
@@ -66,7 +65,7 @@ export function StartupsPage() {
 				</motion.p>
 
 				{/* 3-Column Ragged Edge Layout */}
-				<div className="bg-background-muted mx-auto w-full">
+				<div className="glass-box mx-auto w-full">
 					<div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-6 py-20 lg:grid-cols-3">
 						{/* Left Column - Aligns inward (right) */}
 						<div className="flex flex-col items-center gap-6 lg:items-end lg:pt-16">
@@ -93,14 +92,14 @@ export function StartupsPage() {
 
 				<div className="relative mt-30 flex w-full items-center justify-center">
 					<motion.div
-						initial={{ opacity: 0, y: 24 }}
+						initial={{ opacity: 0, y: 40 }}
 						whileInView={{ opacity: 1, y: 0 }}
-						viewport={{ once: true, amount: 1 }}
-						transition={{ duration: 0.5, ease: 'easeOut' }}
+						viewport={{ once: true, margin: '-40px' }}
+						transition={{ duration: 0.5, ease: 'easeIn' }}
 						className="border-accent group relative z-10 mx-auto flex h-150 flex-col items-center justify-center gap-4 overflow-hidden rounded-xl border-4 text-center transition-all duration-300"
 					>
 						{/* Background Blobs */}
-						<div className="bg-background-muted pointer-events-none absolute inset-0 overflow-hidden">
+						<div className="glass-box pointer-events-none absolute inset-0 overflow-hidden">
 							{/* Blob 1 */}
 							<div className="absolute -top-20 -left-20 h-72 w-72 rounded-full bg-purple-500/10 blur-3xl transition-colors duration-500 group-hover:bg-purple-500/20" />
 							{/* Blob 2 */}
@@ -108,7 +107,7 @@ export function StartupsPage() {
 						</div>
 
 						<div className="z-10 flex flex-col items-center justify-center gap-4">
-							<PageHeader title={'you?'} size="text-7xl" />
+							<PageHeader title={'you?'} size="text-7xl" animated={false} />
 							<b className="text-foreground text-2xl transition-colors duration-300">
 								We'd love to see you up here.
 							</b>

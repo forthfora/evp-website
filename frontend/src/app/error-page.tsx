@@ -4,7 +4,7 @@ import { isRouteErrorResponse, Link, useRouteError } from 'react-router-dom';
 
 import { Footer } from '@/shared/ui/footer/Footer';
 import { Header } from '@/shared/ui/header/Header';
-import { GlobalBackground } from '@/shared/ui/common/GlobalBackground';
+import { GlobalBackground } from '@/shared/ui/common/global-background/GlobalBackground';
 
 export default function ErrorPage() {
 	const error = useRouteError();
@@ -56,37 +56,41 @@ export default function ErrorPage() {
 
 	return (
 		<div className="bg-background text-foreground flex min-h-screen flex-col justify-between font-sans transition-colors duration-200">
-			<Header />
-			<GlobalBackground />
-			<div className="mx-auto flex max-w-3xl flex-col items-center justify-center gap-6 px-4 py-60 text-center">
-				<h1 className="text-4xl font-bold md:text-5xl">{title}</h1>
-
-				<div className="text-foreground-muted my-2 w-full max-w-md border-b" />
-
-				<p className="text-lg">{errorMessage}</p>
-
-				{/* Actionable Next Step */}
-				<Link
-					to="/"
-					className="text-accent button-underline px-12 py-2 text-xl font-bold transition-colors"
-					viewTransition
-				>
-					Return to Home
-				</Link>
-
-				{/* 3. Developer details hidden behind a summary tag, only in dev mode */}
-				{isDev && devDetails && (
-					<details className="mt-8 w-full overflow-hidden rounded-l bg-gray-800 p-4 text-left">
-						<summary className="cursor-pointer font-semibold text-gray-200">
-							Developer Error Details
-						</summary>
-						<pre className="mt-4 overflow-auto p-2 text-sm whitespace-pre-wrap text-red-600 dark:text-red-400">
-							{devDetails}
-						</pre>
-					</details>
-				)}
+			<div className="fixed inset-0 z-0">
+				<GlobalBackground />
 			</div>
-			<Footer />
+			<div className="relative z-10 flex min-h-screen flex-col justify-between">
+				<Header />
+				<div className="mx-auto flex max-w-3xl flex-col items-center justify-center gap-6 px-4 py-60 text-center">
+					<h1 className="text-4xl font-bold md:text-5xl">{title}</h1>
+
+					<div className="text-foreground-muted my-2 w-full max-w-md border-b" />
+
+					<p className="text-lg">{errorMessage}</p>
+
+					{/* Actionable Next Step */}
+					<Link
+						to="/"
+						className="text-accent button-underline px-12 py-2 text-xl font-bold transition-colors"
+						viewTransition
+					>
+						Return to Home
+					</Link>
+
+					{/* 3. Developer details hidden behind a summary tag, only in dev mode */}
+					{isDev && devDetails && (
+						<details className="mt-8 w-full overflow-hidden rounded-l bg-gray-800 p-4 text-left">
+							<summary className="cursor-pointer font-semibold text-gray-200">
+								Developer Error Details
+							</summary>
+							<pre className="mt-4 overflow-auto p-2 text-sm whitespace-pre-wrap text-red-600 dark:text-red-400">
+								{devDetails}
+							</pre>
+						</details>
+					)}
+				</div>
+				<Footer />
+			</div>
 		</div>
 	);
 }

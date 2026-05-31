@@ -9,7 +9,7 @@ import contactImg from '@assets/homepage/promo-tower.webp';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
-import { ContactSection } from '@/shared/ui/common/ContactSection';
+import { ContactSection } from '@/shared/ui/common/contact/ContactSection';
 import { EventsBanner } from '@/shared/ui/common/EventsBanner';
 import { SectionDivider } from '@/shared/ui/common/SectionDivider';
 
@@ -70,7 +70,7 @@ export function HomePage() {
 
 function AboutUsSection() {
 	return (
-		<section className="bg-background-muted w-full overflow-hidden py-25 md:py-50">
+		<section className="glass-box w-full overflow-hidden py-25 md:py-50">
 			<div className="mx-auto flex max-w-6xl flex-col items-center gap-10 px-4 md:flex-row md:items-start">
 				<motion.div {...slideIn('left')} className="flex w-full justify-center md:w-1/2">
 					<img
@@ -144,7 +144,7 @@ function WhatWeDoSection() {
 						whileInView={{ opacity: 1, x: 0 }}
 						viewport={{ once: true, margin: '-250px' }}
 						transition={{ duration: 0.6, ease: 'easeOut' as const, delay: i * 0.2 }}
-						className="bg-background-muted flex w-full flex-col gap-10 pb-15 text-center"
+						className="glass-box flex w-full flex-col gap-10 pb-15 text-center"
 					>
 						<img
 							src={img}
@@ -169,7 +169,7 @@ function WhatWeDoSection() {
 
 function EventsSection() {
 	return (
-		<section className="bg-background-muted w-full overflow-hidden py-25 md:py-35">
+		<section className="glass-box w-full overflow-hidden py-25 md:py-35">
 			<motion.div
 				initial={{ opacity: 0, x: 25 }}
 				whileInView={{ opacity: 1, x: 0 }}

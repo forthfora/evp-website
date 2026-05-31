@@ -33,6 +33,12 @@ body,
 	--animate-blob3: blob3 11s ease-in-out infinite;
 }
 
+@utility glass-box {
+	background-color: color-mix(in srgb, var(--background-muted) 40%, transparent);
+	backdrop-filter: blur(12px);
+	border: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
+}
+
 /* Light mode */
 :root,
 [data-theme='light'] {

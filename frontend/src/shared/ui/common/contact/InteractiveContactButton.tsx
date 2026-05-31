@@ -1,6 +1,6 @@
 import '@/shared/styles/button-underline.css';
 
-import { useEffect,useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 export default function InteractiveContactButton() {

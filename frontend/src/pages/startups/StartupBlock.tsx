@@ -25,6 +25,7 @@ export function StartupBlock({ startup }: StartupBlockProps) {
 			style={{
 				width,
 				height: `${height}px`,
+				['--startup-accent' as any]: accent,
 			}}
 		>
 			{/* Background Image Layer */}
@@ -35,7 +36,7 @@ export function StartupBlock({ startup }: StartupBlockProps) {
 						alt={`${name} background`}
 						className="h-full w-full object-cover opacity-25 blur-[5px] transition-all duration-500 will-change-transform group-hover:scale-105 group-hover:blur-sm"
 					/>
-					<div className="from-foreground/60 to-background/50 absolute inset-0 bg-linear-to-t via-transparent mix-blend-multiply transition-opacity duration-300 group-hover:opacity-40" />
+					<div className="to-background/50 absolute inset-0 bg-linear-to-t from-(--startup-accent)/20 via-transparent mix-blend-multiply transition-opacity duration-300 group-hover:opacity-40" />
 				</div>
 			)}
 
