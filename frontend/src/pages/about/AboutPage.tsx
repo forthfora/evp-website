@@ -52,7 +52,7 @@ export function AboutPage() {
 						transition={{ duration: 0.5, ease: 'easeIn', delay: 0.15 }}
 						className="mx-auto max-w-4xl py-5 text-center text-3xl font-bold italic"
 					>
-						Built by students, for students.
+						built by students, for students.
 					</motion.p>
 
 					<motion.p
@@ -127,7 +127,7 @@ export function AboutPage() {
 				heading="want to get involved?"
 				body={[
 					'Our team is constantly bringing on new members.',
-					'Get in touch to see how you can be part of EVP.',
+					<strong>Get in touch to see how you can be part of EVP.</strong>,
 				]}
 			/>
 		</div>

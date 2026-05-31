@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 
 import InteractiveContactButton from './InteractiveContactButton';
 import { SectionDivider } from './SectionDivider';
+import type { ReactNode } from 'react';
 
 interface ContactSectionProps {
 	image: string;
@@ -9,7 +10,7 @@ interface ContactSectionProps {
 	/** Main heading text. */
 	heading: string;
 	/** One or two lines of body copy rendered as <p> tags. */
-	body: string[];
+	body: ReactNode[];
 	/** Extra Tailwind classes on the outer <section>. */
 	className?: string;
 }
@@ -58,19 +59,19 @@ export function ContactSection({
 					>
 						<h1 className="pt-10 pb-5 text-5xl font-bold">{heading}</h1>
 						{body.map((line, i) => (
-							<p key={i} className="mx-auto max-w-2xl py-5 text-xl">
+							<p key={i} className="mx-auto max-w-2xl py-3 text-xl">
 								{line}
 							</p>
 						))}
 					</motion.div>
 
-					<SectionDivider my="my-10 mb-20" />
+					<SectionDivider my="my-10 mb-10" />
 
 					<motion.div
-						initial={{ opacity: 0, y: 50 }}
+						initial={{ opacity: 0, y: 30 }}
 						whileInView={{ opacity: 1, y: 0 }}
-						viewport={{ once: true, margin: '-150px' }}
-						transition={{ duration: 0.5, ease: 'easeIn' }}
+						viewport={{ once: true, amount: 0.8 }}
+						transition={{ duration: 0.3, ease: 'easeIn' }}
 					>
 						<InteractiveContactButton />
 					</motion.div>

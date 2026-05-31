@@ -1,7 +1,16 @@
+import elevatedImg from '@assets/startups/icons/elevated.webp';
+import crumblessImg from '@assets/startups/icons/crumbless.webp';
+import doriotImg from '@assets/startups/icons/doriot.webp';
+import edubaImg from '@assets/startups/icons/eduba.webp';
+import kumaImg from '@assets/startups/icons/kuma.webp';
+import lotusdxImg from '@assets/startups/icons/lotusdx.webp';
+import melangeImg from '@assets/startups/icons/melange.webp';
+import snowshadowImg from '@assets/startups/icons/snowshadow.webp';
+import tutorCampusImg from '@assets/startups/icons/tutor-campus.webp';
+
 export interface StartupLink {
-	label: string;
+	type: string;
 	url: string;
-	icon: string;
 }
 
 export interface Startup {
@@ -11,6 +20,7 @@ export interface Startup {
 	description: string;
 	links: StartupLink[];
 	accent: string;
+	img: string;
 }
 
 export const STARTUPS: Startup[] = [
@@ -20,24 +30,27 @@ export const STARTUPS: Startup[] = [
 		tagline: 'Real-world consulting for IB students.',
 		description:
 			'Connecting international baccalaureate students with real-world consulting projects for NGOs.',
-		links: [{ label: 'Website', url: 'https://elevat-ed.co.uk/', icon: 'ti-world' }],
-		accent: '#4F7CFF',
+		links: [{ type: 'Website', url: 'https://elevat-ed.co.uk/' }],
+		accent: '#26539C',
+		img: elevatedImg,
 	},
 	{
 		id: 'kuma',
 		name: 'KUMA',
 		tagline: 'Preserve the stories that matter.',
 		description: 'Preserving family stories with AI-powered memory capture.',
-		links: [{ label: 'Website', url: 'https://kumamemories.com/', icon: 'ti-world' }],
-		accent: '#E06B5A',
+		links: [{ type: 'Website', url: 'https://kumamemories.com/' }],
+		accent: '#CD3A23',
+		img: kumaImg,
 	},
 	{
 		id: 'crumbless',
 		name: 'Crumbless AI',
 		tagline: 'No more cookies.',
 		description: 'Privacy-first analytics — no more cookie consent banners, no compromises.',
-		links: [{ label: 'Website', url: 'https://www.crumbless.ai/', icon: 'ti-world' }],
-		accent: '#27A96C',
+		links: [{ type: 'Website', url: 'https://www.crumbless.ai/' }],
+		accent: '#009E85',
+		img: crumblessImg,
 	},
 	{
 		id: 'melange',
@@ -45,16 +58,18 @@ export const STARTUPS: Startup[] = [
 		tagline: 'The social network for creatives.',
 		description:
 			'A social platform built specifically for creative minds to share, connect, and grow.',
-		links: [{ label: 'Website', url: 'https://melangerecords.online/home', icon: 'ti-world' }],
-		accent: '#C05FD8',
+		links: [{ type: 'Website', url: 'https://melangerecords.online/home' }],
+		accent: '#1B278A',
+		img: melangeImg,
 	},
 	{
 		id: 'doriot',
 		name: 'Doriot AI',
 		tagline: 'The perfect investor match.',
 		description: 'Connecting start-ups with the perfect investors using AI-powered matching.',
-		links: [{ label: 'Website', url: 'https://www.doriot.ai/', icon: 'ti-world' }],
-		accent: '#F5A623',
+		links: [{ type: 'Website', url: 'https://www.doriot.ai/' }],
+		accent: '#0087E0',
+		img: doriotImg,
 	},
 	{
 		id: 'eduba',
@@ -62,8 +77,9 @@ export const STARTUPS: Startup[] = [
 		tagline: 'Teachers in control of EdTech.',
 		description:
 			'Putting teachers back in control — EdTech that serves educators, not the other way around.',
-		links: [{ label: 'Website', url: 'https://services.eduba.io/', icon: 'ti-world' }],
-		accent: '#1ABCCA',
+		links: [{ type: 'Website', url: 'https://services.eduba.io/' }],
+		accent: '#099CB0',
+		img: edubaImg,
 	},
 	{
 		id: 'lotus-dx',
@@ -72,12 +88,12 @@ export const STARTUPS: Startup[] = [
 		description: 'Driven by a simple question: How simple can early disease detection get?',
 		links: [
 			{
-				label: 'LinkedIn',
+				type: 'LinkedIn',
 				url: 'https://www.linkedin.com/company/lotus-dx/',
-				icon: 'ti-brand-linkedin',
 			},
 		],
-		accent: '#E84D8A',
+		accent: '#E6002B',
+		img: lotusdxImg,
 	},
 	{
 		id: 'snow-shadow',
@@ -87,12 +103,12 @@ export const STARTUPS: Startup[] = [
 			'A high-quality, stylish martial arts clothing brand for those who train with intent.',
 		links: [
 			{
-				label: 'Instagram',
+				type: 'Instagram',
 				url: 'https://www.instagram.com/snowshadow.fs/?hl=en',
-				icon: 'ti-brand-instagram',
 			},
 		],
-		accent: '#6B7B99',
+		accent: '#E64069',
+		img: snowshadowImg,
 	},
 	{
 		id: 'tutor-campus',
@@ -101,6 +117,7 @@ export const STARTUPS: Startup[] = [
 		description:
 			'An online tutoring platform connecting learners with trusted tutors for every subject and level.',
 		links: [],
-		accent: '#3DAF7A',
+		accent: '#0091B3',
+		img: tutorCampusImg,
 	},
 ];
