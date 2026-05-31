@@ -1,26 +1,23 @@
 import { motion } from 'framer-motion';
 import { useMemo } from 'react';
-import { Link } from 'react-router-dom';
 
 import { PageHeader } from '@/shared/ui/common/PageHeader';
 
 import { StartupBlock } from './StartupBlock';
 import { STARTUPS } from './startups.data';
-import { assignSizes, computeContainerHeight } from './startups.layout';
+import { generateColumns } from './startups.layout';
 import { RadialGlowOverlay } from '@/shared/ui/common/RadialGlowOverlay';
 
+import InteractiveContactButton from '@/shared/ui/common/InteractiveContactButton';
+
 import startupsBkg from '@assets/startups/startups-bkg.webp';
-
-const YOU_LINK = '/contact';
-
-const COL_WIDTH = 'calc(50% - 10px)'; // two columns with 20px total gap between them
+import contactBkg from '@assets/startups/promo-college.webp';
 
 export function StartupsPage() {
-	const startups = useMemo(() => assignSizes(STARTUPS), []);
-	const containerHeight = useMemo(() => computeContainerHeight(startups), [startups]);
+	const columns = useMemo(() => generateColumns(STARTUPS), []);
 
 	return (
-		<div className="w-full">
+		<div className="w-full overflow-hidden">
 			{/* Hero */}
 			<div className="relative flex min-h-250 w-full items-center justify-center">
 				<img
@@ -57,7 +54,7 @@ export function StartupsPage() {
 				</div>
 			</div>
 
-			<div className="mx-auto flex w-full max-w-6xl flex-col gap-12 px-4 py-40">
+			<div className="mx-auto flex w-full flex-col gap-12 py-50">
 				<motion.p
 					initial={{ opacity: 0, y: -50 }}
 					whileInView={{ opacity: 1, y: 0 }}
@@ -68,33 +65,62 @@ export function StartupsPage() {
 					<PageHeader title="meet the student-led ventures we've worked with." />
 				</motion.p>
 
-				{/* Two-column staggered masonry */}
-				<div className="relative w-full" style={{ height: `${containerHeight}px` }}>
-					{startups.map((startup, i) => (
-						<StartupBlock key={startup.id} startup={startup} index={i} colWidth={COL_WIDTH} />
-					))}
+				{/* 3-Column Ragged Edge Layout */}
+				<div className="bg-background-muted mx-auto w-full">
+					<div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-6 py-20 lg:grid-cols-3">
+						{/* Left Column - Aligns inward (right) */}
+						<div className="flex flex-col items-center gap-6 lg:items-end lg:pt-16">
+							{columns.left.map((startup) => (
+								<StartupBlock key={startup.id} startup={startup} />
+							))}
+						</div>
+
+						{/* Center Column - Acts as the anchor */}
+						<div className="flex flex-col items-center gap-6">
+							{columns.center.map((startup) => (
+								<StartupBlock key={startup.id} startup={startup} />
+							))}
+						</div>
+
+						{/* Right Column - Aligns inward (left) */}
+						<div className="flex flex-col items-center gap-6 lg:items-start lg:pt-32">
+							{columns.right.map((startup) => (
+								<StartupBlock key={startup.id} startup={startup} />
+							))}
+						</div>
+					</div>
 				</div>
 
-				<motion.div
-					initial={{ opacity: 0, y: 24 }}
-					whileInView={{ opacity: 1, y: 0 }}
-					viewport={{ once: true, amount: 1 }}
-					transition={{ duration: 0.5, ease: 'easeOut' }}
-					className="pt-50"
-				>
-					<Link
-						to={YOU_LINK}
-						viewTransition
-						className="border-border/30 bg-background-muted group hover:border-border mx-auto flex h-100 w-full max-w-lg flex-col items-center justify-center gap-4 rounded-xl border transition-all duration-300"
+				<div className="relative mt-30 flex w-full items-center justify-center">
+					<motion.div
+						initial={{ opacity: 0, y: 24 }}
+						whileInView={{ opacity: 1, y: 0 }}
+						viewport={{ once: true, amount: 1 }}
+						transition={{ duration: 0.5, ease: 'easeOut' }}
+						className="border-accent group relative z-10 mx-auto flex h-150 flex-col items-center justify-center gap-4 overflow-hidden rounded-xl border-4 text-center transition-all duration-300"
 					>
-						<h3 className="text-foreground-muted group-hover:text-foreground text-7xl font-bold transition-colors duration-300">
-							you?
-						</h3>
-						<p className="text-foreground-muted group-hover:text-foreground text-lg transition-colors duration-300">
-							We'd love to see you up here
-						</p>
-					</Link>
-				</motion.div>
+						{/* Background Blobs */}
+						<div className="bg-background-muted pointer-events-none absolute inset-0 overflow-hidden">
+							{/* Blob 1 */}
+							<div className="absolute -top-20 -left-20 h-72 w-72 rounded-full bg-purple-500/10 blur-3xl transition-colors duration-500 group-hover:bg-purple-500/20" />
+							{/* Blob 2 */}
+							<div className="absolute -right-20 -bottom-20 h-72 w-72 rounded-full bg-blue-500/10 blur-3xl transition-colors duration-500 group-hover:bg-blue-500/20" />
+						</div>
+
+						<div className="z-10 flex flex-col items-center justify-center gap-4">
+							<PageHeader title={'you?'} size="text-7xl" />
+							<b className="text-foreground text-2xl transition-colors duration-300">
+								We'd love to see you up here.
+							</b>
+
+							<p className="text-foreground-muted px-10 pb-10 text-xl transition-colors duration-300">
+								Share your vision with us, and we'll help you realise it.
+							</p>
+
+							<InteractiveContactButton />
+						</div>
+					</motion.div>
+				</div>
 			</div>
 		</div>
 	);

@@ -1,76 +1,60 @@
 import { type Startup } from './startups.data';
 
 export interface StartupWithSize extends Startup {
-	column: 0 | 1;
-	top: number; // px offset within its column
-	height: number; // px
+	width: string;
+	height: number;
+	globalIndex: number;
 }
 
-function mulberry32(seed: number) {
-	return () => {
-		seed |= 0;
-		seed = (seed + 0x6d2b79f5) | 0;
-		let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-		t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-		return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-	};
+export interface ColumnLayout {
+	left: StartupWithSize[];
+	center: StartupWithSize[];
+	right: StartupWithSize[];
 }
 
-const HEIGHT_POOL = [350, 400, 500, 550, 650, 750, 800];
-
-const GAP = 14;
-const RIGHT_COL_OFFSET = 130; // px — right col starts lower for diagonal silhouette
+const HEIGHT_POOL = [400, 450, 550, 600, 500];
+const WIDTH_POOL = ['80%', '75%', '85%', '100%', '90%', '95%', '110%', '105%'];
 
 /**
- * Two-column masonry with strongly varied block heights.
- *
- * To avoid two similar-height blocks ending up side-by-side (which looks
- * uniform), we track the last height used in each column and pick a height
- * from a different "band" (short / medium / tall) each time.
+ * Fisher-Yates shuffle to randomize the startups on every refresh.
  */
-export function assignSizes(startups: Startup[]): StartupWithSize[] {
-	const rng = mulberry32(42);
-
-	const SHORT = HEIGHT_POOL.slice(0, 2); // 140–160
-	const MEDIUM = HEIGHT_POOL.slice(2, 4); // 200–220
-	const TALL = HEIGHT_POOL.slice(4); // 260–320
-
-	const BANDS = [SHORT, MEDIUM, TALL];
-
-	function pickHeight(lastHeight: number): number {
-		// Which band was the last height in?
-		const lastBandIdx = BANDS.findIndex((b) => b.includes(lastHeight));
-		// Pick a different band (weighted toward not repeating)
-		let bandIdx: number;
-		const r = rng();
-		if (lastBandIdx === 0) bandIdx = r < 0.5 ? 1 : 2;
-		else if (lastBandIdx === 1) bandIdx = r < 0.5 ? 0 : 2;
-		else bandIdx = r < 0.5 ? 0 : 1;
-		const band = BANDS[bandIdx];
-		return band[Math.floor(rng() * band.length)];
+function shuffleArray<T>(array: T[]): T[] {
+	const arr = [...array];
+	for (let i = arr.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[arr[i], arr[j]] = [arr[j], arr[i]];
 	}
-
-	const colHeights = [0, RIGHT_COL_OFFSET];
-	const lastHeights = [HEIGHT_POOL[2], HEIGHT_POOL[4]]; // seed with different bands
-
-	const result: StartupWithSize[] = [];
-
-	for (const startup of startups) {
-		// Shortest column gets the next block
-		const column = (colHeights[0] <= colHeights[1] ? 0 : 1) as 0 | 1;
-		const height = pickHeight(lastHeights[column]);
-		const top = colHeights[column];
-
-		result.push({ ...startup, column, top, height });
-
-		lastHeights[column] = height;
-		colHeights[column] += height + GAP;
-	}
-
-	return result;
+	return arr;
 }
 
-export function computeContainerHeight(startups: StartupWithSize[]): number {
-	if (!startups.length) return 0;
-	return Math.max(...startups.map((s) => s.top + s.height)) + GAP;
+/**
+ * Distributes startups into 3 columns with randomized sizes
+ * to create a jagged, clustered outer edge.
+ */
+export function generateColumns(startups: Startup[]): ColumnLayout {
+	const shuffled = shuffleArray(startups);
+	const columns: ColumnLayout = { left: [], center: [], right: [] };
+	const colKeys: (keyof ColumnLayout)[] = ['left', 'center', 'right'];
+
+	shuffled.forEach((startup, i) => {
+		const colIndex = i % 3; // Distribute evenly across the 3 columns
+
+		const height = HEIGHT_POOL[Math.floor(Math.random() * HEIGHT_POOL.length)];
+
+		// The center column acts as the "anchor" and should stay mostly full width.
+		// The outer columns get random widths to create the jagged edges.
+		let width = WIDTH_POOL[Math.floor(Math.random() * WIDTH_POOL.length)];
+		if (colIndex === 1 && Math.random() > 0.3) {
+			width = '100%';
+		}
+
+		columns[colKeys[colIndex]].push({
+			...startup,
+			height,
+			width,
+			globalIndex: i,
+		});
+	});
+
+	return columns;
 }

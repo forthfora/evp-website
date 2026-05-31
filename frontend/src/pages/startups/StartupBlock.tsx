@@ -4,8 +4,6 @@ import { type StartupWithSize } from './startups.layout';
 
 interface StartupBlockProps {
 	startup: StartupWithSize;
-	index: number;
-	colWidth: string;
 }
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -14,26 +12,18 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 	website: FaGlobe,
 };
 
-// Column 0 = left (starts at 0), column 1 = right (starts at calc(50% + 10px))
-const COL_LEFT: Record<0 | 1, string> = {
-	0: '0',
-	1: 'calc(50% + 10px)',
-};
-
-export function StartupBlock({ startup, index, colWidth }: StartupBlockProps) {
-	const { name, tagline, description, links, accent, img, column, top, height } = startup;
+export function StartupBlock({ startup }: StartupBlockProps) {
+	const { name, tagline, description, links, accent, img, width, height, globalIndex } = startup;
 
 	return (
 		<motion.div
 			initial={{ opacity: 0, y: 24 }}
 			whileInView={{ opacity: 1, y: 0 }}
 			viewport={{ once: true, margin: '-60px' }}
-			transition={{ duration: 0.5, ease: 'easeOut', delay: (index % 5) * 0.07 }}
-			className="group absolute cursor-default overflow-hidden rounded-xl bg-gray-300"
+			transition={{ duration: 0.5, ease: 'easeOut', delay: (globalIndex % 9) * 0.08 }}
+			className="group relative shrink-0 cursor-default overflow-hidden rounded-xl bg-gray-300"
 			style={{
-				left: COL_LEFT[column],
-				top: `${top}px`,
-				width: colWidth,
+				width,
 				height: `${height}px`,
 			}}
 		>
@@ -53,12 +43,12 @@ export function StartupBlock({ startup, index, colWidth }: StartupBlockProps) {
 			<div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 p-6 text-center transition-all duration-300 group-hover:scale-95 group-hover:opacity-0">
 				<div>
 					<h2
-						className="font-title text-shadow-3xl mb-5 text-5xl leading-tight font-bold"
+						className="font-title text-shadow-3xl mb-5 text-4xl leading-tight font-bold lg:text-5xl"
 						style={{ color: accent }}
 					>
 						{name}
 					</h2>
-					<b className="mt-1 text-2xl text-gray-800 italic">{tagline}</b>
+					<b className="mt-1 text-xl text-gray-800 italic lg:text-2xl">{tagline}</b>
 				</div>
 			</div>
 
@@ -68,10 +58,13 @@ export function StartupBlock({ startup, index, colWidth }: StartupBlockProps) {
 					className="absolute inset-0 -z-10 rounded-xl border-4 bg-white/15 backdrop-blur-sm"
 					style={{ borderColor: accent }}
 				/>
-				<h3 className="font-title text-5xl leading-snug font-bold" style={{ color: accent }}>
+				<h3
+					className="font-title text-3xl leading-snug font-bold lg:text-5xl"
+					style={{ color: accent }}
+				>
 					{name}
 				</h3>
-				<p className="max-w-lg text-xl leading-relaxed text-black">{description}</p>
+				<p className="max-w-lg text-lg leading-relaxed text-black lg:text-xl">{description}</p>
 
 				{links.length > 0 && (
 					<div className="flex flex-wrap justify-center gap-2">
@@ -83,7 +76,7 @@ export function StartupBlock({ startup, index, colWidth }: StartupBlockProps) {
 									href={link.url}
 									target="_blank"
 									rel="noopener noreferrer"
-									className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-lg font-medium transition-colors duration-200"
+									className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-base font-medium transition-colors duration-200 lg:text-lg"
 									style={{ borderColor: accent, color: accent }}
 									onMouseEnter={(e) => {
 										e.currentTarget.style.background = accent;
