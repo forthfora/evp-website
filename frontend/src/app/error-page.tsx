@@ -35,7 +35,9 @@ export default function ErrorPage() {
 				break;
 			default:
 				title = `${error.status} - ${error.statusText}`;
-				errorMessage = error.data?.message || "We're sorry, an unexpected route error occurred.";
+				errorMessage =
+					'Uncommon error: ' + error.data?.message ||
+					"We're sorry, an unexpected route error occurred.";
 		}
 		// Extract raw data for devs
 		devDetails = typeof error.data === 'string' ? error.data : JSON.stringify(error.data, null, 2);

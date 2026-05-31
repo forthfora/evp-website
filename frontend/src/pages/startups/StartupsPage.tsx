@@ -18,7 +18,7 @@ export function StartupsPage() {
 	return (
 		<div className="w-full overflow-hidden">
 			{/* Hero */}
-			<div className="relative flex min-h-250 w-full items-center justify-center">
+			<div className="relative flex min-h-180 w-full items-center justify-center">
 				<img
 					src={startupsBkg}
 					alt="About Background"
@@ -27,7 +27,7 @@ export function StartupsPage() {
 				<div className="bg-background/40 absolute inset-0" />
 				<RadialGlowOverlay />
 
-				<div className="relative z-10 mx-auto w-full max-w-6xl px-4">
+				<div className="relative z-10 mx-auto mt-40 w-full max-w-6xl px-4">
 					<PageHeader title="our start-ups" />
 
 					<motion.p
@@ -53,15 +53,15 @@ export function StartupsPage() {
 				</div>
 			</div>
 
-			<div className="mx-auto flex w-full flex-col gap-12 py-50">
+			<div className="mx-auto mt-10 flex w-full flex-col gap-12 py-40">
 				<motion.p
 					initial={{ opacity: 0, y: -50 }}
 					whileInView={{ opacity: 1, y: 0 }}
-					viewport={{ once: true, amount: 1 }}
+					viewport={{ once: true, amount: 0.7 }}
 					transition={{ duration: 0.5, ease: 'easeIn', delay: 0.25 }}
 					className="mx-auto max-w-3xl text-center text-5xl"
 				>
-					<PageHeader title="meet the student-led ventures we've worked with." />
+					<PageHeader title="meet the student-led ventures we've worked with." size="text-5xl" />
 				</motion.p>
 
 				{/* 3-Column Ragged Edge Layout */}

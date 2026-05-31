@@ -1,11 +1,12 @@
 import '@/shared/styles/button-underline.css';
 
 import homepageBkg from '@assets/homepage/homepage-bkg.webp';
-import whatWeDoImg3 from '@assets/homepage/promo-bar.webp';
 import aboutUsImg from '@assets/homepage/promo-chairs.webp';
-import whatWeDoImg2 from '@assets/homepage/promo-conf.webp';
 import whatWeDoImg1 from '@assets/homepage/promo-present.webp';
+import whatWeDoImg2 from '@assets/homepage/promo-conf.webp';
+import whatWeDoImg3 from '@assets/homepage/promo-bar.webp';
 import contactImg from '@assets/homepage/promo-tower.webp';
+
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
@@ -75,7 +76,7 @@ function AboutUsSection() {
 				<motion.div {...slideIn('left')} className="flex w-full justify-center md:w-1/2">
 					<img
 						src={aboutUsImg}
-						alt="Students collaborating at an event"
+						alt="A group photo with several members of EVP's committee"
 						className="w-full max-w-md rounded-lg object-cover shadow-2xl"
 					/>
 				</motion.div>
@@ -125,7 +126,7 @@ function WhatWeDoSection() {
 			img: whatWeDoImg3,
 			title: 'network & partnerships',
 			body: 'From angel syndicates to celebrated founders.',
-			to: 'partners',
+			to: 'contact',
 		},
 	];
 

@@ -6,6 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Edinburgh VenturePoint</title>
     <meta name="description" content="A a community of the boldest founders and innovators at The University of Edinburgh." />
+    <script>
+      (function () {
+        const savedTheme = localStorage.getItem('app-theme');
+        if (savedTheme === 'dark' || savedTheme === 'light') {
+          document.documentElement.setAttribute('data-theme', savedTheme);
+        } else {
+          const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          document.documentElement.setAttribute('data-theme', systemPrefersDark ? 'dark' : 'light');
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

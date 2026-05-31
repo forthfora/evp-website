@@ -14,7 +14,6 @@ import { SectionDivider } from '@/shared/ui/common/SectionDivider';
 
 import { COMMITTEE_DATA, type Member, type YearData } from './about.data';
 
-// Framer Motion variants shared by all member-card grids
 const containerVariants = {
 	hidden: { opacity: 0 },
 	visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
@@ -33,7 +32,7 @@ export function AboutPage() {
 	return (
 		<div className="flex w-full flex-col overflow-x-hidden">
 			{/* Hero */}
-			<div className="relative flex min-h-[50vh] w-full items-center justify-center py-40 md:min-h-250 md:py-0">
+			<div className="relative flex min-h-[50vh] w-full items-center justify-center py-40 md:min-h-180 md:py-0">
 				<img
 					src={aboutBkg}
 					alt="About Background"
@@ -42,7 +41,7 @@ export function AboutPage() {
 				<div className="bg-background/40 absolute inset-0" />
 				<RadialGlowOverlay />
 
-				<div className="relative z-10 mx-auto w-full max-w-6xl px-4 md:px-8">
+				<div className="relative z-10 mx-auto mt-30 w-full max-w-6xl px-4 md:px-8">
 					<PageHeader title="who we are" />
 
 					<motion.p
@@ -78,12 +77,12 @@ export function AboutPage() {
 			</div>
 
 			{/* Idea / pitch block */}
-			<div className="glass-box mx-auto mt-20 w-full px-4 py-16 md:mt-60 md:px-8 md:py-30">
+			<div className="glass-box mx-auto mt-15 w-full px-4 py-16 md:mt-25 md:px-8 md:py-20">
 				<div className="mx-auto flex w-full max-w-5xl flex-col items-center gap-10 md:flex-row md:gap-15 lg:items-start">
 					<motion.div
 						initial={{ opacity: 0, x: -50 }}
 						whileInView={{ opacity: 1, x: 0 }}
-						viewport={{ once: true, amount: 0.3 }}
+						viewport={{ once: true, amount: 0.1 }}
 						transition={{ duration: 0.5, ease: 'easeOut' }}
 						className="flex-1 text-center md:text-left"
 					>
@@ -106,7 +105,7 @@ export function AboutPage() {
 					<motion.img
 						initial={{ opacity: 0, x: 50 }}
 						whileInView={{ opacity: 1, x: 0 }}
-						viewport={{ once: true, amount: 0.3 }}
+						viewport={{ once: true, amount: 0.1 }}
 						transition={{ duration: 0.5, ease: 'easeOut' }}
 						src={ideaImg}
 						alt="A start-up presenting at one of EVP's events"
