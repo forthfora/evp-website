@@ -31,9 +31,9 @@ const cardVariants = {
 
 export function AboutPage() {
 	return (
-		<div className="flex w-full flex-col">
+		<div className="flex w-full flex-col overflow-x-hidden">
 			{/* Hero */}
-			<div className="relative flex min-h-250 w-full items-center justify-center">
+			<div className="relative flex min-h-[50vh] w-full items-center justify-center py-40 md:min-h-250 md:py-0">
 				<img
 					src={aboutBkg}
 					alt="About Background"
@@ -42,7 +42,7 @@ export function AboutPage() {
 				<div className="bg-background/40 absolute inset-0" />
 				<RadialGlowOverlay />
 
-				<div className="relative z-10 mx-auto w-full max-w-6xl px-4">
+				<div className="relative z-10 mx-auto w-full max-w-6xl px-4 md:px-8">
 					<PageHeader title="who we are" />
 
 					<motion.p
@@ -50,7 +50,7 @@ export function AboutPage() {
 						whileInView={{ opacity: 1, y: 0 }}
 						viewport={{ once: true, amount: 1 }}
 						transition={{ duration: 0.5, ease: 'easeIn', delay: 0.15 }}
-						className="mx-auto max-w-4xl py-5 text-center text-3xl font-bold italic"
+						className="mx-auto max-w-4xl py-5 text-center text-2xl font-bold italic md:text-3xl"
 					>
 						built by students, for students.
 					</motion.p>
@@ -60,7 +60,7 @@ export function AboutPage() {
 						whileInView={{ opacity: 1, y: 0 }}
 						viewport={{ once: true, amount: 1 }}
 						transition={{ duration: 0.5, ease: 'easeIn', delay: 0.25 }}
-						className="mx-auto max-w-2xl pb-5 text-center text-xl"
+						className="mx-auto max-w-2xl pb-5 text-center text-lg md:text-xl"
 					>
 						We bridge the gap between visionary student founders and forward-thinking investors.
 					</motion.p>
@@ -70,7 +70,7 @@ export function AboutPage() {
 						whileInView={{ opacity: 1, y: 0 }}
 						viewport={{ once: true, amount: 1 }}
 						transition={{ duration: 0.5, ease: 'easeIn', delay: 0.35 }}
-						className="mx-auto max-w-lg text-center text-xl font-bold"
+						className="mx-auto max-w-lg text-center text-lg font-bold md:text-xl"
 					>
 						If you're building something amazing, we want to hear about it.
 					</motion.p>
@@ -78,23 +78,27 @@ export function AboutPage() {
 			</div>
 
 			{/* Idea / pitch block */}
-			<div className="glass-box mx-auto mt-60 w-full py-30">
-				<div className="mx-auto flex w-full max-w-5xl flex-row gap-15">
+			<div className="glass-box mx-auto mt-20 w-full px-4 py-16 md:mt-60 md:px-8 md:py-30">
+				<div className="mx-auto flex w-full max-w-5xl flex-col items-center gap-10 md:flex-row md:gap-15 lg:items-start">
 					<motion.div
 						initial={{ opacity: 0, x: -50 }}
 						whileInView={{ opacity: 1, x: 0 }}
 						viewport={{ once: true, amount: 0.3 }}
 						transition={{ duration: 0.5, ease: 'easeOut' }}
+						className="flex-1 text-center md:text-left"
 					>
-						<h3 className="mb-4 text-5xl leading-16 font-bold italic">
+						<h3 className="mb-4 text-3xl leading-tight font-bold italic md:text-5xl md:leading-16">
 							Have a great idea, but lack the funding?
 						</h3>
-						<SectionDivider my="my-10" width="w-100" />
-						<p className="text-lg">
+						<SectionDivider
+							my="my-6 md:my-10"
+							width="w-3/4 max-w-[200px] mx-auto md:mx-0 md:w-100"
+						/>
+						<p className="text-base md:text-lg">
 							EVP is committed to connecting the very best talent from across Scotland to top
 							investors who are passionate and ready to hear about what you do.
 						</p>
-						<p className="pt-5 text-xl font-bold italic">
+						<p className="pt-5 text-lg font-bold italic md:text-xl">
 							We bring the capital, you bring the innovation.
 						</p>
 					</motion.div>
@@ -105,15 +109,19 @@ export function AboutPage() {
 						viewport={{ once: true, amount: 0.3 }}
 						transition={{ duration: 0.5, ease: 'easeOut' }}
 						src={ideaImg}
-						alt="Students collaborating at an event"
-						className="w-full max-w-md rounded-lg object-cover shadow-2xl"
+						alt="A start-up presenting at one of EVP's events"
+						className="h-70 w-full max-w-sm rounded-lg object-cover shadow-2xl md:max-w-md"
 					/>
 				</div>
 			</div>
 
 			{/* Team header */}
-			<div className="mx-auto w-full max-w-6xl">
-				<PageHeader title="meet the team" className="py-15 pt-50" size="text-6xl" />
+			<div className="mx-auto w-full max-w-6xl px-4 md:px-8">
+				<PageHeader
+					title="meet the team"
+					className="py-10 pt-20 md:py-15 md:pt-50"
+					size="text-4xl md:text-6xl"
+				/>
 			</div>
 
 			{/* Member grids per year */}
@@ -138,13 +146,18 @@ export function AboutPage() {
 
 function MemberYearSection({ yearData }: { yearData: YearData }) {
 	return (
-		<div className="glass-box mx-auto mb-50 w-full py-30">
+		<div className="glass-box mx-auto mb-20 w-full px-4 py-16 md:mb-50 md:px-8 md:py-30">
 			<div className="mx-auto w-full max-w-6xl">
-				<h3 className="text-foreground mb-6 text-4xl font-bold">{yearData.year}</h3>
-				<SectionDivider my="my-4 mb-10" width="w-150" />
+				<h3 className="text-foreground mb-4 text-center text-3xl font-bold md:mb-6 md:text-left md:text-4xl">
+					{yearData.year}
+				</h3>
+				<SectionDivider
+					my="my-4 mb-8 md:mb-10"
+					width="w-2/3 max-w-[200px] mx-auto md:mx-0 md:max-w-none md:w-150"
+				/>
 
 				<motion.div
-					className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5"
+					className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5"
 					initial="hidden"
 					whileInView="visible"
 					viewport={{ once: true, amount: 0.1 }}
@@ -163,10 +176,10 @@ function MemberCard({ member }: { member: Member }) {
 	return (
 		<motion.div
 			variants={cardVariants}
-			className="bg-background hover:border-accent border-background flex flex-col rounded-xl border-2 p-4 transition-colors"
+			className="bg-background hover:border-accent border-background flex flex-col items-center rounded-xl border-2 p-6 text-center transition-colors md:items-start md:p-4 md:text-left"
 		>
 			{/* Avatar */}
-			<div className="mt-2 mb-6 flex justify-center">
+			<div className="mx-auto mt-2 mb-4 flex justify-center md:mb-6">
 				{member.image ? (
 					<img
 						src={member.image}
@@ -181,7 +194,7 @@ function MemberCard({ member }: { member: Member }) {
 			</div>
 
 			{/* Info */}
-			<div className="mt-auto">
+			<div className="mt-auto flex w-full flex-col items-center md:items-start">
 				<p className="text-foreground-muted mb-1 text-xs">{member.role}</p>
 				<p className="text-foreground mb-3 text-base font-semibold">{member.name}</p>
 
@@ -194,7 +207,7 @@ function MemberCard({ member }: { member: Member }) {
 							className="button-underline hover:text-accent transition-colors duration-200"
 							aria-label="LinkedIn"
 						>
-							<FaLinkedin size={20} />
+							<FaLinkedin className="h-8 w-8 md:h-5 md:w-5" />
 						</a>
 					)}
 					{member.email && (
@@ -203,7 +216,7 @@ function MemberCard({ member }: { member: Member }) {
 							className="button-underline hover:text-accent transition-colors duration-200"
 							aria-label="Email"
 						>
-							<Mail size={20} />
+							<Mail className="h-8 w-8 md:h-5 md:w-5" />
 						</a>
 					)}
 					{member.website && (

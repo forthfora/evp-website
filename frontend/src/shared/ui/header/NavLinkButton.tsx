@@ -11,7 +11,7 @@ export function NavLinkButton({ to, label }: NavLinkItemProps) {
 	return (
 		<NavLink
 			to={to}
-			className="button-underline content-center text-lg no-underline transition-opacity hover:opacity-70"
+			className="button-underline content-center text-2xl no-underline transition-opacity hover:opacity-70 md:text-xl"
 			viewTransition
 		>
 			{label}

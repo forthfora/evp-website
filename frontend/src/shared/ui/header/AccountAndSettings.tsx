@@ -17,9 +17,9 @@ export function AccountAndSettings() {
 				aria-label="Toggle theme"
 			>
 				{theme === 'dark' ? (
-					<Moon key="moon" size={18} className="button-spin" />
+					<Moon key="moon" className="button-spin h-7 w-7 md:h-5 md:w-5" />
 				) : (
-					<Sun key="sun" size={18} className="button-spin" />
+					<Sun key="sun" className="button-spin h-7 w-7 md:h-5 md:w-5" />
 				)}
 			</button>
 			{/* {account()} */}

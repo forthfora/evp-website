@@ -96,7 +96,7 @@ function AboutUsSection() {
 					</p>
 					<Link
 						to="about"
-						className="text-accent button-underline mt-5 text-lg font-bold transition-opacity md:text-xl"
+						className="text-accent button-underline mt-5 text-2xl font-bold transition-opacity md:text-xl"
 						viewTransition
 					>
 						Learn More...
@@ -155,7 +155,7 @@ function WhatWeDoSection() {
 						<p className="px-10 text-lg">{body}</p>
 						<Link
 							to={to}
-							className="text-accent button-underline mx-auto text-lg font-bold transition-opacity md:text-xl"
+							className="text-accent button-underline mx-auto text-2xl font-bold transition-opacity md:text-xl"
 							viewTransition
 						>
 							Learn More...
@@ -182,7 +182,7 @@ function EventsSection() {
 			<motion.div {...fadeUp()} className="flex flex-col items-center">
 				<h1 className="pt-10 pb-5 text-center text-5xl font-bold">join us at our next event!</h1>
 				<SectionDivider />
-				<p className="mx-auto max-w-2xl py-5 text-center text-2xl">
+				<p className="mx-auto max-w-2xl py-5 text-center text-lg md:text-2xl">
 					From exclusive investor meet-ups to the most promising start-ups, we've got something to
 					offer everyone.
 				</p>

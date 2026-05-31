@@ -14,7 +14,7 @@ export function Socials() {
 					className="button-underline hover:text-foreground transition-colors duration-200"
 					aria-label="LinkedIn"
 				>
-					<FaLinkedin size={20} />
+					<FaLinkedin className="h-8 w-8 md:h-6 md:w-6" />
 				</a>
 
 				<a
@@ -24,7 +24,7 @@ export function Socials() {
 					className="button-underline hover:text-foreground transition-colors duration-200"
 					aria-label="Instagram"
 				>
-					<FaInstagram size={20} />
+					<FaInstagram className="h-8 w-8 md:h-6 md:w-6" />
 				</a>
 
 				<a
@@ -32,7 +32,7 @@ export function Socials() {
 					className="button-underline hover:text-foreground transition-colors duration-200"
 					aria-label="Email"
 				>
-					<Mail size={20} />
+					<Mail className="h-8 w-8 md:h-6 md:w-6" />
 				</a>
 			</div>
 		</div>

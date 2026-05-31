@@ -21,7 +21,7 @@ export function StartupBlock({ startup }: StartupBlockProps) {
 			whileInView={{ opacity: 1, y: 0 }}
 			viewport={{ once: true, margin: '-60px' }}
 			transition={{ duration: 0.5, ease: 'easeOut', delay: (globalIndex % 9) * 0.08 }}
-			className="group relative shrink-0 cursor-default overflow-hidden rounded-xl bg-gray-300"
+			className="group relative max-h-60 max-w-full min-w-full shrink-0 cursor-default overflow-hidden rounded-xl bg-gray-300 md:max-h-none md:min-w-0"
 			style={{
 				width,
 				height: `${height}px`,

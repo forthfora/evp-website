@@ -26,7 +26,7 @@ export default function InteractiveContactButton() {
 			<Link
 				to="contact"
 				viewTransition
-				className="group relative flex overflow-hidden rounded-full px-30 py-4 text-center text-3xl font-bold text-white shadow-lg md:text-4xl"
+				className="group relative flex overflow-hidden rounded-full px-30 py-4 text-center text-2xl font-bold text-white shadow-lg md:text-4xl"
 				style={{ backgroundColor: 'var(--color-accent)' }}
 			>
 				{/* Blobs */}
