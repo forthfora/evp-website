@@ -8,12 +8,12 @@ import { HeaderNavButtons } from '@/shared/ui/header/NavLinkButtons';
 interface HomePageHeroProps {
 	/**
 	 * How far the user must scroll DOWN (px) before the hero fades out.
-	 * @default 150
+	 * @default 100
 	 */
 	fadeOutAt?: number;
 	/**
 	 * How far the user must scroll back UP (px) before the hero fades in again.
-	 * @default 100
+	 * @default 75
 	 */
 	fadeInAt?: number;
 	/** Transition duration in milliseconds. @default 600 */
@@ -34,8 +34,8 @@ interface HomePageHeroProps {
 const EASING = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
 export function HomePageHero({
-	fadeOutAt = 150,
-	fadeInAt = 100,
+	fadeOutAt = 100,
+	fadeInAt = 75,
 	transitionDuration = 600,
 	slideDistance = 300,
 	mountDelay = 100,

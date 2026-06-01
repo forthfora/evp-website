@@ -57,9 +57,9 @@ export function StartupsPage() {
 				<motion.p
 					initial={{ opacity: 0, y: -50 }}
 					whileInView={{ opacity: 1, y: 0 }}
-					viewport={{ once: true, amount: 0.7 }}
+					viewport={{ once: true, margin: '-150px' }}
 					transition={{ duration: 0.5, ease: 'easeIn', delay: 0.25 }}
-					className="mx-auto max-w-3xl text-center text-5xl"
+					className="max-w-3xl text-center text-5xl md:mx-auto"
 				>
 					<PageHeader title="meet the student-led ventures we've worked with." size="text-5xl" />
 				</motion.p>

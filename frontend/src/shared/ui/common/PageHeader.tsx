@@ -19,7 +19,7 @@ interface PageHeaderProps {
 export function PageHeader({
 	title,
 	className = '',
-	size = 'text-7xl',
+	size = 'text-5xl md:text-7xl',
 	animated = true,
 }: PageHeaderProps) {
 	const content = (
