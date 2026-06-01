@@ -221,7 +221,6 @@ function ContactFormSection() {
 	const [status, setStatus] = useState<FormState>('idle');
 	const formRef = useRef<HTMLDivElement>(null);
 
-	// TODO: Replace with your company email address
 	const COMPANY_EMAIL = 'edinburghventurepoint@gmail.com';
 
 	function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
@@ -237,8 +236,6 @@ function ContactFormSection() {
 		setStatus('submitting');
 
 		try {
-			// Uses the mailto: protocol as a reliable, zero-dependency fallback.
-			// Swap this block for a fetch() call to your API / email service when ready.
 			const subject = encodeURIComponent(`EVP Contact: ${name}`);
 			const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\n${message}`);
 			window.location.href = `mailto:${COMPANY_EMAIL}?subject=${subject}&body=${body}`;

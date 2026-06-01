@@ -13,7 +13,6 @@ export function GlobalBackground() {
 		<div
 			className={`h-full w-full opacity-40 blur-md transition-colors duration-300 ${fallbackBgClass}`}
 		>
-			{/* 3. Wrap the lazy component in Suspense */}
 			<Suspense fallback={<div className="h-full w-full" />}>
 				<ColorBends
 					colors={colors}
