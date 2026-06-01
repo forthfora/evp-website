@@ -70,23 +70,27 @@ export function Header({
 			aria-hidden={!visible}
 		>
 			<div className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-3">
-				<LogoAndTitle isLarge={false} />
+				<div className="flex flex-1 justify-start">
+					<LogoAndTitle isLarge={false} />
+				</div>
 
-				<nav className="hidden flex-wrap items-center gap-4 md:flex md:gap-6">
+				<nav className="hidden shrink-0 flex-wrap items-center justify-center gap-4 md:flex md:gap-6">
 					<HeaderNavButtons />
 				</nav>
 
-				<div className="hidden md:block">
-					<AccountAndSettings />
-				</div>
+				<div className="flex flex-1 items-center justify-end">
+					<div className="hidden md:block">
+						<AccountAndSettings />
+					</div>
 
-				<button
-					className="text-foreground p-2 md:hidden"
-					onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-					aria-label="Toggle mobile menu"
-				>
-					{mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-				</button>
+					<button
+						className="text-foreground p-2 md:hidden"
+						onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+						aria-label="Toggle mobile menu"
+					>
+						{mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+					</button>
+				</div>
 			</div>
 
 			<AnimatePresence>

@@ -118,7 +118,7 @@ function WhatWeDoSection() {
 		},
 		{
 			img: whatWeDoImg2,
-			title: 'our investing program',
+			title: 'our investing programme',
 			body: 'We grant students real exposure to early-stage investing.',
 			to: 'events',
 		},
@@ -152,7 +152,7 @@ function WhatWeDoSection() {
 							alt={title}
 							className="mx-auto h-100 w-full max-w-md object-cover shadow-2xl"
 						/>
-						<h3 className="text-3xl font-bold">{title}</h3>
+						<h3 className="px-15 text-4xl font-bold">{title}</h3>
 						<p className="px-10 text-lg">{body}</p>
 						<Link
 							to={to}
