@@ -31,7 +31,6 @@ SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
-ALLOWED_HOSTS = ["*"] if DEBUG else (lambda s: s.split(",") if s else [])(getenv("ALLOWED_HOSTS", ""))
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
@@ -39,7 +38,7 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 TO_EMAILS = (lambda s: s.split(",") if s else [])(getenv("TO_EMAILS", ""))
-FROM_EMAIL = 'noreply@mail.edinburghventurepoint.com'
+FROM_EMAIL = 'website-contact@mail.edinburghventurepoint.com'
 
 RESEND_API_KEY = config('RESEND_API_KEY')
 
@@ -183,3 +182,12 @@ JWT_NINJA = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=7),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 }
+
+if not DEBUG:
+    ALLOWED_HOSTS = ['www.edinburghventurepoint.com', 'backend']
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+else:
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'backend']
