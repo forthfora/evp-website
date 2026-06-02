@@ -227,6 +227,7 @@ export default function ColorBends({
 		container.appendChild(renderer.domElement);
 
 		const timer = new Timer();
+		const timeOffset = Math.random() * 10000;
 
 		const handleResize = () => {
 			const w = container.clientWidth || 1;
@@ -246,8 +247,10 @@ export default function ColorBends({
 		}
 
 		const loop = () => {
+			timer.update();
+
 			const dt = timer.getDelta();
-			const elapsed = timer.getElapsed();
+			const elapsed = timer.getElapsed() + timeOffset;
 			material.uniforms.uTime.value = elapsed;
 
 			const deg = (rotationRef.current % 360) + autoRotateRef.current * elapsed;
