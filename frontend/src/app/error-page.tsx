@@ -4,7 +4,7 @@ import { isRouteErrorResponse, Link, useRouteError } from 'react-router-dom';
 
 import { Footer } from '@/shared/ui/footer/Footer';
 import { Header } from '@/shared/ui/header/Header';
-import { GlobalBackground } from '@/shared/ui/common/global-background/GlobalBackground';
+import { GlobalBackground } from '@/shared/ui/global-background/GlobalBackground';
 
 export default function ErrorPage() {
 	const error = useRouteError();

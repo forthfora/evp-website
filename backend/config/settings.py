@@ -125,13 +125,8 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # The parsed format follows postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1&...]
 DATABASE_URL = getenv("DATABASE_URL")
 
-# in-memory sqlite
-if DATABASE_URL and DATABASE_URL.startswith((":memory:", "file:")):
-    if not DEBUG:
-        raise RuntimeError("In-memory SQLite should only be used with DEBUG=True")
-    DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": DATABASE_URL}}
 # postgres
-elif DATABASE_URL:
+if DATABASE_URL:
     PARSED_DATABASE_URL = urlparse(DATABASE_URL)
     DATABASES = {
         "default": {
@@ -148,25 +143,23 @@ else:
     DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": BASE_DIR / "db.sqlite3"}}
 
 
-
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
-# TODO: readd validation
-# AUTH_PASSWORD_VALIDATORS = [
-#     {
-#         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-#     },
-#     {
-#         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-#     },
-#     {
-#         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-#     },
-#     {
-#         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-#     },
-# ]
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
 
 
 # Internationalization

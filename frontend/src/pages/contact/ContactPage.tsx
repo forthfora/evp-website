@@ -11,20 +11,8 @@ import networkImg from '@assets/contact/promo-network.webp';
 import offerImg1 from '@assets/contact/offer-1.webp';
 import offerImg2 from '@assets/contact/offer-2.webp';
 import offerImg3 from '@assets/contact/offer-3.webp';
-
-const fadeDown = (delay = 0) => ({
-	initial: { opacity: 0, y: -50 },
-	whileInView: { opacity: 1, y: 0 },
-	viewport: { once: true as const, margin: '-150px' },
-	transition: { duration: 0.6, ease: 'easeOut' as const, delay },
-});
-
-const fadeUp = (delay = 0) => ({
-	initial: { opacity: 0, y: 50 },
-	whileInView: { opacity: 1, y: 0 },
-	viewport: { once: true as const, margin: '-150px' },
-	transition: { duration: 0.6, ease: 'easeOut' as const, delay },
-});
+import { RadialGlowOverlay } from '@/shared/ui/common/RadialGlowOverlay';
+import { Socials } from '@/shared/ui/common/Socials';
 
 const slideIn = (direction: 'left' | 'right', delay = 0) => ({
 	initial: { opacity: 0, x: direction === 'left' ? -60 : 60 },
@@ -46,16 +34,18 @@ export function ContactPage() {
 		<div className="flex w-full flex-col">
 			<ContactHero />
 
-			<section className="py-10 pt-40">
-				<PageHeader title={'what we offer'} />
+			<section className="py-10 pt-50">
+				<PageHeader title={'what we offer'} delay={0.5} />
 
-				<div className="glass-box my-10 w-full overflow-hidden py-25 md:py-40">
+				<div className="glass-box my-20 w-full overflow-hidden py-25 md:py-40">
 					<div className="mx-auto flex max-w-6xl flex-col items-center gap-10 px-4 md:flex-row md:items-start">
 						<motion.div
 							{...slideIn('right', 0.2)}
 							className="flex w-full flex-col items-center gap-5 text-center md:w-1/2 md:items-start md:text-left"
 						>
-							<h2 className="text-4xl font-bold md:text-5xl">the scout programme</h2>
+							<h2 id="scout-programme" className="text-4xl font-bold md:text-5xl">
+								the scout programme
+							</h2>
 							<SectionDivider width="w-75 md:w-100" my="my-2" />
 							<b className="text-lg md:text-xl">
 								Each semester, EVP handpicks a few student 'venture scouts' following a vetted
@@ -100,7 +90,9 @@ export function ContactPage() {
 							{...slideIn('right', 0.2)}
 							className="flex w-full flex-col items-center gap-5 text-center md:w-1/2 md:items-end md:text-right"
 						>
-							<h2 className="text-4xl font-bold md:text-5xl">our network</h2>
+							<h2 id="network" className="text-4xl font-bold md:text-5xl">
+								our network
+							</h2>
 							<SectionDivider width="w-75 md:w-100" my="my-2" />
 							<b className="text-lg md:text-xl">
 								Angel syndicates, accelerators, venture capital funds, industry luminaries, and
@@ -155,11 +147,11 @@ function OfferCardsSection() {
 		},
 		{
 			img: offerImg3,
-			title: 'tech societies',
+			title: 'top tech societies',
 			body: (
 				<p>
-					We are a CompSoc Special Interest Group. Our members have access to everything the the
-					largest computer science society in Scotland has to offer.
+					We are a CompSoc Special Interest Group. Our members have access to everything the largest
+					computer science society in Scotland has to offer.
 				</p>
 			),
 		},
@@ -192,25 +184,39 @@ function OfferCardsSection() {
 
 function ContactHero() {
 	return (
-		<section className="relative flex h-[50vh] min-h-80 w-full items-end overflow-hidden">
+		<section className="relative mx-auto flex h-[50vh] min-h-180 w-full items-center overflow-hidden text-center">
 			<img
 				src={contactImg}
 				alt="The Scottish flag on a cathedral tower"
 				className="absolute inset-0 h-full w-full object-cover"
 			/>
-			<div className="bg-background/60 absolute inset-0" />
+			<div className="bg-background/40 absolute inset-0" />
+			<RadialGlowOverlay />
 
-			<div className="relative z-10 mx-auto w-full max-w-6xl px-6 pb-12">
-				<motion.div {...fadeDown(0.1)}>
-					<h1 className="text-5xl font-bold md:text-7xl">get in touch</h1>
-					<SectionDivider width="w-75 md:w-100" my="my-3" />
-				</motion.div>
-				<motion.div {...fadeUp(0.1)}>
-					<p className="max-w-xl text-lg md:text-xl">
-						Whether you're a founder, investor or just curious about what EVP can offer - we'd love
-						to hear from you.
-					</p>
-				</motion.div>
+			<div className="relative z-10 mx-auto mt-40 w-full max-w-6xl px-4">
+				<PageHeader title="get in touch" />
+
+				<motion.p
+					initial={{ opacity: 0, y: 30 }}
+					whileInView={{ opacity: 1, y: 0 }}
+					viewport={{ once: true, amount: 1 }}
+					transition={{ duration: 0.5, ease: 'easeIn', delay: 0.15 }}
+					className="mx-auto max-w-4xl py-5 text-3xl font-bold italic"
+				>
+					Whether you're a founder, investor or just curious about what EVP can offer - we'd love to
+					hear from you.
+				</motion.p>
+
+				<motion.p
+					initial={{ opacity: 0, y: 30 }}
+					whileInView={{ opacity: 1, y: 0 }}
+					viewport={{ once: true, amount: 1 }}
+					transition={{ duration: 0.5, ease: 'easeIn', delay: 0.3 }}
+					className="mx-auto max-w-2xl pb-5 text-xl"
+				>
+					<p className="mb-5">Stay in the loop. Find us on:</p>
+					<Socials className="mx-2 h-12 w-12 md:h-9 md:w-9" />
+				</motion.p>
 			</div>
 		</section>
 	);
@@ -287,7 +293,9 @@ function ContactFormSection() {
 					{...slideIn('right', 0.2)}
 					className="flex w-full flex-col items-center gap-6 text-center md:w-1/2 md:items-start md:text-left"
 				>
-					<h2 className="text-4xl font-bold md:text-5xl">contact us</h2>
+					<h2 id="email" className="-scroll-mt-25 text-4xl font-bold md:text-5xl">
+						contact us
+					</h2>
 					<SectionDivider width="w-75 md:w-100" my="my-2" />
 					<p className="text-lg md:text-xl">
 						Fill in the form below and we'll get back to you as soon as possible.

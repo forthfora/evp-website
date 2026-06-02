@@ -7,6 +7,8 @@ body,
 	background-color: var(--background);
 	color: var(--foreground);
 
+	scroll-padding-top: 30vh;
+
 	@apply scrollbar-thumb-foreground scrollbar-thin scrollbar-track-transparent;
 }
 

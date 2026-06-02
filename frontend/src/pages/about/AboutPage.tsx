@@ -77,12 +77,12 @@ export function AboutPage() {
 			</div>
 
 			{/* Idea / pitch block */}
-			<div className="glass-box mx-auto mt-15 w-full px-4 py-16 md:mt-25 md:px-8 md:py-20">
+			<div className="glass-box mx-auto mt-15 w-full px-4 py-16 md:mt-40 md:px-8 md:py-32">
 				<div className="mx-auto flex w-full max-w-5xl flex-col items-center gap-10 md:flex-row md:gap-15 lg:items-start">
 					<motion.div
 						initial={{ opacity: 0, x: -50 }}
 						whileInView={{ opacity: 1, x: 0 }}
-						viewport={{ once: true, amount: 0.1 }}
+						viewport={{ once: true, amount: 0.6 }}
 						transition={{ duration: 0.5, ease: 'easeOut' }}
 						className="flex-1 text-center md:text-left"
 					>
@@ -105,8 +105,8 @@ export function AboutPage() {
 					<motion.img
 						initial={{ opacity: 0, x: 50 }}
 						whileInView={{ opacity: 1, x: 0 }}
-						viewport={{ once: true, amount: 0.1 }}
-						transition={{ duration: 0.5, ease: 'easeOut' }}
+						viewport={{ once: true, amount: 0.6 }}
+						transition={{ delay: 0.4, duration: 0.5, ease: 'easeOut' }}
 						src={ideaImg}
 						alt="A start-up presenting at one of EVP's events"
 						className="h-70 w-full max-w-sm rounded-lg object-cover shadow-2xl md:max-w-md"
@@ -115,7 +115,7 @@ export function AboutPage() {
 			</div>
 
 			{/* Team header */}
-			<div className="mx-auto w-full max-w-6xl px-4 md:px-8">
+			<div className="mx-auto mt-10 w-full max-w-6xl px-4 md:px-8">
 				<PageHeader
 					title="meet the team"
 					className="py-10 pt-20 md:py-15 md:pt-50"

@@ -120,13 +120,13 @@ function WhatWeDoSection() {
 			img: whatWeDoImg2,
 			title: 'our investing programme',
 			body: 'We grant students real exposure to early-stage investing.',
-			to: 'events',
+			to: 'contact#scout-programme',
 		},
 		{
 			img: whatWeDoImg3,
 			title: 'network & partnerships',
 			body: 'From angel syndicates to celebrated founders.',
-			to: 'contact',
+			to: 'contact#network',
 		},
 	];
 

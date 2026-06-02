@@ -41,7 +41,7 @@ export function Footer() {
 						<div className="text-foreground-muted text-sm font-bold tracking-wide uppercase">
 							Socials
 						</div>
-						{Socials()}
+						<Socials />
 
 						<div className="mt-2 max-w-xs text-sm sm:text-right">
 							Issues with the website itself? <br className="hidden sm:inline" />
