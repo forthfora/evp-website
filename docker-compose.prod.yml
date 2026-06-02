@@ -6,6 +6,7 @@ services:
     environment:
       - VITE_API_BASE_URL=https://www.edinburghventurepoint.com
     volumes:
+      - ./frontend/nginx.prod.conf:/etc/nginx/conf.d/default.conf:ro
       - /etc/letsencrypt:/etc/letsencrypt:ro
 
   backend:

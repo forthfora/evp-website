@@ -3,11 +3,6 @@ services:
     build:
       context: ./frontend 
       dockerfile: Dockerfile
-    ports:
-      - "80:80"
-      - "443:443"
-    environment:
-      - VITE_API_BASE_URL=http://localhost:8000
     depends_on:
       - backend
     volumes:
@@ -22,9 +17,9 @@ services:
       - /app/.venv
       - django_static:/app/staticfiles 
     command: >
-      sh -c "python manage.py migrate --noinput &&
-              python manage.py collectstatic --noinput &&
-              gunicorn myproject.wsgi:application --bind 0.0.0.0:8000"
+      sh -c "uv run python manage.py migrate --noinput &&
+             uv run python manage.py collectstatic --noinput &&
+             uv run gunicorn config.wsgi:application --bind 0.0.0.0:8000"
 
 volumes:
   django_static:
