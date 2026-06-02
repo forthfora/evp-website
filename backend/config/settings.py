@@ -30,10 +30,39 @@ sys.path.insert(0, str(BASE_DIR / "apps"))
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = str(getenv("DEBUG", False)).lower() == "true"
+DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = ["*"] if DEBUG else (lambda s: s.split(";") if s else [])(getenv("ALLOWED_HOSTS", ""))
-CORS_ORIGIN_ALLOW_ALL = True # TODO: only for development
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
+TO_EMAIL = 'edinburghventurepoint@gmail.com'
+FROM_EMAIL = 'noreply@mail.edinburghventurepoint.com'
+
+RESEND_API_KEY = config('RESEND_API_KEY')
+
+if DEBUG:
+    # Print emails to the terminal during local development
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+    # Send real emails via Resend SMTP in production
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp.resend.com'
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = 'resend'
+    EMAIL_HOST_PASSWORD = config('RESEND_API_KEY')
+
+REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '5/day',
+    }
+}
 
 # Application definition
 INSTALLED_APPS = [
@@ -52,6 +81,7 @@ INSTALLED_APPS = [
     # 3rd Party Packages
     'corsheaders',
     'jwt_ninja',
+    'rest_framework',
 
     # Local Apps
     'apps.core',
@@ -114,15 +144,9 @@ elif DATABASE_URL:
         }
     }
 # local sqlite
-elif DEBUG:
-    DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": BASE_DIR / "db.sqlite3"}}
 else:
-    raise SystemExit(
-        "You should set-up at least one of:\n"
-        "- DATABASE_URL to use PostgreSQL - postgresql://[user[:password]@][netloc][:port][/dbname]\n"
-        "- DATABASE_URL=':memory:' for in-memory SQLite (DEBUG only)\n"
-        "- DEBUG to use file-based SQLite"
-    )
+    DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": BASE_DIR / "db.sqlite3"}}
+
 
 
 # Password validation

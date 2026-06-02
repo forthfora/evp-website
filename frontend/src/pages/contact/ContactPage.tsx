@@ -221,8 +221,6 @@ function ContactFormSection() {
 	const [status, setStatus] = useState<FormState>('idle');
 	const formRef = useRef<HTMLDivElement>(null);
 
-	const COMPANY_EMAIL = 'edinburghventurepoint@gmail.com';
-
 	function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
 		setFields((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 	}
@@ -236,13 +234,32 @@ function ContactFormSection() {
 		setStatus('submitting');
 
 		try {
-			const subject = encodeURIComponent(`EVP Contact: ${name}`);
-			const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\n${message}`);
-			window.location.href = `mailto:${COMPANY_EMAIL}?subject=${subject}&body=${body}`;
+			const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
 
-			setStatus('success');
-			setFields({ name: '', email: '', message: '' });
-		} catch {
+			const response = await fetch(`${baseUrl}/api/contact`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(fields),
+			});
+
+			const contentType = response.headers.get('content-type');
+			let data: any = {};
+
+			if (contentType && contentType.includes('application/json')) {
+				data = await response.json();
+			}
+
+			if (response.ok) {
+				setStatus('success');
+				setFields({ name: '', email: '', message: '' });
+			} else {
+				console.error('Server rejected the request:', data.error || response.statusText);
+				setStatus('error');
+			}
+		} catch (error) {
+			console.error('Network or parsing error:', error);
 			setStatus('error');
 		}
 	}
@@ -360,7 +377,7 @@ function ContactFormSection() {
 							<motion.p
 								initial={{ opacity: 0, y: 8 }}
 								animate={{ opacity: 1, y: 0 }}
-								className="text-accent text-center text-sm md:text-left"
+								className="text-foreground text-center text-lg md:text-left"
 							>
 								Thanks for reaching out - we'll be in touch soon.
 							</motion.p>
@@ -369,7 +386,7 @@ function ContactFormSection() {
 							<motion.p
 								initial={{ opacity: 0, y: 8 }}
 								animate={{ opacity: 1, y: 0 }}
-								className="text-center text-sm text-red-400 md:text-left"
+								className="text-lg-400 text-center text-sm md:text-left"
 							>
 								Something went wrong. Please try again or email us directly.
 							</motion.p>

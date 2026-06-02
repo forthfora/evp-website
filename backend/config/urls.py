@@ -20,14 +20,13 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.http import Http404, HttpRequest, HttpResponse
 from django.urls import path
+from django.views.generic.base import RedirectView
 from ninja import NinjaAPI
 from ninja.errors import AuthorizationError, HttpError, ValidationError
 
 from helpers.exceptions import ResourceNotFound
 
-api_prefix = "api"
-
-api = NinjaAPI(docs_url="/docs" if settings.DEBUG else None)
+api = NinjaAPI(docs_url="docs" if settings.DEBUG else None)
 
 
 @api.exception_handler(ValidationError)
@@ -67,13 +66,15 @@ def http_error_handler(request: HttpRequest, exc: HttpError) -> HttpResponse:
     return api.create_response(request, {"detail": str(exc)}, status=exc.status_code)
 
 
-api.add_router(f"/{api_prefix}", "apps.core.api.router")
-api.add_router(f"/{api_prefix}", "apps.accounts.api.router")
+api.add_router("", "apps.core.api.router")
+api.add_router("", "apps.accounts.api.router")
 api.add_router("/auth", "jwt_ninja.api.router")
 
+
 urlpatterns = [
+    path("admin", RedirectView.as_view(url="/admin/", permanent=True)),
     path("admin/", admin.site.urls),
-    path("", api.urls),
+    path("api/", api.urls),
 ]
 
 if settings.DEBUG:
