@@ -2,7 +2,7 @@ import './app.css';
 
 import { RouterProvider } from 'react-router';
 
-import { ThemeProvider } from '@/shared/ui/ThemeContext';
+import { ThemeProvider } from '@/shared/ui/theme/ThemeContext';
 
 import { browserRouter } from './browser-router';
 

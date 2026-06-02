@@ -3,7 +3,7 @@ import '@/shared/styles/button-spin.css';
 
 import { Moon, Sun } from 'lucide-react';
 
-import { useTheme } from '@/shared/ui/ThemeContext';
+import { useTheme } from '@/shared/ui/theme/ThemeContext.data';
 
 export function AccountAndSettings() {
 	const { theme, toggleTheme } = useTheme();

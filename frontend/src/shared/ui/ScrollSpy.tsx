@@ -86,10 +86,16 @@ export function ScrollSpy({ fadeThreshold = 450 }: ScrollSpyProps = {}) {
 
 	useEffect(() => {
 		window.addEventListener('scroll', handleScroll, { passive: true });
-		// Run once on mount to determine initial visibility
-		handleScroll();
 
-		return () => window.removeEventListener('scroll', handleScroll);
+		// Defer the initial check to run immediately after mounting commits
+		const frameId = requestAnimationFrame(() => {
+			handleScroll();
+		});
+
+		return () => {
+			window.removeEventListener('scroll', handleScroll);
+			cancelAnimationFrame(frameId);
+		};
 	}, [handleScroll]);
 
 	if (headings.length === 0) return null;

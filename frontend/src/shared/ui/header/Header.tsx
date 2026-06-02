@@ -7,7 +7,7 @@ import { cn } from '@/shared/lib/utils';
 
 import { AccountAndSettings } from './AccountAndSettings';
 import { LogoAndTitle } from './LogoAndTitle';
-import { HeaderNavButtons } from './NavLinkButtons';
+import { HeaderNavButtons } from './nav-link-buttons/NavLinkButtons';
 
 interface HeaderProps {
 	fadeInAt?: number;
@@ -27,24 +27,27 @@ export function Header({
 	const location = useLocation();
 	const isHomePage = location.pathname === '/';
 
-	const [visible, setVisible] = useState(!isHomePage);
+	const [trackedPathname, setTrackedPathname] = useState(location.pathname);
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-	useEffect(() => {
+	if (location.pathname !== trackedPathname) {
+		setTrackedPathname(location.pathname);
 		setMobileMenuOpen(false);
-	}, [location.pathname]);
+	}
+
+	const [isScrolledPast, setIsScrolledPast] = useState(() => {
+		if (typeof window !== 'undefined') {
+			return window.scrollY > fadeInAt;
+		}
+		return false;
+	});
 
 	useEffect(() => {
-		if (!isHomePage) {
-			setVisible(true);
-			return;
-		}
-
-		setVisible(window.scrollY > fadeInAt);
+		if (!isHomePage) return;
 
 		const handleScroll = () => {
 			const y = window.scrollY;
-			setVisible((prev) => {
+			setIsScrolledPast((prev) => {
 				if (!prev && y > fadeInAt) return true;
 				if (prev && y < fadeOutAt) return false;
 				return prev;
@@ -55,6 +58,7 @@ export function Header({
 		return () => window.removeEventListener('scroll', handleScroll);
 	}, [isHomePage, fadeInAt, fadeOutAt]);
 
+	const visible = !isHomePage || isScrolledPast;
 	const transition = `opacity ${transitionDuration}ms ${EASING}, transform ${transitionDuration}ms ${EASING}`;
 
 	return (

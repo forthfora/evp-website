@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { FaGlobe,FaInstagram, FaLinkedin } from 'react-icons/fa6';
+import { FaGlobe, FaInstagram, FaLinkedin } from 'react-icons/fa6';
 
 import { type StartupWithSize } from './startups.layout';
 
@@ -30,11 +30,13 @@ export function StartupBlock({ startup }: StartupBlockProps) {
 				}
 			}}
 			className="group relative max-h-60 max-w-full min-w-full shrink-0 cursor-pointer overflow-hidden rounded-xl bg-gray-300 md:max-h-none md:min-w-0 md:cursor-auto"
-			style={{
-				width,
-				height: `${height}px`,
-				['--startup-accent' as any]: accent,
-			}}
+			style={
+				{
+					width,
+					height: `${height}px`,
+					'--startup-accent': accent,
+				} as React.CSSProperties
+			}
 		>
 			{/* Background Image Layer */}
 			{img && (

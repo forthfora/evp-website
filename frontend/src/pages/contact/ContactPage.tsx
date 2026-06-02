@@ -5,7 +5,7 @@ import networkImg from '@assets/contact/promo-network.webp';
 import scoutImg from '@assets/contact/promo-scout.webp';
 import contactImg from '@assets/homepage/promo-tower.webp';
 import { motion } from 'framer-motion';
-import { type ReactNode,useRef, useState } from 'react';
+import { type ReactNode, useRef, useState } from 'react';
 
 import { PageHeader } from '@/shared/ui/common/PageHeader';
 import { RadialGlowOverlay } from '@/shared/ui/common/RadialGlowOverlay';
@@ -25,6 +25,12 @@ interface FormFields {
 	name: string;
 	email: string;
 	message: string;
+}
+
+interface ApiResponse {
+	error?: string;
+	message?: string;
+	success?: boolean;
 }
 
 export function ContactPage() {
@@ -250,7 +256,7 @@ function ContactFormSection() {
 			});
 
 			const contentType = response.headers.get('content-type');
-			let data: any = {};
+			let data: ApiResponse = {};
 
 			if (contentType && contentType.includes('application/json')) {
 				data = await response.json();

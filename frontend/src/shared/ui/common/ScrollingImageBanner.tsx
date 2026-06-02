@@ -27,7 +27,7 @@ export function ScrollingImageBanner({
 				if (entry.isIntersecting) {
 					// Force a reflow to restart the animation from the beginning
 					track.style.animation = 'none';
-					track.offsetHeight; // trigger reflow
+					void track.offsetHeight; // trigger reflow
 					track.style.animation = `scroll-left ${duration}s linear infinite`;
 				}
 			},

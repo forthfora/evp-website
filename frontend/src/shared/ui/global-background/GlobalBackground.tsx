@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react';
 
-import { useTheme } from '../ThemeContext';
+import { useTheme } from '../theme/ThemeContext.data';
 
 const ColorBends = lazy(() => import('./ColorBends'));
 

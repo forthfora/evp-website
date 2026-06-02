@@ -100,17 +100,17 @@ void main() {
   } else {
       vec2 s = q;
       for (int k = 0; k < 3; ++k) {
-          s -= 0.01;
-          vec2 r = sin(1.5 * (s.yx * uFrequency) + 2.0 * cos(s * uFrequency));
-          float m0 = length(r + sin(5.0 * r.y * uFrequency - 3.0 * t + float(k)) / 4.0);
-          float kBelow = clamp(uWarpStrength, 0.0, 1.0);
-          float kMix = pow(kBelow, 0.3);
-          float gain = 1.0 + max(uWarpStrength - 1.0, 0.0);
-          vec2 disp = (r - s) * kBelow;
-          vec2 warped = s + disp * gain;
-          float m1 = length(warped + sin(5.0 * warped.y * uFrequency - 3.0 * t + float(k)) / 4.0);
-          float m = mix(m0, m1, kMix);
-          col[k] = 1.0 - exp(-uBandWidth / exp(uBandWidth * m));
+        s -= 0.01;
+        vec2 r = sin(1.5 * (s.yx * uFrequency) + 2.0 * cos(s * uFrequency));
+        float m0 = length(r + sin(5.0 * r.y * uFrequency - 3.0 * t + float(k)) / 4.0);
+        float kBelow = clamp(uWarpStrength, 0.0, 1.0);
+        float kMix = pow(kBelow, 0.3);
+        float gain = 1.0 + max(uWarpStrength - 1.0, 0.0);
+        vec2 disp = (r - s) * kBelow;
+        vec2 warped = s + disp * gain;
+        float m1 = length(warped + sin(5.0 * warped.y * uFrequency - 3.0 * t + float(k)) / 4.0);
+        float m = mix(m0, m1, kMix);
+        col[k] = 1.0 - exp(-uBandWidth / exp(uBandWidth * m));
       }
       a = uTransparent > 0 ? max(max(col.r, col.g), col.b) : 1.0;
   }
@@ -168,6 +168,11 @@ export default function ColorBends({
 	// Ready flag ensures we hide initialization context creation flashes
 	const [isReady, setIsReady] = useState(false);
 
+	const setIsReadyRef = useRef(setIsReady);
+	useEffect(() => {
+		setIsReadyRef.current = setIsReady;
+	}, [setIsReady]);
+
 	useEffect(() => {
 		const container = containerRef.current!;
 		const scene = new Scene();
@@ -211,7 +216,9 @@ export default function ColorBends({
 			alpha: true,
 		});
 		rendererRef.current = renderer;
-		(renderer as any).outputColorSpace = SRGBColorSpace;
+
+		renderer.outputColorSpace = SRGBColorSpace;
+
 		renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 		renderer.setClearColor(0x000000, transparent ? 0 : 1);
 		renderer.domElement.style.width = '100%';
@@ -257,9 +264,7 @@ export default function ColorBends({
 			renderer.render(scene, camera);
 
 			// Fade canvas element in safely on the frame immediately following canvas paint
-			if (!isReady) {
-				requestAnimationFrame(() => setIsReady(true));
-			}
+			setIsReadyRef.current(true);
 
 			rafRef.current = requestAnimationFrame(loop);
 		};
@@ -277,6 +282,7 @@ export default function ColorBends({
 				container.removeChild(renderer.domElement);
 			}
 		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	useEffect(() => {
