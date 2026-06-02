@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
+import { RadialGlowOverlay } from './common/RadialGlowOverlay';
 
 interface HeadingData {
 	id: string;
@@ -116,10 +117,22 @@ export function ScrollSpy({ fadeThreshold = 450 }: ScrollSpyProps = {}) {
 				if (isActive) fillPercentage = activeProgress * 100;
 
 				return (
-					<div key={heading.id} className="group flex flex-col">
+					<div key={heading.id} className="group relative flex flex-col">
+						<div className="pointer-events-none absolute -inset-1 rounded-md transition-all duration-300">
+							<div
+								className="bg-background-muted h-10 py-7"
+								style={{
+									maskImage:
+										'radial-gradient(ellipse at center, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 70%)',
+									WebkitMaskImage:
+										'radial-gradient(ellipse at center, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 70%)',
+								}}
+							/>
+						</div>
+
 						{/* Node Row */}
 						<div
-							className="flex cursor-pointer items-center gap-4"
+							className="relative flex cursor-pointer items-center gap-2"
 							onClick={() => {
 								document.getElementById(heading.id)?.scrollIntoView({ behavior: 'smooth' });
 							}}
@@ -132,9 +145,8 @@ export function ScrollSpy({ fadeThreshold = 450 }: ScrollSpyProps = {}) {
 								}`}
 							/>
 
-							{/* Text */}
 							<span
-								className={`max-w-30 text-lg tracking-wide transition-all duration-300 ${
+								className={`text-shadow-3xl z-10 max-w-38 rounded-lg px-3 py-1.5 text-lg tracking-wide transition-all duration-300 ${
 									isActive
 										? 'text-accent font-bold'
 										: 'font-md text-foreground group-hover:text-accent'
@@ -146,7 +158,7 @@ export function ScrollSpy({ fadeThreshold = 450 }: ScrollSpyProps = {}) {
 
 						{/* Connecting Line (Hidden on last item) */}
 						{!isLast && (
-							<div className="flex h-16 w-3.5 justify-center">
+							<div className="relative flex h-16 w-3.5 justify-center">
 								<div className="bg-foreground-muted relative h-full w-0.5 overflow-hidden">
 									<div
 										className="bg-accent absolute top-0 left-0 w-full"
