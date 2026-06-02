@@ -28,7 +28,7 @@ export function StartupsPage() {
 				<RadialGlowOverlay />
 
 				<div className="relative z-10 mx-auto mt-40 w-full max-w-6xl px-4">
-					<PageHeader title="our start-ups" />
+					<PageHeader id="our-start-ups" title="our start-ups" />
 
 					<motion.p
 						initial={{ opacity: 0, y: 30 }}
@@ -61,7 +61,12 @@ export function StartupsPage() {
 					transition={{ duration: 0.5, ease: 'easeIn', delay: 0.5 }}
 					className="max-w-3xl text-center text-5xl md:mx-auto"
 				>
-					<PageHeader title="meet the student-led ventures we've worked with." size="text-5xl" />
+					<PageHeader
+						id="meet-the-startups"
+						navLabel="meet the startups"
+						title="meet the student-led ventures we've worked with."
+						size="text-5xl"
+					/>
 				</motion.div>
 
 				{/* 3-Column Ragged Edge Layout */}
@@ -107,7 +112,13 @@ export function StartupsPage() {
 						</div>
 
 						<div className="z-10 flex flex-col items-center justify-center gap-4">
-							<PageHeader title={'you?'} size="text-7xl" animated={false} />
+							<PageHeader
+								id="you"
+								navLabel="reach out"
+								title={'you?'}
+								size="text-7xl"
+								animated={false}
+							/>
 							<b className="text-foreground text-2xl transition-colors duration-300">
 								We'd love to see you up here.
 							</b>

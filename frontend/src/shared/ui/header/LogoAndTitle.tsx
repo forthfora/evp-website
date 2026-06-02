@@ -28,7 +28,7 @@ export function LogoAndTitle({ isLarge }: LogoAndTitleProps) {
 			to="/"
 			className={wrapperClassName}
 			viewTransition={!isHome}
-			onClick={isHome ? () => window.scrollTo({ top: 0, left: 0, behavior: 'smooth' }) : undefined}
+			onClick={isHome ? () => window.scrollTo({ top: 0, behavior: 'smooth' }) : undefined}
 		>
 			{content(isLarge)}
 		</Link>
@@ -50,7 +50,7 @@ function content(isLarge: boolean) {
 					)}
 				/>
 			</div>
-			<div
+			<h1
 				className={cn(
 					'font-title bg-[linear-gradient(135deg,var(--color-highlight)_35%,var(--color-highlight-inverted)_50%,var(--color-highlight)_65%)] bg-size-[300%_300%] bg-clip-text leading-tight text-transparent md:whitespace-nowrap',
 					isLarge
@@ -61,7 +61,7 @@ function content(isLarge: boolean) {
 				Edinburgh
 				<br />
 				VenturePoint
-			</div>
+			</h1>
 		</>
 	);
 }

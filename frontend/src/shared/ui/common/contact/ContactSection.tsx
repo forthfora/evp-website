@@ -57,7 +57,9 @@ export function ContactSection({
 						transition={{ duration: 0.5, ease: 'easeIn' }}
 						className="text-center"
 					>
-						<h1 className="pt-10 pb-5 text-5xl font-bold">{heading}</h1>
+						<h1 id="reach-out" data-nav-label="reach out" className="pt-10 pb-5 text-5xl font-bold">
+							{heading}
+						</h1>
 						{body.map((line, i) => (
 							<p key={i} className="mx-auto max-w-2xl py-3 text-xl">
 								{line}

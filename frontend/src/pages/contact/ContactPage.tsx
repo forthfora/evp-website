@@ -195,7 +195,7 @@ function ContactHero() {
 			<RadialGlowOverlay />
 
 			<div className="relative z-10 mx-auto mt-40 w-full max-w-6xl px-4">
-				<PageHeader title="get in touch" />
+				<PageHeader id="get-in-touch" title="get in touch" />
 
 				<motion.div
 					initial={{ opacity: 0, y: 30 }}

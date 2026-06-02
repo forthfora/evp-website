@@ -85,7 +85,9 @@ function AboutUsSection() {
 					{...slideIn('right', 0.2)}
 					className="flex w-full flex-col items-center gap-5 text-center md:w-1/2 md:items-start md:text-left"
 				>
-					<h2 className="text-4xl font-bold md:text-5xl">who we are</h2>
+					<h2 id="who-we-are" className="text-4xl font-bold md:text-5xl">
+						who we are
+					</h2>
 					<SectionDivider width="w-75 md:w-100" my="my-2" />
 					<p className="text-lg md:text-xl">
 						Edinburgh VenturePoint is a student-led community for ambitious founders and future
@@ -133,7 +135,9 @@ function WhatWeDoSection() {
 	return (
 		<section className="w-full py-25">
 			<motion.div {...fadeUp()}>
-				<h2 className="text-center text-4xl font-bold md:text-5xl">what we do</h2>
+				<h2 id="what-we-do" className="text-center text-4xl font-bold md:text-5xl">
+					what we do
+				</h2>
 				<SectionDivider className="mx-auto" width="w-75 md:w-100" my="my-2" />
 			</motion.div>
 
@@ -181,7 +185,13 @@ function EventsSection() {
 			</motion.div>
 
 			<motion.div {...fadeUp()} className="flex flex-col items-center">
-				<h1 className="pt-10 pb-5 text-center text-5xl font-bold">join us at our next event!</h1>
+				<h1
+					id="events"
+					data-nav-label="our events"
+					className="pt-10 pb-5 text-center text-5xl font-bold"
+				>
+					join us at our next event!
+				</h1>
 				<SectionDivider />
 				<p className="mx-auto max-w-2xl py-5 text-center text-lg md:text-2xl">
 					From exclusive investor meet-ups to the most promising start-ups, we've got something to

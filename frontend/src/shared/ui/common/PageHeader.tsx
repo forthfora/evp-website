@@ -1,33 +1,37 @@
 import { motion } from 'framer-motion';
-
 import { SectionDivider } from './SectionDivider';
 
 interface PageHeaderProps {
 	title: string;
 	/** Extra Tailwind classes on the outer wrapper. */
 	className?: string;
-	/** Font-size class. Defaults to "text-5xl". */
+	/** Font-size class. Defaults to "text-5xl md:text-7xl". */
 	size?: string;
 	/** Whether to wrap in a motion.div with a slide-in animation. Defaults to true. */
 	animated?: boolean;
 	/** Delay before the animation starts. Defaults to 0. */
 	delay?: number;
+
+	/** Unique ID for page navigation / ScrollSpy. */
+	id?: string;
+	/** Optional override text for the ScrollSpy sidebar. */
+	navLabel?: string;
 }
 
-/**
- * Reusable page / section heading with the standard divider underneath.
- * Used on EventsPage, StartupsPage, AboutPage, etc.
- */
 export function PageHeader({
 	title,
 	className = '',
 	size = 'text-5xl md:text-7xl',
 	animated = true,
 	delay = 0.0,
+	id,
+	navLabel,
 }: PageHeaderProps) {
 	const content = (
 		<div className={`flex flex-col items-center ${className}`}>
-			<h1 className={`${size} font-bold`}>{title}</h1>
+			<h1 id={id} data-nav-label={navLabel} className={`${size} font-bold`}>
+				{title}
+			</h1>
 			<SectionDivider />
 		</div>
 	);

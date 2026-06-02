@@ -161,46 +161,51 @@ function EventCard({ event, index, isPast }: { event: EVPEvent; index: number; i
 export function EventsPage() {
 	return (
 		<div className="mx-auto flex w-full flex-col py-50">
-			<PageHeader title="our events" className="mb-10" />
+			<PageHeader id="our-events" title="our events" className="mb-10" />
 
-			<EventsBanner />
+			<div className="glass-box py-20">
+				<EventsBanner />
 
-			<div className="mx-auto max-w-6xl px-4">
-				{/* Stats row */}
-				<div className="my-12 grid grid-cols-2 gap-8 text-center md:grid-cols-4">
-					{EVENTS_STATS.map((stat, index) => (
-						<div key={index} className="flex flex-col items-center justify-center">
-							<AnimatedCounter value={stat.value} suffix={stat.suffix} />
-							<p className="text-foreground-muted mt-2 text-sm font-medium tracking-wider uppercase">
-								{stat.label}
-							</p>
-						</div>
-					))}
+				<div className="mx-auto max-w-6xl px-4">
+					{/* Stats row */}
+					<div className="my-12 grid grid-cols-2 gap-8 text-center md:grid-cols-4">
+						{EVENTS_STATS.map((stat, index) => (
+							<div key={index} className="flex flex-col items-center justify-center">
+								<AnimatedCounter value={stat.value} suffix={stat.suffix} />
+								<p className="text-foreground-muted mt-2 text-sm font-medium tracking-wider uppercase">
+									{stat.label}
+								</p>
+							</div>
+						))}
+					</div>
+
+					<p className="mx-auto mt-10 max-w-4xl py-5 text-center text-3xl font-bold">
+						We're a community of the boldest founders and innovators at The University of Edinburgh
+						and across Scotland.
+					</p>
+
+					<p className="py-5 text-center text-2xl">
+						If you're building something amazing, let's meet up.
+					</p>
 				</div>
-
-				<p className="mx-auto mt-10 max-w-4xl py-5 text-center text-3xl font-bold">
-					We're a community of the boldest founders and innovators at The University of Edinburgh
-					and across Scotland.
-				</p>
-
-				<p className="text-foreground-muted py-5 text-center text-xl">
-					If you're building something amazing, we'd like to meet you.
-				</p>
 			</div>
 
-			<section className="mx-auto mt-30 w-full max-w-6xl px-4">
+			<section className="mx-auto mt-50 w-full max-w-6xl px-4">
 				<motion.div
 					initial={{ opacity: 0, y: -50 }}
 					whileInView={{ opacity: 1, y: 0 }}
 					viewport={{ once: true, margin: '-150px' }}
 					transition={{ duration: 0.6, ease: 'easeOut' }}
+					className="flex flex-col items-center text-center"
 				>
-					<h2 className="mb-5 text-4xl font-bold md:text-5xl">upcoming events</h2>
+					<h2 id="upcoming-events" className="mb-5 text-4xl font-bold md:text-6xl">
+						upcoming events
+					</h2>
 					<SectionDivider width="w-75 md:w-100" my="my-2" />
 				</motion.div>
 
 				{UPCOMING_EVENTS.length > 0 ? (
-					<div className="mt-20 flex flex-col gap-6">
+					<div className="mt-10 flex flex-col gap-6">
 						{UPCOMING_EVENTS.map((event, i) => (
 							<EventCard key={event.id} event={event} index={i} />
 						))}
@@ -226,14 +231,17 @@ export function EventsPage() {
 					whileInView={{ opacity: 1, y: 0 }}
 					viewport={{ once: true, margin: '-150px' }}
 					transition={{ duration: 0.6, ease: 'easeOut' }}
+					className="flex flex-col items-center text-center"
 				>
-					<h2 className="mb-5 text-4xl font-bold md:text-5xl">past events</h2>
+					<h2 id="past-events" className="mb-5 text-4xl font-bold md:text-6xl">
+						past events
+					</h2>
 					<SectionDivider width="w-75 md:w-100" my="my-2" />
-					<p className="text-foreground-muted mt-4 text-lg">A look back at where we've been.</p>
+					<p className="text-foreground-muted mt-4 text-2xl">A look back at where we've been.</p>
 				</motion.div>
 
 				{PAST_EVENTS.length > 0 ? (
-					<div className="mt-20 flex flex-col gap-6">
+					<div className="mt-10 flex flex-col gap-6">
 						{PAST_EVENTS.map((event, i) => (
 							<EventCard key={event.id} event={event} index={i} isPast />
 						))}

@@ -42,7 +42,7 @@ export function AboutPage() {
 				<RadialGlowOverlay />
 
 				<div className="relative z-10 mx-auto mt-30 w-full max-w-6xl px-4 md:px-8">
-					<PageHeader title="who we are" />
+					<PageHeader id="who-we-are" title="who we are" />
 
 					<motion.p
 						initial={{ opacity: 0, y: 30 }}
@@ -86,9 +86,13 @@ export function AboutPage() {
 						transition={{ duration: 0.5, ease: 'easeOut' }}
 						className="flex-1 text-center md:text-left"
 					>
-						<h3 className="mb-4 text-3xl leading-tight font-bold italic md:text-5xl md:leading-16">
+						<h2
+							id="idea"
+							data-nav-label="got an idea?"
+							className="mb-4 text-3xl leading-tight font-bold italic md:text-5xl md:leading-16"
+						>
 							Have a great idea, but lack the funding?
-						</h3>
+						</h2>
 						<SectionDivider
 							my="my-6 md:my-10"
 							width="w-3/4 max-w-[200px] mx-auto md:mx-0 md:w-100"
@@ -117,6 +121,7 @@ export function AboutPage() {
 			{/* Team header */}
 			<div className="mx-auto mt-10 w-full max-w-6xl px-4 md:px-8">
 				<PageHeader
+					id="meet-the-team"
 					title="meet the team"
 					className="py-10 pt-20 md:py-15 md:pt-50"
 					size="text-4xl md:text-6xl"
