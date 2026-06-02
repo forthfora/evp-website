@@ -1,5 +1,6 @@
 services:
   frontend:
+    image: ghcr.io/forthfora/evp-frontend:latest
     build:
       context: ./frontend 
       dockerfile: Dockerfile
@@ -9,6 +10,7 @@ services:
       - django_static:/var/www/django/static:ro
 
   backend:
+    image: ghcr.io/forthfora/evp-backend:latest
     build:
       context: ./backend
       dockerfile: Dockerfile

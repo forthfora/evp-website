@@ -32,6 +32,11 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:16016",
+    "http://127.0.0.1:16016",
+]
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:16016",
     "http://127.0.0.1:16016",
@@ -184,10 +189,11 @@ JWT_NINJA = {
 }
 
 if not DEBUG:
-    ALLOWED_HOSTS = ['www.edinburghventurepoint.com', 'backend']
+    ALLOWED_HOSTS = ['www.edinburghventurepoint.com', 'localhost', '127.0.0.1', 'backend']
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+    # TODO: setup SSL
+    # SECURE_SSL_REDIRECT = True
+    # SESSION_COOKIE_SECURE = True
+    # CSRF_COOKIE_SECURE = True
 else:
     ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'backend']

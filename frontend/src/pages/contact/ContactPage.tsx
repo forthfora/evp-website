@@ -245,9 +245,7 @@ function ContactFormSection() {
 		setStatus('submitting');
 
 		try {
-			const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
-
-			const response = await fetch(`${baseUrl}/api/contact`, {
+			const response = await fetch('api/contact', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
