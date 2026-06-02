@@ -1,15 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
-	Scene,
+	Mesh,
 	OrthographicCamera,
 	PlaneGeometry,
+	Scene,
 	ShaderMaterial,
-	Mesh,
-	WebGLRenderer,
+	SRGBColorSpace,
 	Timer,
 	Vector2,
 	Vector3,
-	SRGBColorSpace,
+	WebGLRenderer,
 } from 'three';
 
 type ColorBendsProps = {

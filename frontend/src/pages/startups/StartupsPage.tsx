@@ -1,16 +1,14 @@
+import startupsBkg from '@assets/startups/startups-bkg.webp';
 import { motion } from 'framer-motion';
 import { useMemo } from 'react';
 
+import InteractiveContactButton from '@/shared/ui/common/contact/InteractiveContactButton';
 import { PageHeader } from '@/shared/ui/common/PageHeader';
+import { RadialGlowOverlay } from '@/shared/ui/common/RadialGlowOverlay';
 
 import { StartupBlock } from './StartupBlock';
 import { STARTUPS } from './startups.data';
 import { generateColumns } from './startups.layout';
-import { RadialGlowOverlay } from '@/shared/ui/common/RadialGlowOverlay';
-
-import InteractiveContactButton from '@/shared/ui/common/contact/InteractiveContactButton';
-
-import startupsBkg from '@assets/startups/startups-bkg.webp';
 
 export function StartupsPage() {
 	const columns = useMemo(() => generateColumns(STARTUPS), []);

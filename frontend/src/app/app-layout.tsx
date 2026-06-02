@@ -1,8 +1,8 @@
 import { Outlet, ScrollRestoration } from 'react-router-dom';
 
 import { Footer } from '@/shared/ui/footer/Footer';
-import { Header } from '@/shared/ui/header/Header';
 import { GlobalBackground } from '@/shared/ui/global-background/GlobalBackground';
+import { Header } from '@/shared/ui/header/Header';
 import { ScrollSpy } from '@/shared/ui/ScrollSpy';
 
 export function AppLayout() {

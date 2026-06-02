@@ -1,6 +1,7 @@
-import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FaInstagram, FaLinkedin, FaGlobe } from 'react-icons/fa6';
+import { useState } from 'react';
+import { FaGlobe,FaInstagram, FaLinkedin } from 'react-icons/fa6';
+
 import { type StartupWithSize } from './startups.layout';
 
 interface StartupBlockProps {

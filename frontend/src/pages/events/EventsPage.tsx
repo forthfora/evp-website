@@ -1,12 +1,12 @@
-import { animate, useInView, useMotionValue, useSpring, motion } from 'framer-motion';
+import { animate, motion,useInView, useMotionValue, useSpring } from 'framer-motion';
 import { useEffect, useRef } from 'react';
 
 import { EventsBanner } from '@/shared/ui/common/EventsBanner';
 import { PageHeader } from '@/shared/ui/common/PageHeader';
 import { SectionDivider } from '@/shared/ui/common/SectionDivider';
 
-import { EVENTS_STATS, UPCOMING_EVENTS, PAST_EVENTS } from './events.data';
-import type { EVPEvent, EventSpotStatus } from './events.data';
+import type { EventSpotStatus,EVPEvent } from './events.data';
+import { EVENTS_STATS, PAST_EVENTS,UPCOMING_EVENTS } from './events.data';
 
 function AnimatedCounter({ value, suffix }: { value: number; suffix: string }) {
 	const ref = useRef<HTMLSpanElement>(null);

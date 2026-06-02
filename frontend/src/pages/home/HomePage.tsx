@@ -1,12 +1,11 @@
 import '@/shared/styles/button-underline.css';
 
 import homepageBkg from '@assets/homepage/homepage-bkg.webp';
-import aboutUsImg from '@assets/homepage/promo-chairs.webp';
-import whatWeDoImg1 from '@assets/homepage/promo-present.webp';
-import whatWeDoImg2 from '@assets/homepage/promo-conf.webp';
 import whatWeDoImg3 from '@assets/homepage/promo-bar.webp';
+import aboutUsImg from '@assets/homepage/promo-chairs.webp';
+import whatWeDoImg2 from '@assets/homepage/promo-conf.webp';
+import whatWeDoImg1 from '@assets/homepage/promo-present.webp';
 import contactImg from '@assets/homepage/promo-tower.webp';
-
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 

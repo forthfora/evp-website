@@ -1,17 +1,15 @@
-import contactImg from '@assets/homepage/promo-tower.webp';
-import { motion } from 'framer-motion';
-import { useRef, useState, type ReactNode } from 'react';
-
-import { SectionDivider } from '@/shared/ui/common/SectionDivider';
-import { PageHeader } from '@/shared/ui/common/PageHeader';
-
-import scoutImg from '@assets/contact/promo-scout.webp';
-import networkImg from '@assets/contact/promo-network.webp';
-
 import offerImg1 from '@assets/contact/offer-1.webp';
 import offerImg2 from '@assets/contact/offer-2.webp';
 import offerImg3 from '@assets/contact/offer-3.webp';
+import networkImg from '@assets/contact/promo-network.webp';
+import scoutImg from '@assets/contact/promo-scout.webp';
+import contactImg from '@assets/homepage/promo-tower.webp';
+import { motion } from 'framer-motion';
+import { type ReactNode,useRef, useState } from 'react';
+
+import { PageHeader } from '@/shared/ui/common/PageHeader';
 import { RadialGlowOverlay } from '@/shared/ui/common/RadialGlowOverlay';
+import { SectionDivider } from '@/shared/ui/common/SectionDivider';
 import { Socials } from '@/shared/ui/common/Socials';
 
 const slideIn = (direction: 'left' | 'right', delay = 0) => ({

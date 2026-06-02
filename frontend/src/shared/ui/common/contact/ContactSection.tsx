@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion';
+import type { ReactNode } from 'react';
+
+import { SectionDivider } from '@/shared/ui/common/SectionDivider';
 
 import InteractiveContactButton from './InteractiveContactButton';
-import { SectionDivider } from '@/shared/ui/common/SectionDivider';
-import type { ReactNode } from 'react';
 
 interface ContactSectionProps {
 	image: string;

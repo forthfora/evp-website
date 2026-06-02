@@ -8,7 +8,7 @@ interface ScrollingImageBannerProps {
 }
 
 export function ScrollingImageBanner({
-	images,
+	images = [],
 	speed = 60,
 	heightClass = 'h-64',
 	className = '',

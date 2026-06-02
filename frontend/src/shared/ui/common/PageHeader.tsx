@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+
 import { SectionDivider } from './SectionDivider';
 
 interface PageHeaderProps {

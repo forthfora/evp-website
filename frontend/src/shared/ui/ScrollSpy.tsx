@@ -1,6 +1,5 @@
-import { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { RadialGlowOverlay } from './common/RadialGlowOverlay';
+import { useCallback, useEffect, useState } from 'react';
 
 interface HeadingData {
 	id: string;
