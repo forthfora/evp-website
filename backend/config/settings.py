@@ -33,8 +33,8 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
+    "http://localhost:16016",
+    "http://127.0.0.1:16016",
 ]
 
 TO_EMAILS = (lambda s: s.split(",") if s else [])(getenv("TO_EMAILS", ""))

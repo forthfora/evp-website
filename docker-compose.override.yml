@@ -1,14 +1,12 @@
 services:
   frontend:
     ports:
-      - "5173:80"
+      - "16016:80"
     environment:
-      - VITE_API_BASE_URL=http://localhost:8000
+      - VITE_API_BASE_URL=http://localhost:17017
     volumes:
       - ./frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
 
   backend:
-    ports:
-      - "8000:8000"
     environment:
       - DEBUG=True
