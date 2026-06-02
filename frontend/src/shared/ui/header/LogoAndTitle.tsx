@@ -44,7 +44,9 @@ function content(isLarge: boolean) {
 					alt="Edinburgh VenturePoint Logo"
 					className={cn(
 						'logo-build object-contain',
-						isLarge ? 'h-32 w-32 md:h-56 md:w-56' : 'h-20 w-20',
+						isLarge
+							? 'h-32 w-32 md:h-56 md:w-56'
+							: 'min-h-15 min-w-15 md:h-20 md:min-h-auto md:w-20 md:min-w-auto',
 					)}
 				/>
 			</div>

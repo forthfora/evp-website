@@ -54,7 +54,7 @@ export function StartupsPage() {
 			</div>
 
 			<div className="mx-auto mt-10 flex w-full flex-col gap-12 py-40">
-				<motion.p
+				<motion.div
 					initial={{ opacity: 0, y: -50 }}
 					whileInView={{ opacity: 1, y: 0 }}
 					viewport={{ once: true, amount: 0.8 }}
@@ -62,7 +62,7 @@ export function StartupsPage() {
 					className="max-w-3xl text-center text-5xl md:mx-auto"
 				>
 					<PageHeader title="meet the student-led ventures we've worked with." size="text-5xl" />
-				</motion.p>
+				</motion.div>
 
 				{/* 3-Column Ragged Edge Layout */}
 				<div className="glass-box mx-auto w-full">

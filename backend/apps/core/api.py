@@ -20,7 +20,7 @@ def send_contact_email(request, data: ContactSchema):
             subject=email_subject,
             message=email_body,
             from_email=settings.FROM_EMAIL,
-            recipient_list=[settings.TO_EMAIL],
+            recipient_list=settings.TO_EMAILS,
             fail_silently=False,
         )
         return 200, {"success": "Message sent successfully!"}

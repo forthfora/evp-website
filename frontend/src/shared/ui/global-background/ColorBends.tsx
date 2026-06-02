@@ -6,7 +6,7 @@ import {
 	ShaderMaterial,
 	Mesh,
 	WebGLRenderer,
-	Clock,
+	Timer,
 	Vector2,
 	Vector3,
 	SRGBColorSpace,
@@ -219,7 +219,7 @@ export default function ColorBends({
 		renderer.domElement.style.display = 'block';
 		container.appendChild(renderer.domElement);
 
-		const clock = new Clock();
+		const timer = new Timer();
 
 		const handleResize = () => {
 			const w = container.clientWidth || 1;
@@ -239,8 +239,8 @@ export default function ColorBends({
 		}
 
 		const loop = () => {
-			const dt = clock.getDelta();
-			const elapsed = clock.elapsedTime;
+			const dt = timer.getDelta();
+			const elapsed = timer.getElapsed();
 			material.uniforms.uTime.value = elapsed;
 
 			const deg = (rotationRef.current % 360) + autoRotateRef.current * elapsed;

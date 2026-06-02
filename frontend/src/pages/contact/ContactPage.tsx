@@ -162,6 +162,7 @@ function OfferCardsSection() {
 			<div className="mx-auto flex max-w-7xl flex-col items-center gap-10 overflow-x-hidden p-4 md:flex-row md:items-start">
 				{cards.map(({ img, title, body }, i) => (
 					<motion.div
+						key={i}
 						initial={{ opacity: 0, x: 50 }}
 						whileInView={{ opacity: 1, x: 0 }}
 						viewport={{ once: true, amount: 0.2 }}
@@ -174,7 +175,7 @@ function OfferCardsSection() {
 							className="mx-auto h-100 w-full max-w-md object-cover shadow-2xl"
 						/>
 						<h3 className="px-15 text-4xl font-bold">{title}</h3>
-						<p className="px-10 text-lg">{body}</p>
+						<div className="px-10 text-lg">{body}</div>
 					</motion.div>
 				))}
 			</div>
@@ -196,7 +197,7 @@ function ContactHero() {
 			<div className="relative z-10 mx-auto mt-40 w-full max-w-6xl px-4">
 				<PageHeader title="get in touch" />
 
-				<motion.p
+				<motion.div
 					initial={{ opacity: 0, y: 30 }}
 					whileInView={{ opacity: 1, y: 0 }}
 					viewport={{ once: true, amount: 1 }}
@@ -205,9 +206,9 @@ function ContactHero() {
 				>
 					Whether you're a founder, investor or just curious about what EVP can offer - we'd love to
 					hear from you.
-				</motion.p>
+				</motion.div>
 
-				<motion.p
+				<motion.div
 					initial={{ opacity: 0, y: 30 }}
 					whileInView={{ opacity: 1, y: 0 }}
 					viewport={{ once: true, amount: 1 }}
@@ -216,7 +217,7 @@ function ContactHero() {
 				>
 					<p className="mb-5">Stay in the loop. Find us on:</p>
 					<Socials className="mx-2 h-12 w-12 md:h-9 md:w-9" />
-				</motion.p>
+				</motion.div>
 			</div>
 		</section>
 	);
@@ -280,11 +281,11 @@ function ContactFormSection() {
 				className="mx-auto flex max-w-6xl flex-col items-center gap-10 px-4 md:flex-row md:items-start"
 			>
 				{/* Left: image */}
-				<motion.div {...slideIn('left')} className="flex w-full justify-center md:w-1/2">
+				<motion.div {...slideIn('left')} className="flex w-full items-center md:w-1/2">
 					<img
 						src={contactImg}
 						alt="Cathedral tower with Scottish flag"
-						className="w-full max-w-md rounded-lg object-cover shadow-2xl"
+						className="w-full max-w-120 rounded-lg object-cover shadow-2xl"
 					/>
 				</motion.div>
 
@@ -300,6 +301,17 @@ function ContactFormSection() {
 					<p className="text-lg md:text-xl">
 						Fill in the form below and we'll get back to you as soon as possible.
 					</p>
+
+					{/* TODO */}
+					{/* <p className="text-foreground-muted md:text-md text-sm">
+						Alternatively, email us directly at:{' '}
+						<a
+							href="mailto:edinburghventurepoint@gmail.com"
+							className="button-underline transition-colors"
+						>
+							edinburghventurepoint@gmail.com
+						</a>
+					</p> */}
 
 					<div className="flex w-full flex-col gap-4">
 						{/* Name */}

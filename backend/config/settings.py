@@ -31,14 +31,14 @@ SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
-ALLOWED_HOSTS = ["*"] if DEBUG else (lambda s: s.split(";") if s else [])(getenv("ALLOWED_HOSTS", ""))
+ALLOWED_HOSTS = ["*"] if DEBUG else (lambda s: s.split(",") if s else [])(getenv("ALLOWED_HOSTS", ""))
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
 ]
 
-TO_EMAIL = 'edinburghventurepoint@gmail.com'
+TO_EMAILS = (lambda s: s.split(",") if s else [])(getenv("TO_EMAILS", ""))
 FROM_EMAIL = 'noreply@mail.edinburghventurepoint.com'
 
 RESEND_API_KEY = config('RESEND_API_KEY')
