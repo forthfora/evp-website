@@ -11,6 +11,10 @@ interface SectionDividerProps {
  * Replaces the repeated one-liner:
  *   <div className="text-foreground-muted my-4 w-100 border text-center" />
  */
-export function SectionDivider({ className = '', width = 'w-100', my = 'my-4' }: SectionDividerProps) {
+export function SectionDivider({
+	className = '',
+	width = 'w-100',
+	my = 'my-4',
+}: SectionDividerProps) {
 	return <div className={`text-foreground-muted border text-center ${width} ${my} ${className}`} />;
 }
