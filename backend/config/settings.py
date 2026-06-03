@@ -35,11 +35,15 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:16016",
     "http://127.0.0.1:16016",
+    "https://rory.tardis.ac",
+    "https://edinburghventurepoint.com",
 ]
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:16016",
     "http://127.0.0.1:16016",
+    "https://rory.tardis.ac",
+    "https://edinburghventurepoint.com",
 ]
 
 TO_EMAILS = (lambda s: s.split(",") if s else [])(getenv("TO_EMAILS", ""))
@@ -129,9 +133,19 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # The parsed format follows postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1&...]
 DATABASE_URL = getenv("DATABASE_URL")
 
-# postgres
-if DATABASE_URL:
-    PARSED_DATABASE_URL = urlparse(DATABASE_URL)
+if getenv("DB_NAME"):
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": getenv("DB_NAME"),
+            "USER": getenv("DB_USER"),
+            "PASSWORD": getenv("DB_PASSWORD"),
+            "HOST": getenv("DB_HOST"),
+            "PORT": getenv("DB_PORT", "3306"),
+        }
+    }
+elif getenv("DATABASE_URL"):
+    PARSED_DATABASE_URL = urlparse(getenv("DATABASE_URL"))
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
@@ -142,10 +156,13 @@ if DATABASE_URL:
             "PORT": PARSED_DATABASE_URL.port,
         }
     }
-# local sqlite
 else:
-    DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": BASE_DIR / "db.sqlite3"}}
-
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -188,12 +205,11 @@ JWT_NINJA = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 }
 
-if not DEBUG:
-    ALLOWED_HOSTS = ['www.edinburghventurepoint.com', 'localhost', '127.0.0.1', 'backend', 'rory.tardis.ac']
-    # TODO: setup SSL
+ALLOWED_HOSTS = ['www.edinburghventurepoint.com', 'localhost', '127.0.0.1', 'backend', 'rory.tardis.ac']
+
+# TODO: setup SSL
+# if not DEBUG:
     # SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     # SECURE_SSL_REDIRECT = True
     # SESSION_COOKIE_SECURE = True
     # CSRF_COOKIE_SECURE = True
-else:
-    ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'backend', 'rory.tardis.ac']

@@ -23,6 +23,12 @@ services:
     #network_mode: "host"
     ports:
       - "16017:16017"
+    environment:
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
     command: >
       sh -c "uv run python manage.py migrate --noinput &&
              uv run gunicorn config.wsgi:application --bind 127.0.0.1:17017"
