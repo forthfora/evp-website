@@ -189,11 +189,11 @@ JWT_NINJA = {
 }
 
 if not DEBUG:
-    ALLOWED_HOSTS = ['www.edinburghventurepoint.com', 'localhost', '127.0.0.1', 'backend']
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    ALLOWED_HOSTS = ['www.edinburghventurepoint.com', 'localhost', '127.0.0.1', 'backend', 'rory.tardis.ac']
     # TODO: setup SSL
+    # SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     # SECURE_SSL_REDIRECT = True
     # SESSION_COOKIE_SECURE = True
     # CSRF_COOKIE_SECURE = True
 else:
-    ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'backend']
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'backend', 'rory.tardis.ac']
