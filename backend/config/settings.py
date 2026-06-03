@@ -35,8 +35,9 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:16016",
     "http://127.0.0.1:16016",
-    "https://rory.tardis.ac",
+    "https://tardis.ac",
     "https://edinburghventurepoint.com",
+    "https://www.edinburghventurepoint.com",
 ]
 
 CORS_ALLOWED_ORIGINS = [
@@ -44,6 +45,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:16016",
     "https://rory.tardis.ac",
     "https://edinburghventurepoint.com",
+    "https://www.edinburghventurepoint.com",
 ]
 
 TO_EMAILS = (lambda s: s.split(",") if s else [])(getenv("TO_EMAILS", ""))
@@ -205,11 +207,10 @@ JWT_NINJA = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 }
 
-ALLOWED_HOSTS = ['www.edinburghventurepoint.com', 'localhost', '127.0.0.1', 'backend', 'rory.tardis.ac']
+ALLOWED_HOSTS = ['www.edinburghventurepoint.com', 'edinburghventurepoint.com', 'localhost', '127.0.0.1', 'backend', 'tardis.ac']
 
-# TODO: setup SSL
-# if not DEBUG:
-    # SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     # SECURE_SSL_REDIRECT = True
     # SESSION_COOKIE_SECURE = True
     # CSRF_COOKIE_SECURE = True
