@@ -15,4 +15,10 @@ Disallow: /
 User-agent: PerplexityBot
 Disallow: /
 
+User-agent: CCBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
 Sitemap: https://www.edinburghventurepoint.com/sitemap.xml

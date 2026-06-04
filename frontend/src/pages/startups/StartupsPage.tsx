@@ -1,5 +1,5 @@
 import startupsBkg from '@assets/startups/startups-bkg.webp';
-import { InteractiveContactButton, RadialGlowOverlay, UnderlinedTitle } from '@common';
+import { InteractiveContactButton, PageMeta, RadialGlowOverlay, UnderlinedTitle } from '@common';
 import { motion } from 'framer-motion';
 import { useMemo } from 'react';
 
@@ -12,6 +12,10 @@ export function StartupsPage() {
 
 	return (
 		<div className="w-full overflow-hidden">
+			<PageMeta
+				title="Our Start-ups"
+				description="Learn about the start-ups EVP has worked with."
+			/>
 			{/* Hero */}
 			<div className="relative flex min-h-180 w-full items-center justify-center">
 				<img

@@ -1,4 +1,4 @@
-import { EventsBanner, SectionDivider,UnderlinedTitle } from '@common';
+import { EventsBanner, PageMeta, SectionDivider, UnderlinedTitle } from '@common';
 import { animate, motion, useInView, useMotionValue, useSpring } from 'framer-motion';
 import { useEffect, useRef } from 'react';
 
@@ -158,8 +158,11 @@ function EventCard({ event, index, isPast }: { event: EVPEvent; index: number; i
 export function EventsPage() {
 	return (
 		<div className="mx-auto flex w-full flex-col py-50">
+			<PageMeta
+				title="Our Events"
+				description="See what's coming up, and how you can get involved."
+			/>
 			<UnderlinedTitle id="our-events" title="our events" className="mb-10" />
-
 			<div className="glass-box py-20">
 				<EventsBanner />
 
@@ -186,7 +189,6 @@ export function EventsPage() {
 					</p>
 				</div>
 			</div>
-
 			<section className="mx-auto mt-50 w-full max-w-6xl px-4">
 				<motion.div
 					initial={{ opacity: 0, y: -50 }}
@@ -221,7 +223,6 @@ export function EventsPage() {
 					</motion.div>
 				)}
 			</section>
-
 			<section className="mx-auto mt-50 w-full max-w-6xl px-4 pb-20">
 				<motion.div
 					initial={{ opacity: 0, y: -50 }}

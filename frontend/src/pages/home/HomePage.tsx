@@ -6,7 +6,7 @@ import aboutUsImg from '@assets/homepage/promo-chairs.webp';
 import whatWeDoImg2 from '@assets/homepage/promo-conf.webp';
 import whatWeDoImg1 from '@assets/homepage/promo-present.webp';
 import contactImg from '@assets/homepage/promo-tower.webp';
-import { ContactSection, EventsBanner, SectionDivider } from '@common';
+import { ContactSection, EventsBanner, PageMeta, SectionDivider } from '@common';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router';
 
@@ -17,6 +17,8 @@ import { HomePageHero } from './HomePageHero';
 export function HomePage() {
 	return (
 		<div className="flex w-full flex-col">
+			<PageMeta title="Edinburgh VenturePoint" description="Where students build and invest." />
+
 			<HomePageHero />
 
 			{/* Full-bleed background image spacer */}

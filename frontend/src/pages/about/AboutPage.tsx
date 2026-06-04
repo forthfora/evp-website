@@ -3,7 +3,13 @@ import '@/shared/styles/button-underline.css';
 import aboutBkg from '@assets/about/about-bkg.webp';
 import ideaImg from '@assets/homepage/events-banner/event-2.webp';
 import contactImg from '@assets/homepage/events-banner/event-2.webp';
-import { ContactSection, RadialGlowOverlay, SectionDivider,UnderlinedTitle } from '@common';
+import {
+	ContactSection,
+	PageMeta,
+	RadialGlowOverlay,
+	SectionDivider,
+	UnderlinedTitle,
+} from '@common';
 import { motion } from 'framer-motion';
 import { Globe, Mail, User } from 'lucide-react';
 import { FaLinkedin } from 'react-icons/fa6';
@@ -27,7 +33,8 @@ const cardVariants = {
 export function AboutPage() {
 	return (
 		<div className="flex w-full flex-col overflow-x-hidden">
-			{/* Hero */}
+			<PageMeta title="About Us" description="Meet the team behind EVP, and find out what we do." />
+			;{/* Hero */}
 			<div className="relative flex min-h-[50vh] w-full items-center justify-center py-40 md:min-h-180 md:py-0">
 				<img
 					src={aboutBkg}
@@ -71,7 +78,6 @@ export function AboutPage() {
 					</motion.p>
 				</div>
 			</div>
-
 			{/* Idea / pitch block */}
 			<div className="glass-box mx-auto mt-15 w-full px-4 py-16 md:mt-40 md:px-8 md:py-32">
 				<div className="mx-auto flex w-full max-w-5xl flex-col items-center gap-10 md:flex-row md:gap-15 lg:items-start">
@@ -113,7 +119,6 @@ export function AboutPage() {
 					/>
 				</div>
 			</div>
-
 			{/* Team header */}
 			<div className="mx-auto mt-10 w-full max-w-6xl px-4 md:px-8">
 				<UnderlinedTitle
@@ -124,12 +129,10 @@ export function AboutPage() {
 					level={2}
 				/>
 			</div>
-
 			{/* Member grids per year */}
 			{COMMITTEE_DATA.map((yearData) => (
 				<MemberYearSection key={yearData.year} yearData={yearData} />
 			))}
-
 			<ContactSection
 				image={contactImg}
 				imageAlt="Event photo"

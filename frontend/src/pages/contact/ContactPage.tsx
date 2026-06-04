@@ -4,7 +4,7 @@ import offerImg3 from '@assets/contact/offer-3.webp';
 import networkImg from '@assets/contact/promo-network.webp';
 import scoutImg from '@assets/contact/promo-scout.webp';
 import contactImg from '@assets/homepage/promo-tower.webp';
-import { RadialGlowOverlay, SectionDivider, Socials, UnderlinedTitle } from '@common';
+import { PageMeta, RadialGlowOverlay, SectionDivider, Socials, UnderlinedTitle } from '@common';
 import { motion } from 'framer-motion';
 import { type ReactNode, useRef, useState } from 'react';
 
@@ -269,6 +269,7 @@ function ContactFormSection() {
 
 	return (
 		<section className="glass-box w-full overflow-hidden py-25 md:py-50">
+			<PageMeta title="Contact" description="Reach out and see what EVP can do for you." />;
 			<div
 				ref={formRef}
 				className="mx-auto flex max-w-6xl flex-col items-center gap-10 px-4 md:flex-row md:items-start"

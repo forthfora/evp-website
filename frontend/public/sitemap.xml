@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>https://www.edinburghventurepoint.com/</loc>
+        <lastmod>2026-06-04</lastmod>
+        <priority>1.0</priority>
+    </url>
+    <url>
+        <loc>https://www.edinburghventurepoint.com/about</loc>
+        <lastmod>2026-06-04</lastmod>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://www.edinburghventurepoint.com/startups</loc>
+        <lastmod>2026-06-04</lastmod>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://www.edinburghventurepoint.com/events</loc>
+        <lastmod>2026-06-04</lastmod>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://www.edinburghventurepoint.com/contact</loc>
+        <lastmod>2026-06-04</lastmod>
+        <priority>0.6</priority>
+    </url>
+</urlset>
