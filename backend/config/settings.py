@@ -43,7 +43,7 @@ CSRF_TRUSTED_ORIGINS = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:16016",
     "http://127.0.0.1:16016",
-    "https://rory.tardis.ac",
+    "https://tardis.ac",
     "https://edinburghventurepoint.com",
     "https://www.edinburghventurepoint.com",
 ]
