@@ -9,7 +9,7 @@
 <h3 align="center"> The official website for Edinburgh VenturePoint, an <br/>entrepreneurship society at the University of Edinburgh.</h3>  
 
 <h2 align="center"> 
-  Access the live website here:<br/>
+  Access the live website at:<br/>
   https://edinburghventurepoint.com
 </h2>
 
@@ -23,6 +23,7 @@
 # Prerequisites
 
 * [Docker](https://www.docker.com/) and Docker Desktop installed.
+* Make sure the Docker daemon is running before proceeding.
 
 <br/>
 
