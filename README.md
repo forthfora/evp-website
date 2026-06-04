@@ -49,7 +49,36 @@ The local development server will be available at: `http://localhost:16016`
 
 <br/>
 
-# 
+# Tech Stack
+
+### Frontend
+* **React:** UI library for building component-driven user interfaces.
+* **Vite:** Next-generation frontend tooling for rapid development and HMR.
+* **Node.js:** JavaScript runtime environment.
+
+### Backend & Database
+* **Django:** Core backend framework.
+* **Django Ninja:** Fast, async-ready REST API framework utilizing Python type hints and Pydantic validation.
+* **MySQL:** Relational database management system.
+
+### Infrastructure & Deployment
+* **Docker & Docker Compose:** Complete containerization of frontend, backend, and database environments.
+* **Nginx:** Reverse proxy server handling incoming requests and serving static/media files.
+* **Gunicorn:** Python WSGI HTTP Server for UNIX, serving the Django application in production.
+
+<br/>
+
+# Key Features
+
+TODO
+
+<br/>
+
+# Architecture
+
+TODO
+
+<br/>
 
 ### TODO
 
