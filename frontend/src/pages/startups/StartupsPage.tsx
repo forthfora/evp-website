@@ -1,10 +1,7 @@
 import startupsBkg from '@assets/startups/startups-bkg.webp';
+import { InteractiveContactButton, RadialGlowOverlay, UnderlinedTitle } from '@common';
 import { motion } from 'framer-motion';
 import { useMemo } from 'react';
-
-import InteractiveContactButton from '@/shared/ui/common/contact/InteractiveContactButton';
-import { PageHeader } from '@/shared/ui/common/PageHeader';
-import { RadialGlowOverlay } from '@/shared/ui/common/RadialGlowOverlay';
 
 import { StartupBlock } from './StartupBlock';
 import { STARTUPS } from './startups.data';
@@ -26,7 +23,7 @@ export function StartupsPage() {
 				<RadialGlowOverlay />
 
 				<div className="relative z-10 mx-auto mt-40 w-full max-w-6xl px-4">
-					<PageHeader id="our-start-ups" title="our start-ups" />
+					<UnderlinedTitle id="our-start-ups" title="our start-ups" />
 
 					<motion.p
 						initial={{ opacity: 0, y: 30 }}
@@ -59,11 +56,12 @@ export function StartupsPage() {
 					transition={{ duration: 0.5, ease: 'easeIn', delay: 0.5 }}
 					className="max-w-3xl text-center text-5xl md:mx-auto"
 				>
-					<PageHeader
+					<UnderlinedTitle
 						id="meet-the-startups"
 						navLabel="meet the startups"
 						title="meet the student-led ventures we've worked with."
 						size="text-5xl"
+						level={2}
 					/>
 				</motion.div>
 
@@ -110,12 +108,13 @@ export function StartupsPage() {
 						</div>
 
 						<div className="z-10 flex flex-col items-center justify-center gap-4">
-							<PageHeader
+							<UnderlinedTitle
 								id="you"
 								navLabel="reach out"
 								title={'you?'}
 								size="text-7xl"
 								animated={false}
+								level={2}
 							/>
 							<b className="text-foreground text-2xl transition-colors duration-300">
 								We'd love to see you up here.

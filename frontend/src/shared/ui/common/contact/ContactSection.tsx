@@ -1,9 +1,8 @@
+import { SectionDivider } from '@common';
 import { motion } from 'framer-motion';
 import type { ReactNode } from 'react';
 
-import { SectionDivider } from '@/shared/ui/common/SectionDivider';
-
-import InteractiveContactButton from './InteractiveContactButton';
+import { InteractiveContactButton } from './InteractiveContactButton';
 
 interface ContactSectionProps {
 	image: string;
@@ -17,8 +16,7 @@ interface ContactSectionProps {
 }
 
 /**
- * Full-bleed image section with a centred CTA.
- * Replaces the duplicated `contactSection()` in HomePage and AboutPage.
+ * Large contact section, features a background image, some specified lines of text, with an interactive contact button in the center.
  */
 export function ContactSection({
 	image,

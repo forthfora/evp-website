@@ -2,12 +2,15 @@ import '@/shared/styles/button-underline.css';
 
 import { Mail } from 'lucide-react';
 import { FaInstagram, FaLinkedin } from 'react-icons/fa6';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 interface SocialsProps {
 	className?: string;
 }
 
+/**
+ * Represents list of clickable social icons used throughout the site (LinkedIn, Instagram, etc.)
+ */
 export function Socials({ className = 'h-8 w-8 md:h-6 md:w-6' }: SocialsProps) {
 	return (
 		<div className="flex flex-col items-center gap-2">

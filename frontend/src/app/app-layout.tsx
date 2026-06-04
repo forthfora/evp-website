@@ -1,4 +1,4 @@
-import { Outlet, ScrollRestoration } from 'react-router-dom';
+import { Outlet, ScrollRestoration } from 'react-router';
 
 import { Footer } from '@/shared/ui/footer/Footer';
 import { GlobalBackground } from '@/shared/ui/global-background/GlobalBackground';

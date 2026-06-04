@@ -6,32 +6,13 @@ import aboutUsImg from '@assets/homepage/promo-chairs.webp';
 import whatWeDoImg2 from '@assets/homepage/promo-conf.webp';
 import whatWeDoImg1 from '@assets/homepage/promo-present.webp';
 import contactImg from '@assets/homepage/promo-tower.webp';
+import { ContactSection, EventsBanner, SectionDivider } from '@common';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
-import { ContactSection } from '@/shared/ui/common/contact/ContactSection';
-import { EventsBanner } from '@/shared/ui/common/EventsBanner';
-import { SectionDivider } from '@/shared/ui/common/SectionDivider';
+import { fadeUp, slideIn } from '@/shared/lib/motion';
 
 import { HomePageHero } from './HomePageHero';
-
-// Shared Motion Presets
-
-const fadeUp = (delay = 0) => ({
-	initial: { opacity: 0, y: -50 },
-	whileInView: { opacity: 1, y: 0 },
-	viewport: { once: true as const, margin: '-150px' },
-	transition: { duration: 0.6, ease: 'easeOut' as const, delay },
-});
-
-const slideIn = (direction: 'left' | 'right', delay = 0) => ({
-	initial: { opacity: 0, x: direction === 'left' ? -60 : 60 },
-	whileInView: { opacity: 1, x: 0 },
-	viewport: { once: true as const, margin: '-100px' },
-	transition: { duration: 0.8, ease: 'easeOut' as const, delay },
-});
-
-// Page
 
 export function HomePage() {
 	return (

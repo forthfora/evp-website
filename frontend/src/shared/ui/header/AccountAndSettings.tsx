@@ -27,7 +27,7 @@ export function AccountAndSettings() {
 	);
 }
 
-// TODO
+// TODO: implement accounts and login
 // function account() {
 // 	return (
 // 		<div>

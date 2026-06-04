@@ -1,6 +1,6 @@
+import { Socials } from '@common';
 import { useEffect, useState } from 'react';
 
-import { Socials } from '@/shared/ui/common/Socials';
 import { AccountAndSettings } from '@/shared/ui/header/AccountAndSettings';
 import { LogoAndTitle } from '@/shared/ui/header/LogoAndTitle';
 import { HeaderNavButtons } from '@/shared/ui/header/nav-link-buttons/NavLinkButtons';

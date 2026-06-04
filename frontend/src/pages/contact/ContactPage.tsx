@@ -4,20 +4,11 @@ import offerImg3 from '@assets/contact/offer-3.webp';
 import networkImg from '@assets/contact/promo-network.webp';
 import scoutImg from '@assets/contact/promo-scout.webp';
 import contactImg from '@assets/homepage/promo-tower.webp';
+import { RadialGlowOverlay, SectionDivider, Socials, UnderlinedTitle } from '@common';
 import { motion } from 'framer-motion';
 import { type ReactNode, useRef, useState } from 'react';
 
-import { PageHeader } from '@/shared/ui/common/PageHeader';
-import { RadialGlowOverlay } from '@/shared/ui/common/RadialGlowOverlay';
-import { SectionDivider } from '@/shared/ui/common/SectionDivider';
-import { Socials } from '@/shared/ui/common/Socials';
-
-const slideIn = (direction: 'left' | 'right', delay = 0) => ({
-	initial: { opacity: 0, x: direction === 'left' ? -60 : 60 },
-	whileInView: { opacity: 1, x: 0 },
-	viewport: { once: true as const, margin: '-100px' },
-	transition: { duration: 0.8, ease: 'easeOut' as const, delay },
-});
+import { slideIn } from '@/shared/lib/motion';
 
 type FormState = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -39,7 +30,7 @@ export function ContactPage() {
 			<ContactHero />
 
 			<section className="py-10 pt-50">
-				<PageHeader title={'what we offer'} delay={0.5} />
+				<UnderlinedTitle title={'what we offer'} delay={0.5} level={2} />
 
 				<div className="glass-box my-20 w-full overflow-hidden py-25 md:py-40">
 					<div className="mx-auto flex max-w-6xl flex-col items-center gap-10 px-4 md:flex-row md:items-start">
@@ -199,7 +190,7 @@ function ContactHero() {
 			<RadialGlowOverlay />
 
 			<div className="relative z-10 mx-auto mt-40 w-full max-w-6xl px-4">
-				<PageHeader id="get-in-touch" title="get in touch" />
+				<UnderlinedTitle id="get-in-touch" title="get in touch" />
 
 				<motion.div
 					initial={{ opacity: 0, y: 30 }}
@@ -319,13 +310,13 @@ function ContactFormSection() {
 						{/* Name */}
 						<div className="flex flex-col gap-1.5">
 							<label
-								htmlFor="name"
+								htmlFor="name-field"
 								className="text-left text-sm font-semibold tracking-widest uppercase opacity-70"
 							>
 								name
 							</label>
 							<input
-								id="name"
+								id="name-field"
 								name="name"
 								type="text"
 								autoComplete="name"
@@ -340,13 +331,13 @@ function ContactFormSection() {
 						{/* Email */}
 						<div className="flex flex-col gap-1.5">
 							<label
-								htmlFor="email"
+								htmlFor="email-field"
 								className="text-left text-sm font-semibold tracking-widest uppercase opacity-70"
 							>
 								email
 							</label>
 							<input
-								id="email"
+								id="email-field"
 								name="email"
 								type="email"
 								autoComplete="email"
@@ -361,13 +352,13 @@ function ContactFormSection() {
 						{/* Message */}
 						<div className="flex flex-col gap-1.5">
 							<label
-								htmlFor="message"
+								htmlFor="message-field"
 								className="text-left text-sm font-semibold tracking-widest uppercase opacity-70"
 							>
 								message
 							</label>
 							<textarea
-								id="message"
+								id="message-field"
 								name="message"
 								rows={6}
 								value={fields.message}

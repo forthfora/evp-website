@@ -1,12 +1,6 @@
 /**
  * The radial-gradient "glow" overlay used to softly blend a hero background
  * image into the page background colour.
- *
- * Usage:
- *   <div className="relative">
- *     <img … />
- *     <RadialGlowOverlay />
- *   </div>
  */
 export function RadialGlowOverlay({ className = '' }: { className?: string }) {
 	return (

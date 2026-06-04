@@ -3,17 +3,17 @@ import { NAV_LINKS } from './NavLinkButtons.data';
 
 export function HeaderNavButtons() {
 	return (
-		<>
+		<ul className="contents">
 			{NAV_LINKS.map((link, i) => (
-				<span key={link.path} className="flex items-center gap-4 md:gap-6">
+				<li key={link.path} className="flex items-center gap-4 md:gap-6">
 					<NavLinkButton to={link.path} label={link.label} />
 					{i < NAV_LINKS.length - 1 && (
-						<span className="text-foreground-muted hidden select-none md:inline" aria-hidden>
+						<span className="text-foreground-muted select-none" aria-hidden>
 							|
 						</span>
 					)}
-				</span>
+				</li>
 			))}
-		</>
+		</ul>
 	);
 }

@@ -1,9 +1,6 @@
+import { EventsBanner, SectionDivider,UnderlinedTitle } from '@common';
 import { animate, motion, useInView, useMotionValue, useSpring } from 'framer-motion';
 import { useEffect, useRef } from 'react';
-
-import { EventsBanner } from '@/shared/ui/common/EventsBanner';
-import { PageHeader } from '@/shared/ui/common/PageHeader';
-import { SectionDivider } from '@/shared/ui/common/SectionDivider';
 
 import type { EventSpotStatus, EVPEvent } from './events.data';
 import { EVENTS_STATS, PAST_EVENTS, UPCOMING_EVENTS } from './events.data';
@@ -161,7 +158,7 @@ function EventCard({ event, index, isPast }: { event: EVPEvent; index: number; i
 export function EventsPage() {
 	return (
 		<div className="mx-auto flex w-full flex-col py-50">
-			<PageHeader id="our-events" title="our events" className="mb-10" />
+			<UnderlinedTitle id="our-events" title="our events" className="mb-10" />
 
 			<div className="glass-box py-20">
 				<EventsBanner />

@@ -1,7 +1,7 @@
 import '@/shared/styles/button-underline.css';
 import '@/shared/styles/logo-build.css';
 
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router';
 
 import evpLogo from '@/shared/assets/evp-logo.webp';
 import { cn } from '@/shared/lib/utils';
@@ -10,6 +10,9 @@ interface LogoAndTitleProps {
 	isLarge: boolean;
 }
 
+/**
+ * EVP logo + Edinburgh VenturePoint title.
+ */
 export function LogoAndTitle({ isLarge }: LogoAndTitleProps) {
 	const location = useLocation();
 	const isHome = location.pathname === '/';

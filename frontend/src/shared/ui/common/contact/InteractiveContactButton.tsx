@@ -1,14 +1,19 @@
 import '@/shared/styles/button-underline.css';
 
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
-export default function InteractiveContactButton() {
+/**
+ * Large, interactive contact button. Takes the user to the email contact section.
+ */
+export function InteractiveContactButton() {
 	const wrapperRef = useRef<HTMLDivElement>(null);
 	const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
 	useEffect(() => {
-		const handleMouseMove = (e: MouseEvent) => {
+		const el = wrapperRef.current;
+		if (!el) return;
+		const handle = (e: MouseEvent) => {
 			if (!wrapperRef.current) return;
 			const rect = wrapperRef.current.getBoundingClientRect();
 			setMousePos({
@@ -17,8 +22,8 @@ export default function InteractiveContactButton() {
 			});
 		};
 
-		window.addEventListener('mousemove', handleMouseMove);
-		return () => window.removeEventListener('mousemove', handleMouseMove);
+		el.addEventListener('mousemove', handle);
+		return () => el.removeEventListener('mousemove', handle);
 	}, []);
 
 	return (

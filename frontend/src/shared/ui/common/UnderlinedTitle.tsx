@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 
 import { SectionDivider } from './SectionDivider';
 
-interface PageHeaderProps {
+interface UnderlinedTitleProps {
 	title: string;
 	/** Extra Tailwind classes on the outer wrapper. */
 	className?: string;
@@ -17,9 +17,15 @@ interface PageHeaderProps {
 	id?: string;
 	/** Optional override text for the ScrollSpy sidebar. */
 	navLabel?: string;
+
+	/** Header level. */
+	level?: 1 | 2 | 3;
 }
 
-export function PageHeader({
+/**
+ * Thin horizontal rule used between headings and body throughout the site.
+ */
+export function UnderlinedTitle({
 	title,
 	className = '',
 	size = 'text-5xl md:text-7xl',
@@ -27,12 +33,14 @@ export function PageHeader({
 	delay = 0.0,
 	id,
 	navLabel,
-}: PageHeaderProps) {
+	level = 1,
+}: UnderlinedTitleProps) {
+	const Tag = `h${level}` as const;
 	const content = (
 		<div className={`flex flex-col items-center ${className}`}>
-			<h1 id={id} data-nav-label={navLabel} className={`${size} font-bold`}>
+			<Tag id={id} data-nav-label={navLabel} className={`${size} font-bold`}>
 				{title}
-			</h1>
+			</Tag>
 			<SectionDivider />
 		</div>
 	);

@@ -1,6 +1,6 @@
 import { createBrowserRouter } from 'react-router';
 
-import ErrorPage from '@/app/error-page';
+import { ErrorPage } from '@/app/error-page';
 import { AboutPage } from '@/pages/about/AboutPage';
 import { ContactPage } from '@/pages/contact/ContactPage';
 import { EventsPage } from '@/pages/events/EventsPage';
@@ -16,24 +16,22 @@ export const browserRouter = createBrowserRouter([
 		errorElement: <ErrorPage />,
 		children: [
 			{
-				index: true,
-				element: <HomePage />,
-			},
-			{
-				path: 'about',
-				element: <AboutPage />,
-			},
-			{
-				path: 'startups',
-				element: <StartupsPage />,
-			},
-			{
-				path: 'contact',
-				element: <ContactPage />,
-			},
-			{
-				path: 'events',
-				element: <EventsPage />,
+				errorElement: <ErrorPage />,
+				children: [
+					{ index: true, element: <HomePage /> },
+					{ path: 'about', element: <AboutPage /> },
+					{ path: 'startups', element: <StartupsPage /> },
+					{ path: 'contact', element: <ContactPage /> },
+					{ path: 'events', element: <EventsPage /> },
+
+					// catch all for invalid pages
+					{
+						path: '*',
+						loader: () => {
+							throw new Response('Not Found', { status: 404 });
+						},
+					},
+				],
 			},
 		],
 	},

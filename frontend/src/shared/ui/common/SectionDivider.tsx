@@ -7,9 +7,7 @@ interface SectionDividerProps {
 }
 
 /**
- * Thin horizontal rule used between headings and body copy throughout the site.
- * Replaces the repeated one-liner:
- *   <div className="text-foreground-muted my-4 w-100 border text-center" />
+ * Thin horizontal rule used between headings and body throughout the site.
  */
 export function SectionDivider({
 	className = '',

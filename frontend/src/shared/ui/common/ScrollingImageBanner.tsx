@@ -7,6 +7,9 @@ interface ScrollingImageBannerProps {
 	className?: string;
 }
 
+/**
+ * Horizontal reel of images that scrolls endlessly across the page, looping.
+ */
 export function ScrollingImageBanner({
 	images = [],
 	speed = 60,

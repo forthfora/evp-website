@@ -3,14 +3,10 @@ import '@/shared/styles/button-underline.css';
 import aboutBkg from '@assets/about/about-bkg.webp';
 import ideaImg from '@assets/homepage/events-banner/event-2.webp';
 import contactImg from '@assets/homepage/events-banner/event-2.webp';
+import { ContactSection, RadialGlowOverlay, SectionDivider,UnderlinedTitle } from '@common';
 import { motion } from 'framer-motion';
 import { Globe, Mail, User } from 'lucide-react';
 import { FaLinkedin } from 'react-icons/fa6';
-
-import { ContactSection } from '@/shared/ui/common/contact/ContactSection';
-import { PageHeader } from '@/shared/ui/common/PageHeader';
-import { RadialGlowOverlay } from '@/shared/ui/common/RadialGlowOverlay';
-import { SectionDivider } from '@/shared/ui/common/SectionDivider';
 
 import { COMMITTEE_DATA, type Member, type YearData } from './about.data';
 
@@ -42,7 +38,7 @@ export function AboutPage() {
 				<RadialGlowOverlay />
 
 				<div className="relative z-10 mx-auto mt-30 w-full max-w-6xl px-4 md:px-8">
-					<PageHeader id="who-we-are" title="who we are" />
+					<UnderlinedTitle id="who-we-are" title="who we are" />
 
 					<motion.p
 						initial={{ opacity: 0, y: 30 }}
@@ -120,11 +116,12 @@ export function AboutPage() {
 
 			{/* Team header */}
 			<div className="mx-auto mt-10 w-full max-w-6xl px-4 md:px-8">
-				<PageHeader
+				<UnderlinedTitle
 					id="meet-the-team"
 					title="meet the team"
 					className="py-10 pt-20 md:py-15 md:pt-50"
 					size="text-4xl md:text-6xl"
+					level={2}
 				/>
 			</div>
 
