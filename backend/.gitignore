@@ -55,6 +55,7 @@ __pycache__/
 ## Django stuff:
 local_settings.py
 *.log
+staticfiles/
 ## Flask stuff:
 instance/
 .webassets-cache
