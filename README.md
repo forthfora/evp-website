@@ -34,14 +34,25 @@ If you wish to run this project locally for development or review, it is fully c
     ```sh
     git clone https://github.com/forthfora/evp-website
     ```
+
 2.  Navigate to the directory
     ```sh
     cd evp-website
     ```
-3.  Build and spin up the containers (ensure Docker Desktop is running)
+
+3.  Set up your environment variables. 
+    * Navigate to the backend directory and duplicate the example file:
+    ```sh
+    cp backend/.env.example backend/.env
+    ```
+    * Open the new `.env` file and fill in any required API keys or credentials as necessary for local testing.
+    
+4.  Build and spin up the containers (ensure Docker Desktop is running)
     ```sh
     docker compose up --build
     ```
+    
+<br/>
 
 The local development server will be available at: `http://localhost:16016`
 * The admin panel can be accessed at: `http://localhost:16016/admin/`
