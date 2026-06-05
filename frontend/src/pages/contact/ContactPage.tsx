@@ -269,7 +269,7 @@ function ContactFormSection() {
 
 	return (
 		<section className="glass-box w-full overflow-hidden py-25 md:py-50">
-			<PageMeta title="Contact" description="Reach out and see what EVP can do for you." />;
+			<PageMeta title="Contact" description="Reach out and see what EVP can do for you." />
 			<div
 				ref={formRef}
 				className="mx-auto flex max-w-6xl flex-col items-center gap-10 px-4 md:flex-row md:items-start"
