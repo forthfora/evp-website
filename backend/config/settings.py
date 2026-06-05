@@ -9,22 +9,13 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
-from datetime import timedelta
 import sys
-from os import getenv
+from datetime import timedelta
 from pathlib import Path
-from urllib.parse import urlparse
 from decouple import config
-from dotenv import load_dotenv
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(BASE_DIR / ".env")
 sys.path.insert(0, str(BASE_DIR / "apps"))
-
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config('SECRET_KEY')
@@ -32,6 +23,23 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
+ALLOWED_HOSTS = [
+    'www.edinburghventurepoint.com', 
+    'edinburghventurepoint.com', 
+    'localhost', 
+    '127.0.0.1', 
+    'backend', 
+    'tardis.ac'
+]
+
+# Security Settings for Production
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=True, cast=bool)
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
+# CORS & CSRF Origins
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:16016",
     "http://127.0.0.1:16016",
@@ -40,31 +48,26 @@ CSRF_TRUSTED_ORIGINS = [
     "https://www.edinburghventurepoint.com",
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:16016",
-    "http://127.0.0.1:16016",
-    "https://tardis.ac",
-    "https://edinburghventurepoint.com",
-    "https://www.edinburghventurepoint.com",
-]
+CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS.copy()
 
-TO_EMAILS = (lambda s: s.split(",") if s else [])(getenv("TO_EMAILS", ""))
+# Email Configuration
+TO_EMAILS = config("TO_EMAILS", default="", cast=lambda v: [s.strip() for s in v.split(",") if s.strip()])
 FROM_EMAIL = 'website-contact@mail.edinburghventurepoint.com'
-
-RESEND_API_KEY = config('RESEND_API_KEY')
+RESEND_API_KEY = config('RESEND_API_KEY', default=None)
 
 if DEBUG:
-    # Print emails to the terminal during local development
+    # output 'email' to console
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 else:
-    # Send real emails via Resend SMTP in production
+    # send real email using Resend's API
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_HOST = 'smtp.resend.com'
     EMAIL_PORT = 587
     EMAIL_USE_TLS = True
     EMAIL_HOST_USER = 'resend'
-    EMAIL_HOST_PASSWORD = config('RESEND_API_KEY')
+    EMAIL_HOST_PASSWORD = RESEND_API_KEY
 
+# Django REST Framework Throttle
 REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_CLASSES': [
         'rest_framework.throttling.AnonRateThrottle',
@@ -76,7 +79,7 @@ REST_FRAMEWORK = {
 
 # Application definition
 INSTALLED_APPS = [
-    'jazzmin',
+    'jazzmin',  # Must stay before admin
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -85,10 +88,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Needed for auto-host of Swagger files
     'ninja',
-
-    # 3rd Party Packages
     'corsheaders',
     'jwt_ninja',
     'rest_framework',
@@ -128,37 +128,23 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+# Database Configuration
+DB_NAME = config("DB_NAME", default=None)
 
-# Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
-# The parsed format follows postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1&...]
-DATABASE_URL = getenv("DATABASE_URL")
-
-if getenv("DB_NAME"):
+if DB_NAME:
+    # MySQL database for production
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.mysql",
-            "NAME": getenv("DB_NAME"),
-            "USER": getenv("DB_USER"),
-            "PASSWORD": getenv("DB_PASSWORD"),
-            "HOST": getenv("DB_HOST"),
-            "PORT": getenv("DB_PORT", "3306"),
-        }
-    }
-elif getenv("DATABASE_URL"):
-    PARSED_DATABASE_URL = urlparse(getenv("DATABASE_URL"))
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": PARSED_DATABASE_URL.path[1:],
-            "USER": PARSED_DATABASE_URL.username,
-            "PASSWORD": PARSED_DATABASE_URL.password,
-            "HOST": PARSED_DATABASE_URL.hostname,
-            "PORT": PARSED_DATABASE_URL.port,
+            "NAME": DB_NAME,
+            "USER": config("DB_USER"),
+            "PASSWORD": config("DB_PASSWORD"),
+            "HOST": config("DB_HOST"),
+            "PORT": config("DB_PORT", default="3306"),
         }
     }
 else:
+    # fallback SQLite for testing
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
@@ -167,50 +153,28 @@ else:
     }
 
 # Password validation
-# https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-
 # Internationalization
-# https://docs.djangoproject.com/en/6.0/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/6.0/howto/static-files/
-
+# Static files
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# Custom Auth
 AUTH_USER_MODEL = 'accounts.User'
 
-
+# JWT Configuration
 JWT_NINJA = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=7),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 }
-
-ALLOWED_HOSTS = ['www.edinburghventurepoint.com', 'edinburghventurepoint.com', 'localhost', '127.0.0.1', 'backend', 'tardis.ac']
-
-if not DEBUG:
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    # SECURE_SSL_REDIRECT = True
-    # SESSION_COOKIE_SECURE = True
-    # CSRF_COOKIE_SECURE = True

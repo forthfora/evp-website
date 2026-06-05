@@ -21,8 +21,6 @@ services:
       - ./backend:/app
       - /app/.venv
       - django_static:/app/staticfiles 
-    environment:
-      - DEBUG=True
     command: >
       sh -c "uv run python manage.py migrate --noinput &&
              uv run python manage.py collectstatic --noinput &&
