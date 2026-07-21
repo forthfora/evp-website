@@ -15,7 +15,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  # JOB 1: Handles compiling the source code into a Docker image and pushing it to GHCR
+  # JOB 1: Builds the frontend and backend Docker images and pushes them to GHCR
   build-and-push:
     # Specifies the type of virtual machine runner to use
     runs-on: ubuntu-latest
@@ -25,14 +25,19 @@ jobs:
       contents: read
       packages: write
 
+    # Build both services defined in docker-compose.yml (frontend + backend)
+    strategy:
+      matrix:
+        service: [frontend, backend]
+
     steps:
       # Step 1: Clones your repository source code onto the GitHub runner
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       # Step 2: Authenticates the runner against GHCR using the short-lived, built-in GITHUB_TOKEN
       - name: Log in to the Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -41,20 +46,21 @@ jobs:
       # Step 3: Automatically extracts tags and OCI labels based on Git commits/tags for container tracking
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/evp-${{ matrix.service }}
 
-      # Step 4: Compiles the Dockerfile in your root folder and pushes it directly to GHCR
+      # Step 4: Compiles the service Dockerfile and pushes it directly to GHCR
+      # Each service has its own Dockerfile under ./<service>/ (no root Dockerfile exists)
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
-          # The directory to look for the Dockerfile (root)
-          context: .
+          # The build context for this service (contains its Dockerfile)
+          context: ./${{ matrix.service }}
           # Instructs the runner to push the image to the registry immediately after a successful build
           push: true
           # Applies both the standard "latest" tag and any dynamic labels pulled from Step 3
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          tags: ${{ env.REGISTRY }}/${{ github.repository_owner }}/evp-${{ matrix.service }}:latest
           labels: ${{ steps.meta.outputs.labels }}
 
   # JOB 2: Connects to your remote server to pull the new container images and launch them
@@ -66,7 +72,7 @@ jobs:
     steps:
       # Step 1: Establishes an SSH tunnel, maps secrets to environmental variables, and runs server commands
       - name: Deploy to Remote Server via SSH
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.0
         # We inject our secrets safely into the environment of the remote session shell
         env:
           DEPLOY_USER: ${{ github.actor }}
