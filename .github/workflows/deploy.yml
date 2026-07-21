@@ -95,11 +95,12 @@ jobs:
           # Expose the env variables block explicitly to the underlying shell script execution
           envs: DEPLOY_USER,DEPLOY_TOKEN
           script: |
-            whoami
-            groups
-            ls -l /var/run/docker.sock
             # 1. Stop execution immediately if any command fails
             set -e
+
+            # Enable Podman user socket for non-interactive SSH
+            systemctl --user start podman.socket || true
+            export DOCKER_HOST="unix:///run/user/$(id -u)/podman/podman.sock"
 
             # 2. Navigate to your app directory on the host server where your docker-compose.yml lives
             cd ~/evp-website
