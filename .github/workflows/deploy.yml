@@ -49,6 +49,9 @@ jobs:
         uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.service }}
+          tags: |
+            type=raw,value=latest
+            type=sha,format=short
 
       # Step 4: Compiles the service Dockerfile and pushes it directly to GHCR
       # Each service has its own Dockerfile under ./<service>/ (no root Dockerfile exists)
@@ -62,6 +65,9 @@ jobs:
           # Repo-scoped package: ghcr.io/<owner>/<repo>/<service> (GITHUB_TOKEN can only write here)
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.service }}:latest
           labels: ${{ steps.meta.outputs.labels }}
+          # Enable GHA build cache
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   # JOB 2: Connects to your remote server to pull the new container images and launch them
   deploy:
@@ -76,7 +82,7 @@ jobs:
         # We inject our secrets safely into the environment of the remote session shell
         env:
           DEPLOY_USER: ${{ github.actor }}
-          DEPLOY_TOKEN: ${{ secrets.GHCR_DEPLOY_TOKEN }} # Your newly generated Personal Access Token
+          DEPLOY_TOKEN: ${{ secrets.GHCR_DEPLOY_TOKEN }} # GitHub PAT
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
