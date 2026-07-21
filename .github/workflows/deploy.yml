@@ -102,7 +102,7 @@ jobs:
             cd ~/evp-website
 
             # 3. Log into GitHub Container Registry on the REMOTE server utilizing the injected shell variables
-            echo "$DEPLOY_TOKEN" | docker-login ghcr.io -u "$DEPLOY_USER" --password-stdin
+            echo "$DEPLOY_TOKEN" | docker login ghcr.io -u "$DEPLOY_USER" --password-stdin
 
             # 4. Pull the fresh image that was just compiled and uploaded in the previous GitHub job
             docker-compose pull
