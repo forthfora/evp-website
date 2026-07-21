@@ -20,10 +20,11 @@ jobs:
     # Specifies the type of virtual machine runner to use
     runs-on: ubuntu-latest
 
-    # Permissions required to read code and publish packages to GitHub Packages
+    # Permissions required to read code, publish packages to GHCR, and access the Actions cache backend (type=gha)
     permissions:
       contents: read
       packages: write
+      actions: read
 
     # Build both services defined in docker-compose.yml (frontend + backend)
     strategy:
@@ -101,13 +102,13 @@ jobs:
             cd ~/evp-website
 
             # 3. Log into GitHub Container Registry on the REMOTE server utilizing the injected shell variables
-            echo "$DEPLOY_TOKEN" | docker login ghcr.io -u "$DEPLOY_USER" --password-stdin
+            echo "$DEPLOY_TOKEN" | docker-login ghcr.io -u "$DEPLOY_USER" --password-stdin
 
             # 4. Pull the fresh image that was just compiled and uploaded in the previous GitHub job
-            docker compose pull
+            docker-compose pull
 
             # 5. Spin up the containers in detached mode (-d) and wipe out any orphaned containers
-            docker compose up -d --remove-orphans
+            docker-compose up -d --remove-orphans
 
             # 6. Housekeeping: Remove dangling older images from the host server disk to prevent running out of storage
             docker image prune -f
