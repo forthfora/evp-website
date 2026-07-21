@@ -59,8 +59,8 @@ evp-website/
 ### Infrastructure
 
 - Docker + Docker Compose; Nginx serves frontend on port **16017** and proxies to backend (Gunicorn on **17017**)
-- Images pushed to GHCR: `ghcr.io/forthfora/evp-frontend`, `ghcr.io/forthfora/evp-backend`
-- CI/CD (`.github/workflows/deploy.yml`): on push to `main` → build & push image → SSH to server → `docker compose pull && up -d`
+- Images pushed to GHCR (repo-scoped): `ghcr.io/forthfora/evp-website/frontend`, `ghcr.io/forthfora/evp-website/backend`
+- CI/CD (`.github/workflows/deploy.yml`): on push to `main` → matrix build of frontend+backend → push to GHCR → SSH deploy via `docker compose pull && up -d`
 - Deploy secrets: `SERVER_HOST`, `SERVER_USER`, `SERVER_SSH_KEY`, `GHCR_DEPLOY_TOKEN`
 
 ## Common Commands

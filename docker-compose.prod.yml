@@ -1,6 +1,6 @@
 services:
   frontend:
-    image: ghcr.io/forthfora/evp-frontend:latest
+    image: ghcr.io/forthfora/evp-website/frontend:latest
     container_name: evp-frontend
     restart: unless-stopped
     depends_on:
@@ -11,7 +11,7 @@ services:
       - django_static:/var/www/django/static:ro
 
   backend:
-    image: ghcr.io/forthfora/evp-backend:latest
+    image: ghcr.io/forthfora/evp-website/backend:latest
     container_name: evp-backend
     restart: unless-stopped
     command: >

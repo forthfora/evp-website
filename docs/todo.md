@@ -20,16 +20,27 @@
      `ghcr.io/forthfora/evp-frontend:latest` and `ghcr.io/forthfora/evp-backend:latest`.
    - Deploy job's `docker compose pull` would never pick up newly built images.
 
-## Fixes Applied (`.github/workflows/deploy.yml`)
+4. **write_package permission denied (push to standalone package name)**
+   - `GITHUB_TOKEN` can only push packages scoped under the repository namespace, i.e. `ghcr.io/<owner>/<repo>/...`.
+   - Images were tagged as `ghcr.io/forthfora/evp-frontend` and `ghcr.io/forthfora/evp-backend` — standalone names outside the repo scope.
+   - Error: `ERROR: failed to build: denied: permission_denied: write_package`
+
+## Fixes Applied
 
 - [x] Split `build-and-push` into a matrix job building `frontend` and `backend` separately with `context: ./${{ matrix.service }}`.
-- [x] Tag images per-service: `ghcr.io/<owner>/evp-frontend:latest` and `ghcr.io/<owner>/evp-backend:latest` (matches `docker-compose.yml`).
+- [x] Tag images per-service with repo-scoped names: `ghcr.io/forthfora/evp-website/frontend:latest` and `ghcr.io/forthfora/evp-website/backend:latest`.
+- [x] Updated both `docker-compose.yml` and `docker-compose.prod.yml` image references to match new repo-scoped tags.
 - [x] Upgrade actions to Node 24-compatible versions:
   - `actions/checkout@v4` → `@v6`
   - `docker/login-action@v3` → `@v4`
   - `docker/metadata-action@v5` → `@v6`
   - `docker/build-push-action@v5` → `@v7`
   - `appleboy/ssh-action@v1.0.3` → `@v1.2.0`
+
+## Remaining Steps (for server-side)
+
+- [ ] **On the server**, after the next deploy, the old images (`ghcr.io/forthfora/evp-frontend`, `ghcr.io/forthfora/evp-backend`) need to be cleaned up — the server may have stale local caches.
+- [ ] If the server's `docker-compose.yml` references the old `evp-frontend`/`evp-backend` names, it must be updated to match `docker-compose.prod.yml` with the new repo-scoped names.
 
 ## Verification Checklist
 
