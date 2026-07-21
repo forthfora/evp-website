@@ -109,3 +109,15 @@ npm run format     # Prettier
 - **Env vars**: backend reads from `backend/.env` (python-decouple). Never commit `.env`.
 - **Static files**: backend `collectstatic` output goes to the shared `django_static` Docker volume; Nginx serves it — don't change the volume wiring without updating both `docker-compose.yml` and `frontend/nginx.conf`.
 - Don't edit `backend/staticfiles/` (generated artifacts).
+
+## Common Gotchas & Fixes
+
+### Production / CI/CD
+
+- **`docker-compose up -d` fails with `CNI network "evp-website_default" not found`**
+  - Cause: Podman on Tardis uses CNI with `cniVersion: 1.0.0` in the conflist, but `docker-compose` v1 expects `0.4.0`.
+  - Fix: Edit `~/.config/cni/net.d/<compose-project-name>.conflist` and change `"cniVersion": "1.0.0"` → `"0.4.0"`, then re-run `docker-compose up -d`.
+  - The compose project name is typically the directory name — e.g. `evp-website_default.conflist`.
+
+- **SSH deploy works but `docker-compose` fails with `PermissionError(13, 'Permission denied')`**
+  - The server uses Podman rootless (no `/var/run/docker.sock`). The deploy script must set `DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock` and `DOCKER_CONFIG=$XDG_RUNTIME_DIR/containers`.

@@ -56,3 +56,9 @@
 - [ ] Add `docker/setup-buildx-action` + registry layer caching (`cache-from`/`cache-to: type=gha`) to speed up builds.
 - [ ] Add per-commit SHA tags in addition to `latest` for rollback capability.
 - [ ] Add a CI job running frontend lint/build and backend tests on PRs.
+
+## Known Gotchas
+
+- **`docker-compose up -d` fails with `CNI network "evp-website_default" not found`**
+  - Podman on Tardis generates CNI conflist with `cniVersion: 1.0.0` but `docker-compose` v1 expects `0.4.0`.
+  - Fix: `~/.config/cni/net.d/<project-name>.conflist` → change `"cniVersion": "1.0.0"` to `"0.4.0"`.
