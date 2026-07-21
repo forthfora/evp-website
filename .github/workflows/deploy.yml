@@ -61,16 +61,15 @@ jobs:
             type=raw,value=latest
             type=sha,format=short
 
-      # Step 5: Compiles the service Dockerfile and pushes it directly to GHCR
-      # Each service has its own Dockerfile under ./<service>/ (no root Dockerfile exists)
+      # Step 5: Compiles the service Dockerfile and pushes it directly to GHCR (only on push, not PRs)
       - name: Build and push Docker image
         uses: docker/build-push-action@v7
         with:
           # The build context for this service (contains its Dockerfile)
           context: ./${{ matrix.service }}
-          # Instructs the runner to push the image to the registry immediately after a successful build
-          push: true
-          # Repo-scoped package: ghcr.io/<owner>/<repo>/<service> (GITHUB_TOKEN can only write here)
+          # Push to GHCR ONLY on merge/push to main. On PRs, this compiles and tests without pushing.
+          push: ${{ github.event_name != 'pull_request' }}
+          # Repo-scoped package: ghcr.io/<owner>/<repo>/<service>
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.service }}:latest
           labels: ${{ steps.meta.outputs.labels }}
           # Scope GHA build cache by service so matrix jobs don't overwrite each other
@@ -81,6 +80,8 @@ jobs:
   deploy:
     # Forces this job to wait until 'build-and-push' finishes successfully
     needs: build-and-push
+    # ONLY run deployment on actual pushes (e.g. after a PR is merged into main)
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
 
     steps:
