@@ -35,7 +35,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      # Step 2: Authenticates the runner against GHCR using the short-lived, built-in GITHUB_TOKEN
+      # Step 2: Set up Docker Buildx (creates docker-container driver needed for type=gha cache export)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Step 3: Authenticates the runner against GHCR using the short-lived, built-in GITHUB_TOKEN
       - name: Log in to the Container Registry
         uses: docker/login-action@v4
         with:
@@ -43,7 +47,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Step 3: Automatically extracts tags and OCI labels based on Git commits/tags for container tracking
+      # Step 4: Automatically extracts tags and OCI labels based on Git commits/tags for container tracking
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v6
@@ -53,7 +57,7 @@ jobs:
             type=raw,value=latest
             type=sha,format=short
 
-      # Step 4: Compiles the service Dockerfile and pushes it directly to GHCR
+      # Step 5: Compiles the service Dockerfile and pushes it directly to GHCR
       # Each service has its own Dockerfile under ./<service>/ (no root Dockerfile exists)
       - name: Build and push Docker image
         uses: docker/build-push-action@v7
@@ -65,9 +69,9 @@ jobs:
           # Repo-scoped package: ghcr.io/<owner>/<repo>/<service> (GITHUB_TOKEN can only write here)
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.service }}:latest
           labels: ${{ steps.meta.outputs.labels }}
-          # Enable GHA build cache
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # Scope GHA build cache by service so matrix jobs don't overwrite each other
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
 
   # JOB 2: Connects to your remote server to pull the new container images and launch them
   deploy:
