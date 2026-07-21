@@ -95,6 +95,9 @@ jobs:
           # Expose the env variables block explicitly to the underlying shell script execution
           envs: DEPLOY_USER,DEPLOY_TOKEN
           script: |
+            whoami
+            groups
+            ls -l /var/run/docker.sock
             # 1. Stop execution immediately if any command fails
             set -e
 
