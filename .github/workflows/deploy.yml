@@ -4,7 +4,10 @@ name: CI/CD Production Deployment
 # Controls when the workflow will run
 on:
   push:
-    # Triggers the workflow only on push events to the main branch
+    # Triggers the workflow on direct pushes to main (e.g. after a PR is merged)
+    branches: [main]
+  pull_request:
+    # Triggers the workflow on PRs targeted at main
     branches: [main]
 
 # Global environment variables shared across all jobs in this workflow
