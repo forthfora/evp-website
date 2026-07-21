@@ -1,3 +1,33 @@
+# TODO — PLAN: Partners Section on Startups Page
+
+**Status:** ✅ Done
+
+## Goal
+
+Add a **Partners** section to the Startups page (`frontend/src/pages/startups/`), placed **before** the startups section (i.e. before the heading text "meet the student-led ventures we've worked with").
+
+## Requirements
+
+1. **Placement**: Render directly above the existing startups section in `StartupsPage.tsx`.
+2. **Opening title**: A heading in the vibe of "EVP maintains exclusive partnerships to offer our startups the best" (wording can be refined, not verbatim).
+3. **Data file**: Create `frontend/src/pages/startups/partners.data.ts` (co-located with any existing startups data file, mirroring its conventions) exporting a typed list of partners.
+4. **Partner shape**: Each partner has exactly:
+   - `name: string`
+   - `image: string` (logo — imported asset or path in `shared/assets`, matching how startup logos are handled)
+5. **Dummy data**: Add a few placeholder partners for now; the file must be trivially expandable later.
+6. **Styling**: Match the existing startups section style — same layout patterns, Tailwind classes, typography, spacing, and (if present) logo-grid/card treatment used for startups. Reuse shared UI primitives if the startups section uses them.
+
+## Steps (when executing)
+
+- [x] Read `frontend/src/pages/startups/` to find the page component and existing data file (e.g. `startups.data.ts`) and copy its conventions.
+- [x] Create `partners.data.ts` with a `Partner` type and dummy entries (name + logo image).
+- [x] Add partner logo assets to `shared/assets` (or reuse placeholder logos if available).
+- [x] Build the Partners section component with heading + logo grid, styled to match the startups section.
+- [x] Insert it into the Startups page above the startups section.
+- [x] Run `npm run lint` and `npm run build` in `frontend/` to verify.
+
+---
+
 # TODO — Fix CI/CD Pipeline
 
 **Priority:** High — deployments on push to `main` are currently failing.

@@ -1,4 +1,4 @@
-// 2026/2027
+import andrewImg from '@assets/about/pictures/andrew.webp';
 import arielImg from '@assets/about/pictures/ariel.webp';
 import christopherImg from '@assets/about/pictures/christopher.webp';
 import freddieImg from '@assets/about/pictures/freddie.webp';
@@ -11,7 +11,6 @@ import roryImg from '@assets/about/pictures/rory.webp';
 import teohImg from '@assets/about/pictures/teoh.webp';
 import tobiImg from '@assets/about/pictures/tobi.webp';
 import xavierImg from '@assets/about/pictures/xavier.webp';
-// 2025/2026
 import zachariasImg from '@assets/about/pictures/zacharias.webp';
 
 export type Member = {
@@ -34,7 +33,7 @@ export const COMMITTEE_DATA: YearData[] = [
 		members: [
 			{
 				role: 'President',
-				name: 'Teoh Yi Zang',
+				name: 'Teoh Zi Yang',
 				image: teohImg,
 				linkedin: 'https://www.linkedin.com/in/teoh-zi-yang/',
 			},
@@ -74,6 +73,12 @@ export const COMMITTEE_DATA: YearData[] = [
 				name: 'Matisse Afnan',
 				image: matisseImg,
 				linkedin: 'https://www.linkedin.com/in/matisseafnan/',
+			},
+			{
+				role: 'Honorary Chair',
+				name: 'Zacharias Onyejiaka',
+				image: zachariasImg,
+				linkedin: 'https://www.linkedin.com/in/zacharias-onyejiaka-405940307/',
 			},
 		],
 	},
@@ -133,6 +138,12 @@ export const COMMITTEE_DATA: YearData[] = [
 				name: 'Tobi Fatona',
 				image: tobiImg,
 				linkedin: 'https://www.linkedin.com/in/tobi-fatona/',
+			},
+			{
+				role: 'Honorary Chair',
+				name: 'Andrew Coleman',
+				image: andrewImg,
+				linkedin: 'https://www.linkedin.com/in/aacoleman/',
 			},
 		],
 	},
