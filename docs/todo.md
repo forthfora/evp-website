@@ -12,8 +12,9 @@ Add a **Partners** section to the Startups page (`frontend/src/pages/startups/`)
 2. **Opening title**: A heading in the vibe of "EVP maintains exclusive partnerships to offer our startups the best" (wording can be refined, not verbatim).
 3. **Data file**: Create `frontend/src/pages/startups/partners.data.ts` (co-located with any existing startups data file, mirroring its conventions) exporting a typed list of partners.
 4. **Partner shape**: Each partner has exactly:
+   - `id: string`
    - `name: string`
-   - `image: string` (logo — imported asset or path in `shared/assets`, matching how startup logos are handled)
+   - `img: string` (logo — imported asset or path in `shared/assets`, matching how startup logos are handled)
 5. **Dummy data**: Add a few placeholder partners for now; the file must be trivially expandable later.
 6. **Styling**: Match the existing startups section style — same layout patterns, Tailwind classes, typography, spacing, and (if present) logo-grid/card treatment used for startups. Reuse shared UI primitives if the startups section uses them.
 
