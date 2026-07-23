@@ -1,3 +1,4 @@
+import aliImg from '@assets/about/pictures/ali.webp';
 import andrewImg from '@assets/about/pictures/andrew.webp';
 import arielImg from '@assets/about/pictures/ariel.webp';
 import christopherImg from '@assets/about/pictures/christopher.webp';
@@ -79,6 +80,12 @@ export const COMMITTEE_DATA: YearData[] = [
 				name: 'Zacharias Onyejiaka',
 				image: zachariasImg,
 				linkedin: 'https://www.linkedin.com/in/zacharias-onyejiaka-405940307/',
+			},
+			{
+				role: 'Honorary Chair',
+				name: 'Ali Khan',
+				image: aliImg,
+				linkedin: 'https://www.linkedin.com/in/ali-khan-55a0b8141/',
 			},
 		],
 	},
