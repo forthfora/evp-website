@@ -70,7 +70,7 @@ jobs:
           # Push to GHCR ONLY on merge/push to main. On PRs, this compiles and tests without pushing.
           push: ${{ github.event_name != 'pull_request' }}
           # Repo-scoped package: ghcr.io/<owner>/<repo>/<service>
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.service }}:latest
+          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           # Scope GHA build cache by service so matrix jobs don't overwrite each other
           cache-from: type=gha,scope=${{ matrix.service }}
