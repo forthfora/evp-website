@@ -3,6 +3,7 @@ import { InteractiveContactButton, PageMeta, RadialGlowOverlay, UnderlinedTitle 
 import { motion } from 'framer-motion';
 import { useMemo } from 'react';
 
+import { PartnersSection } from './PartnersSection';
 import { StartupBlock } from './StartupBlock';
 import { STARTUPS } from './startups.data';
 import { generateColumns } from './startups.layout';
@@ -13,8 +14,8 @@ export function StartupsPage() {
 	return (
 		<div className="w-full overflow-hidden">
 			<PageMeta
-				title="Our Start-ups"
-				description="Learn about the start-ups EVP has worked with."
+				title="Start-ups"
+				description="Learn about the partners & start-ups EVP has worked with."
 			/>
 			{/* Hero */}
 			<div className="relative flex min-h-180 w-full items-center justify-center">
@@ -52,12 +53,14 @@ export function StartupsPage() {
 				</div>
 			</div>
 
+			<PartnersSection />
+
 			<div className="mx-auto mt-10 flex w-full flex-col gap-12 py-40">
 				<motion.div
-					initial={{ opacity: 0, y: -50 }}
+					initial={{ opacity: 0, y: -10 }}
 					whileInView={{ opacity: 1, y: 0 }}
 					viewport={{ once: true, amount: 0.8 }}
-					transition={{ duration: 0.5, ease: 'easeIn', delay: 0.5 }}
+					transition={{ duration: 0.5, ease: 'easeIn' }}
 					className="max-w-3xl text-center text-5xl md:mx-auto"
 				>
 					<UnderlinedTitle
