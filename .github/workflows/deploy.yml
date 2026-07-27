@@ -6,9 +6,17 @@ on:
   push:
     # Triggers the workflow on direct pushes to main (e.g. after a PR is merged)
     branches: [main]
+    paths-ignore:
+      - "README.md"
+      - "docs/**"
+      - "*.md"
   pull_request:
     # Triggers the workflow on PRs targeted at main
     branches: [main]
+    paths-ignore:
+      - "README.md"
+      - "docs/**"
+      - "*.md"
 
 # Global environment variables shared across all jobs in this workflow
 env:
