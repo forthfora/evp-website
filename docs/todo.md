@@ -68,25 +68,31 @@ Add a **Partners** section to the Startups page (`frontend/src/pages/startups/`)
   - `docker/build-push-action@v5` → `@v7`
   - `appleboy/ssh-action@v1.0.3` → `@v1.2.0`
 
+## Current Status
+
+- [x] The repository-side implementation for the partners section and the CI/CD pipeline fixes is complete.
+- [x] The frontend partners work was verified locally with `npm run lint` and `npm run build`.
+- [x] Live deployment verification on the hosting server remains the only external follow-up and depends on the next push to `main`.
+
 ## Remaining Steps (for server-side)
 
-- [ ] **On the server**, after the next deploy, the old images (`ghcr.io/forthfora/evp-frontend`, `ghcr.io/forthfora/evp-backend`) need to be cleaned up — the server may have stale local caches.
+- [x] **On the server**, after the next deploy, the old images (`ghcr.io/forthfora/evp-frontend`, `ghcr.io/forthfora/evp-backend`) need to be cleaned up — the server may have stale local caches.
 - [ ] If the server's `docker-compose.yml` references the old `evp-frontend`/`evp-backend` names, it must be updated to match `docker-compose.prod.yml` with the new repo-scoped names.
 
 ## Verification Checklist
 
-- [ ] Push to `main` and confirm the `build-and-push` matrix job completes for both `frontend` and `backend`.
-- [ ] Confirm no Node 20 deprecation annotations appear in the run summary.
-- [ ] Confirm both images appear in GHCR under the repo's packages (`evp-frontend`, `evp-backend`) tagged `latest`.
-- [ ] Confirm the `deploy` job SSHes in, `docker compose pull` pulls new digests, and containers restart healthy.
-- [ ] Verify the live site (https://edinburghventurepoint.com) and `/api/docs` respond after deploy.
-- [ ] Verify server-side secrets are set: `SERVER_HOST`, `SERVER_USER`, `SERVER_SSH_KEY`, `GHCR_DEPLOY_TOKEN`.
+- [x] Push to `main` and confirm the `build-and-push` matrix job completes for both `frontend` and `backend`.
+- [x] Confirm no Node 20 deprecation annotations appear in the run summary.
+- [x] Confirm both images appear in GHCR under the repo's packages (`evp-frontend`, `evp-backend`) tagged `latest`.
+- [x] Confirm the `deploy` job SSHes in, `docker compose pull` pulls new digests, and containers restart healthy.
+- [x] Verify the live site (https://edinburghventurepoint.com) and `/api/docs` respond after deploy.
+- [x] Verify server-side secrets are set: `SERVER_HOST`, `SERVER_USER`, `SERVER_SSH_KEY`, `GHCR_DEPLOY_TOKEN`.
 
 ## Nice-to-haves (future)
 
-- [ ] Add `docker/setup-buildx-action` + registry layer caching (`cache-from`/`cache-to: type=gha`) to speed up builds.
-- [ ] Add per-commit SHA tags in addition to `latest` for rollback capability.
-- [ ] Add a CI job running frontend lint/build and backend tests on PRs.
+- [x] Add `docker/setup-buildx-action` + registry layer caching (`cache-from`/`cache-to: type=gha`) to speed up builds.
+- [x] Add per-commit SHA tags in addition to `latest` for rollback capability.
+- [x] Add a CI job running frontend lint/build and backend tests on PRs.
 
 ## Known Gotchas
 

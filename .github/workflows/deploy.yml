@@ -22,14 +22,70 @@ on:
 env:
   # The target Docker registry (GitHub Container Registry)
   REGISTRY: ghcr.io
-  # Converts the repository path (e.g., 'username/repo') into lowercase for the image name
-  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  # JOB 1: Builds the frontend and backend Docker images and pushes them to GHCR
+  # JOB 1: Runs frontend lint/build and backend tests on every PR (fast gatekeeper)
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        service: [frontend, backend]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      # --- Frontend: Node.js + npm ---
+      - name: Setup Node.js
+        if: matrix.service == 'frontend'
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        if: matrix.service == 'frontend'
+        run: npm ci
+        working-directory: frontend
+
+      - name: Lint frontend
+        if: matrix.service == 'frontend'
+        run: npm run lint
+        working-directory: frontend
+
+      - name: Build frontend
+        if: matrix.service == 'frontend'
+        run: npm run build
+        working-directory: frontend
+
+      # --- Backend: Python + uv ---
+      - name: Setup Python
+        if: matrix.service == 'backend'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install uv
+        if: matrix.service == 'backend'
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install backend dependencies
+        if: matrix.service == 'backend'
+        run: uv sync
+        working-directory: backend
+
+      - name: Run backend tests
+        if: matrix.service == 'backend'
+        run: uv run python manage.py test
+        working-directory: backend
+
+  # JOB 2: Builds the frontend and backend Docker images and pushes them to GHCR
   build-and-push:
     # Specifies the type of virtual machine runner to use
     runs-on: ubuntu-latest
+    needs: test
 
     # Permissions required to read code, publish packages to GHCR, and access the Actions cache backend (type=gha)
     permissions:
@@ -46,6 +102,10 @@ jobs:
       # Step 1: Clones your repository source code onto the GitHub runner
       - name: Checkout repository
         uses: actions/checkout@v6
+
+      - name: Set lower case image name
+        run: |
+          echo "IMAGE_NAME=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
 
       # Step 2: Set up Docker Buildx (creates docker-container driver needed for type=gha cache export)
       - name: Set up Docker Buildx
@@ -84,7 +144,7 @@ jobs:
           cache-from: type=gha,scope=${{ matrix.service }}
           cache-to: type=gha,mode=max,scope=${{ matrix.service }}
 
-  # JOB 2: Connects to your remote server to pull the new container images and launch them
+  # JOB 3: Connects to your remote server to pull the new container images and launch them
   deploy:
     # Forces this job to wait until 'build-and-push' finishes successfully
     needs: build-and-push
