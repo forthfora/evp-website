@@ -34,7 +34,7 @@ evp-website/
 ├── .github/workflows/deploy.yml  # CI/CD: build → GHCR → SSH deploy
 ├── docker-compose.yml        # Local dev orchestration
 ├── docker-compose.prod.yml
-├── backend.code-workspace / frontend.code-workspace / fullstack.code-workspace
+├── evp-website.code-workspace
 └── README.md
 ```
 
