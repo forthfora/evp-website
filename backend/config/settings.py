@@ -67,16 +67,6 @@ else:
     EMAIL_HOST_USER = 'resend'
     EMAIL_HOST_PASSWORD = RESEND_API_KEY
 
-# Django REST Framework Throttle
-REST_FRAMEWORK = {
-    'DEFAULT_THROTTLE_CLASSES': [
-        'rest_framework.throttling.AnonRateThrottle',
-    ],
-    'DEFAULT_THROTTLE_RATES': {
-        'anon': '5/day',
-    }
-}
-
 # Application definition
 INSTALLED_APPS = [
     'jazzmin',  # Must stay before admin
@@ -91,7 +81,6 @@ INSTALLED_APPS = [
     'ninja',
     'corsheaders',
     'jwt_ninja',
-    'rest_framework',
 
     # Local Apps
     'apps.core',
