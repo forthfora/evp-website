@@ -3,9 +3,17 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 
 class UserManager[T](BaseUserManager):
-    def create_user(self, email: str, password: str | None = None, **other_fields) -> User:
-        other_fields.setdefault("username", email)
-        user = User(email=email, **other_fields)
+    def create_user(
+        self,
+        email: str,
+        password: str | None = None,
+        *,
+        username: str | None = None,
+        **other_fields,
+    ) -> User:
+        if username is None:
+            username = email
+        user = User(email=email, username=username, **other_fields)
 
         if password:
             user.set_password(password)
@@ -15,13 +23,21 @@ class UserManager[T](BaseUserManager):
         user.save()
         return user
 
-    def create_superuser(self, email: str, password: str | None = None, **other_fields) -> User:
-        other_fields.setdefault("username", email)
+    def create_superuser(
+        self,
+        email: str,
+        password: str | None = None,
+        *,
+        username: str | None = None,
+        **other_fields,
+    ) -> User:
+        if username is None:
+            username = email
         other_fields.setdefault("is_staff", True)
         other_fields.setdefault("is_superuser", True)
         other_fields.setdefault("is_active", True)
 
-        if other_fields.get("username") != email:
+        if username != email:
             raise ValueError("Superuser must be assigned to username=email")
 
         if other_fields.get("is_staff") is not True:
@@ -29,8 +45,8 @@ class UserManager[T](BaseUserManager):
 
         if other_fields.get("is_superuser") is not True:
             raise ValueError("Superuser must be assigned to is_superuser=True.")
-        
-        return self.create_user(email, password, **other_fields)
+
+        return self.create_user(email, password, username=username, **other_fields)
 
 
 class Role(models.TextChoices):
