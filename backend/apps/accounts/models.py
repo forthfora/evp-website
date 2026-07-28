@@ -1,14 +1,16 @@
-from __future__ import annotations
+from __future__ import annotations # make type hints lazy
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 
 class UserManager[T](BaseUserManager):
     def create_user(self, email: str, password: str | None = None, **other_fields) -> User:
         user = User(email=email, **other_fields)
+
         if password:
             user.set_password(password)
         else:
-            user.set_unusable_password()
+            user.set_unusable_password() # passwordless account (auth or invite-only)
+
         user.save()
         return user
 
@@ -19,8 +21,10 @@ class UserManager[T](BaseUserManager):
 
         if other_fields.get("is_staff") is not True:
             raise ValueError("Superuser must be assigned to is_staff=True.")
+
         if other_fields.get("is_superuser") is not True:
             raise ValueError("Superuser must be assigned to is_superuser=True.")
+        
         return self.create_user(email, password, **other_fields)
 
 

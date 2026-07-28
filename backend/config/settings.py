@@ -49,6 +49,10 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS.copy()
+CORS_ALLOW_CREDENTIALS = True
+
+# Frontend URL (used for cookie domain logic and redirects)
+FRONTEND_URL = config("FRONTEND_URL", default="http://localhost:16017")
 
 # Email Configuration
 TO_EMAILS = config("TO_EMAILS", default="", cast=lambda v: [s.strip() for s in v.split(",") if s.strip()])
