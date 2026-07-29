@@ -166,9 +166,9 @@ don't each reinvent role checks.
 
 **Depends on:** T3
 
-- [ ] T11.1 — Write tests first: model tests asserting a draft (`published_at=None`) is excluded from a `published()` queryset manager, and a published issue is included
-- [ ] T11.2 — Implement `NewsletterIssue` in a new `apps/newsletter/` app: `title`, `body` (TextField, markdown-as-plain-text is fine for now), `published_at` (nullable), `created_by` FK to `User`, `created_at`, `updated_at`; add the `published()` manager method
-- [ ] T11.3 — Register in Django admin with `list_display`/`list_filter` on `published_at`, and restrict add/change to staff (default admin behavior already covers this)
+- [x] T11.1 — Write tests first: model tests asserting a draft (`published_at=None`) is excluded from a `published()` queryset manager, and a published issue is included
+- [x] T11.2 — Implement `NewsletterIssue` in a new `apps/newsletter/` app: `title`, `body` (TextField, markdown-as-plain-text is fine for now), `published_at` (nullable), `created_by` FK to `User`, `created_at`, `updated_at`; add the `published()` manager method
+- [x] T11.3 — Register in Django admin with `list_display`/`list_filter` on `published_at`, and restrict add/change to staff (default admin behavior already covers this)
 
 ### T12 — Newsletter API endpoints
 
