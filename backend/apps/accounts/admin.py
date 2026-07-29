@@ -7,8 +7,8 @@ from apps.accounts.models import User
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
     # defines the columns that will display in the admin panel for this model
-    list_display = ("email", "is_staff", "is_active", "date_joined")
-    list_filter = ("is_staff", "is_active") # defines filter sidebar options
+    list_display = ("email", "role", "is_staff", "is_active", "date_joined")
+    list_filter = ("role", "is_staff", "is_active") # defines filter sidebar options
 
     search_fields = ("email",) # can search by email
     ordering = ("email",) # default: alphabetically by email
@@ -17,7 +17,7 @@ class UserAdmin(BaseUserAdmin):
     fieldsets = (
         # (heading, fields shown)
         (None, {"fields": ("email", "password")}),
-        ("Personal info", {"fields": ("image",)}),
+        ("Personal info", {"fields": ("image", "role")}),
         (
             "Permissions",
             {

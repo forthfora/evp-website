@@ -171,3 +171,9 @@ JWT_NINJA = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 }
+
+if 'test' in sys.argv:
+    # use a faster, less secure hasher for tests.
+    PASSWORD_HASHERS = [
+        "django.contrib.auth.hashers.MD5PasswordHasher",
+    ]
