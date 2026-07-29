@@ -1,1 +1,1 @@
-from apps.core.tests import test_email  # noqa: F401 — make TestCases discoverable
+from apps.core.tests import test_email, test_permissions  # noqa: F401

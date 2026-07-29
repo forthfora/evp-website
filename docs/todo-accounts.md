@@ -154,9 +154,9 @@ Prevents spamming an inbox with codes or brute-forcing a 6-digit code.
 A single reusable authorization helper so newsletter and directory endpoints
 don't each reinvent role checks.
 
-- [ ] T10.1 — Write tests first: a hypothesis property test over the full matrix of `(user_role, required_roles)` combinations asserting `require_role` allows access iff `user_role in required_roles`, plus an explicit case that unauthenticated requests are always denied
-- [ ] T10.2 — Implement `apps/core/permissions.py::require_role` as a Django Ninja auth/dependency helper usable as `@router.get(..., auth=require_role("scout", "committee"))` or as an in-view guard, whichever fits the existing `jwtninja` auth pattern already used in the codebase
-- [ ] T10.3 — Add an `is_owner_or_committee(user, obj)` helper (checks `obj.created_by == user` or `user.is_committee`) for the ownership rule needed by the directory feature in Phase 5
+- [x] T10.1 — Write tests first: a hypothesis property test over the full matrix of `(user_role, required_roles)` combinations asserting `require_role` allows access iff `user_role in required_roles`, plus an explicit case that unauthenticated requests are always denied
+- [x] T10.2 — Implement `apps/core/permissions.py::require_role` as a Django Ninja auth/dependency helper usable as `@router.get(..., auth=require_role("scout", "committee"))` or as an in-view guard, whichever fits the existing `jwtninja` auth pattern already used in the codebase
+- [x] T10.3 — Add an `is_owner_or_committee(user, obj)` helper (checks `obj.created_by == user` or `user.is_committee`) for the ownership rule needed by the directory feature in Phase 5
 
 ---
 

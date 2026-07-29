@@ -1,0 +1,115 @@
+from __future__ import annotations
+
+import hypothesis.strategies as st
+import pytest
+from django.test import TestCase
+from hypothesis import given, settings
+from hypothesis.extra.django import TestCase as HypothesisTestCase
+from jwt_ninja.errors import APIError
+
+from apps.accounts.models import Role, User
+from apps.core.permissions import is_owner_or_committee, require_role
+
+
+class RequireRoleTests(HypothesisTestCase):
+    """Property-based tests for the role-based auth helper."""
+
+    @settings(deadline=None, max_examples=30)
+    @given(
+        role=st.sampled_from([r.value for r in Role]),
+        allowed=st.lists(
+            st.sampled_from([r.value for r in Role]),
+            min_size=0,
+            max_size=3,
+            unique=True,
+        ),
+    )
+    def test_require_role_allows_access_if_role_in_allowed(
+        self, role: str, allowed: list[str]
+    ) -> None:
+        """require_role allows access iff the user's role is in the allowed set."""
+        user = User.objects.create_user(f"{role}@test.com")
+        user.role = role
+        user.save()
+
+        auth = require_role(*allowed)
+        # Simulate: if we got to the role check, authentication already passed.
+        # require_role.authenticate returns None if role is not allowed.
+        from jwt_ninja.auth_classes import AuthDetails
+        from jwt_ninja.models import Session
+
+        session = Session.create_session(user=user, ip_address="127.0.0.1")
+        details = AuthDetails(user=user, session=session)
+
+        # We can't call authenticate directly without a real token, so we test
+        # the check_roles helper instead.
+        result = auth.check_roles(details)
+        if role in allowed:
+            assert result is True
+        else:
+            assert result is False
+
+    def test_require_role_denies_unauthenticated(self) -> None:
+        """require_role denies access when no auth is present."""
+        auth = require_role("scout", "committee")
+        from unittest.mock import Mock
+
+        request = Mock()
+        with pytest.raises(APIError):
+            auth.authenticate(request, "bad-token")
+
+    def test_require_role_empty_allowed_denies_all(self) -> None:
+        """require_role with no roles denies everyone."""
+        auth = require_role()
+        user = User.objects.create_user("anyone@test.com")
+        from jwt_ninja.auth_classes import AuthDetails
+        from jwt_ninja.models import Session
+
+        session = Session.create_session(user=user, ip_address="127.0.0.1")
+        details = AuthDetails(user=user, session=session)
+        assert auth.check_roles(details) is False
+
+    def test_require_role_allows_committee(self) -> None:
+        """committee role passes require_role('committee')."""
+        user = User.objects.create_user("comm@test.com")
+        user.role = Role.COMMITTEE
+        user.save()
+        auth = require_role("committee")
+        from jwt_ninja.auth_classes import AuthDetails
+        from jwt_ninja.models import Session
+
+        session = Session.create_session(user=user, ip_address="127.0.0.1")
+        details = AuthDetails(user=user, session=session)
+        assert auth.check_roles(details) is True
+
+
+class IsOwnerOrCommitteeTests(TestCase):
+    """Tests for the ownership helper."""
+
+    def setUp(self) -> None:
+        self.owner = User.objects.create_user("owner@test.com")
+        self.other = User.objects.create_user("other@test.com")
+
+    def test_owner_is_owner(self) -> None:
+        """The creator of an object is its owner."""
+        obj = type("Obj", (), {"created_by": self.owner})()
+        assert is_owner_or_committee(self.owner, obj) is True
+
+    def test_committee_is_owner(self) -> None:
+        """A committee member is always considered an owner."""
+        self.owner.role = Role.COMMITTEE
+        self.owner.save()
+        obj = type("Obj", (), {"created_by": self.other})()
+        assert is_owner_or_committee(self.owner, obj) is True
+
+    def test_stranger_is_not_owner(self) -> None:
+        """A non-owner, non-committee user is not an owner."""
+        obj = type("Obj", (), {"created_by": self.owner})()
+        assert is_owner_or_committee(self.other, obj) is False
+
+    def test_scout_is_not_owner_of_others(self) -> None:
+        """A scout is not an owner of another scout's entry."""
+        self.owner.role = Role.SCOUT
+        self.owner.save()
+        obj = type("Obj", (), {"created_by": self.owner})()
+        assert is_owner_or_committee(self.other, obj) is False
