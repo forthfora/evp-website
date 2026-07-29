@@ -29,18 +29,18 @@ class AuthAPITests(TestCase):
             {"email": "nonexistent@example.com"},
             content_type="application/json",
         )
-        self.assertEqual(response.status_code, 202)
+        assert response.status_code == 202
 
     @patch("apps.accounts.api.send_otp_email")
     def test_request_code_creates_otp_record(self, mock_send) -> None:
         """request-code creates an EmailOTP record."""
-        self.assertEqual(EmailOTP.objects.count(), 0)
+        assert EmailOTP.objects.count() == 0
         self.client.post(
             self.request_code_url,
             {"email": "test@example.com"},
             content_type="application/json",
         )
-        self.assertEqual(EmailOTP.objects.count(), 1)
+        assert EmailOTP.objects.count() == 1
 
     @patch("apps.accounts.api.send_otp_email")
     def test_request_code_calls_send_otp_email(self, mock_send) -> None:
@@ -52,8 +52,8 @@ class AuthAPITests(TestCase):
         )
         mock_send.assert_called_once()
         args = mock_send.call_args[0]
-        self.assertEqual(args[0], "test@example.com")
-        self.assertEqual(len(args[1]), 6)  # 6-digit code
+        assert args[0] == "test@example.com"
+        assert len(args[1]) == 6  # 6-digit code
 
     @patch("apps.accounts.api.send_otp_email")
     def test_request_code_returns_202_for_existing_user(self, mock_send) -> None:
@@ -64,7 +64,7 @@ class AuthAPITests(TestCase):
             {"email": "existing@example.com"},
             content_type="application/json",
         )
-        self.assertEqual(response.status_code, 202)
+        assert response.status_code == 202
 
     @patch("apps.accounts.api.send_otp_email")
     def test_request_code_ratelimit_exceeded(self, mock_send) -> None:
@@ -77,7 +77,7 @@ class AuthAPITests(TestCase):
             {"email": email},
             content_type="application/json",
         )
-        self.assertEqual(resp1.status_code, 202)
+        assert resp1.status_code == 202
 
         # Second request immediately after is rate-limited
         resp2 = self.client.post(
@@ -85,7 +85,7 @@ class AuthAPITests(TestCase):
             {"email": email},
             content_type="application/json",
         )
-        self.assertEqual(resp2.status_code, 429)
+        assert resp2.status_code == 429
 
     @patch("apps.accounts.api.send_otp_email")
     def test_request_code_ratelimit_expires(self, mock_send) -> None:
@@ -99,7 +99,7 @@ class AuthAPITests(TestCase):
                 {"email": email},
                 content_type="application/json",
             )
-            self.assertEqual(resp1.status_code, 202)
+            assert resp1.status_code == 202
 
         # 61 seconds later — cooldown has passed, request should succeed
         resp2 = self.client.post(
@@ -107,7 +107,7 @@ class AuthAPITests(TestCase):
             {"email": email},
             content_type="application/json",
         )
-        self.assertEqual(resp2.status_code, 202)
+        assert resp2.status_code == 202
 
     @patch("apps.accounts.api.send_otp_email")
     def test_request_code_ratelimit_per_email(self, mock_send) -> None:
@@ -125,7 +125,7 @@ class AuthAPITests(TestCase):
             {"email": "b@example.com"},
             content_type="application/json",
         )
-        self.assertEqual(resp_b.status_code, 202)
+        assert resp_b.status_code == 202
 
     @patch("apps.accounts.api.send_otp_email")
     def test_verify_code_max_attempts_lockout(self, mock_send) -> None:
@@ -153,7 +153,7 @@ class AuthAPITests(TestCase):
             {"email": email, "code": code},
             content_type="application/json",
         )
-        self.assertEqual(response.status_code, 400)
+        assert response.status_code == 400
 
     @patch("apps.accounts.api.send_otp_email")
     def test_verify_code_creates_new_user_and_returns_tokens(self, mock_send) -> None:
@@ -172,14 +172,14 @@ class AuthAPITests(TestCase):
             {"email": "newuser@example.com", "code": raw_code},
             content_type="application/json",
         )
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         data = response.json()
-        self.assertIn("access", data)
+        assert "access" in data
 
         # Verify user was created
         user = User.objects.get(email="newuser@example.com")
-        self.assertEqual(user.role, "member")
-        self.assertFalse(user.has_usable_password())
+        assert user.role == "member"
+        assert not user.has_usable_password()
 
     def test_verify_code_with_wrong_code_returns_400(self) -> None:
         """verify-code returns 400 for an incorrect code."""
@@ -192,7 +192,7 @@ class AuthAPITests(TestCase):
             {"email": "test@example.com", "code": "654321"},
             content_type="application/json",
         )
-        self.assertEqual(response.status_code, 400)
+        assert response.status_code == 400
 
     def test_verify_code_with_expired_code_returns_400(self) -> None:
         """verify-code returns 400 for an expired code."""
@@ -211,7 +211,7 @@ class AuthAPITests(TestCase):
             {"email": "test@example.com", "code": "123456"},
             content_type="application/json",
         )
-        self.assertEqual(response.status_code, 400)
+        assert response.status_code == 400
 
     def test_verify_code_with_consumed_code_returns_400(self) -> None:
         """verify-code returns 400 for an already-consumed code."""
@@ -221,14 +221,14 @@ class AuthAPITests(TestCase):
 
         # Consume it first
         result = otp.consume("123456")
-        self.assertTrue(result)
+        assert result
 
         response = self.client.post(
             self.verify_code_url,
             {"email": "test@example.com", "code": "123456"},
             content_type="application/json",
         )
-        self.assertEqual(response.status_code, 400)
+        assert response.status_code == 400
 
     def test_verify_code_with_no_prior_otp_returns_400(self) -> None:
         """verify-code returns 400 when no OTP was requested."""
@@ -237,7 +237,7 @@ class AuthAPITests(TestCase):
             {"email": "no_otp@example.com", "code": "123456"},
             content_type="application/json",
         )
-        self.assertEqual(response.status_code, 400)
+        assert response.status_code == 400
 
     @patch("apps.accounts.api.send_otp_email")
     def test_verify_code_sets_refresh_cookie(self, mock_send) -> None:
@@ -254,13 +254,13 @@ class AuthAPITests(TestCase):
             {"email": "cookie@example.com", "code": raw_code},
             content_type="application/json",
         )
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
 
         # Check the refresh cookie was set
         cookies = response.cookies
-        self.assertIn("refresh_token", cookies)
+        assert "refresh_token" in cookies
         refresh_cookie = cookies["refresh_token"]
-        self.assertTrue(refresh_cookie["httponly"])
+        assert refresh_cookie["httponly"]
 
 
 class AuthAPIPropertyTests(HypothesisTestCase):
@@ -291,5 +291,5 @@ class AuthAPIPropertyTests(HypothesisTestCase):
             {"email": email, "code": wrong_code},
             content_type="application/json",
         )
-        self.assertNotEqual(response.status_code, 200)  # redundant
-        self.assertIn(response.status_code, (400, 401))
+        assert response.status_code != 200  # redundant
+        assert response.status_code in (400, 401)

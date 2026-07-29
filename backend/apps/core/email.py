@@ -42,7 +42,7 @@ def _build_otp_html(code: str) -> str:
     <p>This code expires in 10 minutes.</p>
     <p>If you didn't request this, you can safely ignore and delete this email.</p>
 
-    
+
     <p>Kind regards,<br>The Edinburgh VenturePoint team</p>
 </body>
 </html>

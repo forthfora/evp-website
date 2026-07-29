@@ -132,9 +132,7 @@ class EmailOTP(models.Model):
             return False
         if timezone.now() >= self.expires_at:
             return False
-        if self.attempts >= self.max_attempts:
-            return False
-        return True
+        return not self.attempts >= self.max_attempts
 
     @property
     def max_attempts(self) -> int:

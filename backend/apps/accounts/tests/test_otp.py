@@ -23,7 +23,7 @@ class EmailOTPModelTests(HypothesisTestCase):
         """A fresh, unconsumed, non-expired OTP is valid."""
         otp = EmailOTP.objects.create(email=email)
         otp.set_code(code)
-        self.assertTrue(otp.is_valid)
+        assert otp.is_valid
 
     @given(email=st.emails(), code=valid_code)
     def test_is_valid_false_after_consume(self, email: str, code: str) -> None:
@@ -31,7 +31,7 @@ class EmailOTPModelTests(HypothesisTestCase):
         otp = EmailOTP.objects.create(email=email)
         otp.set_code(code)
         otp.consume(code)
-        self.assertFalse(otp.is_valid)
+        assert not otp.is_valid
 
     @given(email=st.emails(), code=valid_code)
     def test_is_valid_false_after_expiry(self, email: str, code: str) -> None:
@@ -41,7 +41,7 @@ class EmailOTPModelTests(HypothesisTestCase):
             otp.set_code(code)
 
         # now we're back to "present" — the OTP was created 30 min ago
-        self.assertFalse(otp.is_valid)
+        assert not otp.is_valid
 
     @given(email=st.emails(), code=valid_code)
     def test_consume_with_wrong_code_returns_false(self, email: str, code: str) -> None:
@@ -51,8 +51,8 @@ class EmailOTPModelTests(HypothesisTestCase):
         wrong_code = str((int(code) + 1) % 1_000_000).zfill(6)
 
         result = otp.consume(wrong_code)
-        self.assertFalse(result)
-        self.assertEqual(otp.attempts, 1)
+        assert not result
+        assert otp.attempts == 1
 
     @given(email=st.emails(), code=valid_code)
     def test_max_attempts_lockout(self, email: str, code: str) -> None:
@@ -66,11 +66,11 @@ class EmailOTPModelTests(HypothesisTestCase):
         for _ in range(otp.max_attempts):
             otp.consume(wrong_code)
 
-        self.assertGreaterEqual(otp.attempts, otp.max_attempts)
+        assert otp.attempts >= otp.max_attempts
 
         # Now even the correct code fails
         result = otp.consume(code)
-        self.assertFalse(result)
+        assert not result
 
     @given(email=st.emails(), code=valid_code)
     def test_consume_success_marks_consumed_at(self, email: str, code: str) -> None:
@@ -79,8 +79,8 @@ class EmailOTPModelTests(HypothesisTestCase):
         otp.set_code(code)
 
         result = otp.consume(code)
-        self.assertTrue(result)
-        self.assertIsNotNone(otp.consumed_at)
+        assert result
+        assert otp.consumed_at is not None
 
     def test_default_ttl_is_10_minutes(self) -> None:
         """An OTP defaults to a 10-minute expiry from creation."""
@@ -97,5 +97,5 @@ class EmailOTPModelTests(HypothesisTestCase):
     def test_generate_code_returns_six_digits(self) -> None:
         """generate_code() returns a 6-digit numeric string."""
         code = EmailOTP.generate_code()
-        self.assertEqual(len(code), 6)
-        self.assertTrue(code.isdigit())
+        assert len(code) == 6
+        assert code.isdigit()

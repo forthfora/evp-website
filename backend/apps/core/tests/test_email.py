@@ -19,8 +19,8 @@ class EmailServiceTests(TestCase):
         args = mock_logger.info.call_args[0]
         # logger.info uses lazy %s formatting, so args are (fmt, *values)
         all_text = " ".join(str(a) for a in args)
-        self.assertIn("123456", all_text)
-        self.assertIn("test@example.com", all_text)
+        assert "123456" in all_text
+        assert "test@example.com" in all_text
 
     @override_settings(DEBUG=True)
     @patch("apps.core.email.logger")
@@ -35,8 +35,8 @@ class EmailServiceTests(TestCase):
         args = mock_logger.info.call_args[0]
         # logger.info uses lazy %s formatting, so args are (fmt, *values)
         all_text = " ".join(str(a) for a in args)
-        self.assertIn("Test Subject", all_text)
-        self.assertIn("test@example.com", all_text)
+        assert "Test Subject" in all_text
+        assert "test@example.com" in all_text
 
     @override_settings(DEBUG=False)
     @patch("apps.core.email.resend.Emails.send")
@@ -45,8 +45,8 @@ class EmailServiceTests(TestCase):
         send_otp_email("test@example.com", "123456")
         mock_send.assert_called_once()
         params = mock_send.call_args[1]["params"]
-        self.assertEqual(params["to"], ["test@example.com"])
-        self.assertIn("123456", params["html"])
+        assert params["to"] == ["test@example.com"]
+        assert "123456" in params["html"]
 
     @override_settings(DEBUG=False)
     @patch("apps.core.email.resend.Emails.send")
@@ -59,6 +59,6 @@ class EmailServiceTests(TestCase):
         )
         mock_send.assert_called_once()
         params = mock_send.call_args[1]["params"]
-        self.assertEqual(params["to"], ["recipient@example.com"])
-        self.assertEqual(params["subject"], "Hello")
-        self.assertIn("This is the body.", params["html"])
+        assert params["to"] == ["recipient@example.com"]
+        assert params["subject"] == "Hello"
+        assert "This is the body." in params["html"]

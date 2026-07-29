@@ -12,23 +12,23 @@ class UserModelTests(HypothesisTestCase):
     def test_new_user_defaults_to_member_role(self, email: str) -> None:
         """Every newly created User defaults to role='member'."""
         user = User.objects.create_user(email)
-        self.assertEqual(user.role, "member")
+        assert user.role == "member"
 
     @given(email=st.emails())
     def test_new_user_has_unusable_password(self, email: str) -> None:
         """Every newly created User has an unusable password."""
         user = User.objects.create_user(email)
-        self.assertFalse(user.has_usable_password())
+        assert not user.has_usable_password()
 
     @given(email=st.emails())
     def test_new_user_username_defaults_to_email(self, email: str) -> None:
         """Username defaults to email when not explicitly provided."""
         user = User.objects.create_user(email)
-        self.assertEqual(user.username, email)
+        assert user.username == email
 
     def test_create_superuser_is_still_member_by_default(self) -> None:
         """Superusers also get role='member' unless explicitly set otherwise."""
         user = User.objects.create_superuser(
             "admin@example.com", "admin@example.com", "testpass123"
         )
-        self.assertEqual(user.role, "member")
+        assert user.role == "member"
