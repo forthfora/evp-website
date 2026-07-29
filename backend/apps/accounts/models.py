@@ -7,6 +7,12 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils import timezone
 
+
+def get_otp_expiry():
+    """Return the default expiry time for OTP codes (10 minutes from now)."""
+    return timezone.now() + timedelta(minutes=10)
+
+
 class UserManager[T](BaseUserManager):
     def create_user(
         self,
@@ -67,7 +73,7 @@ class User(AbstractUser):
     last_name = None
 
     email = models.EmailField("Email Address", unique=True)
-    username = models.CharField(max_length=60, unique=True)
+    username = models.CharField(max_length=254, unique=True)
     image = models.URLField(null=True, blank=True)
     role = models.CharField(
         max_length=20, choices=Role.choices, default=Role.MEMBER
@@ -105,7 +111,7 @@ class EmailOTP(models.Model):
     # OTP declaraton
     code_hash = models.CharField(max_length=128, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    expires_at = models.DateTimeField(default=lambda: timezone.now() + timedelta(minutes=10))
+    expires_at = models.DateTimeField(default=get_otp_expiry)
     consumed_at = models.DateTimeField(null=True, blank=True)
 
     attempts = models.IntegerField(default=0)

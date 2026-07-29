@@ -322,3 +322,39 @@ quick to implement later" requirement.
   content, confirming `djangorestframework` removal in T2.3) are noted here
   but only the dependency-cleanup item is included above — the rest are
   unrelated to this feature set and worth their own todo pass.
+
+## Implementation Notes & Design Decisions
+
+### EmailOTP.email field length (low risk)
+
+`EmailOTP.email` uses Django's default `EmailField(max_length=254)`. The
+`st.emails()` strategy in hypothesis tests can theoretically generate addresses
+exceeding this limit, though RFC-compliant addresses are typically much shorter.
+**Mitigation:** Tests should filter generated emails to `len(e) <= 254` as a
+defensive measure, though this is low risk in practice.
+
+### Superuser role elevation (intentional design)
+
+`UserManager.create_superuser()` sets `is_staff=True` and `is_superuser=True`
+but leaves `role="member"` (the default). This is **intentional**, not an
+oversight. The architecture separates concerns:
+
+- `is_staff` / `is_superuser` → Django admin access (staff-gated)
+- `role` → application-level API permissions (`require_role("committee")`)
+
+A superuser with `role="member"` can access the admin panel and elevate their
+own role via the Django admin UI, but won't pass API-level role checks until
+they do. This aligns with the ADR and the principle that "Roles are elevated
+manually by staff in the Django admin."
+
+### Username field length constraint (FIXED)
+
+**Issue:** `User.username` was `max_length=60` while `User.email` (the
+`USERNAME_FIELD`) is `max_length=254`. Since `create_user()` defaults
+`username = email`, hypothesis-generated emails > 60 chars would cause
+DB-level `DataError` failures unrelated to the property under test.
+
+**Fix:** Increased `User.username` to `max_length=254` to match the email
+field. Migration `0004_alter_emailotp_expires_at_alter_user_username` applied.
+This ensures the `username == email` invariant holds for all valid email
+addresses without artificial length constraints.
