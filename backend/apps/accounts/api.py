@@ -3,6 +3,7 @@ from __future__ import annotations
 import time
 
 from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.utils import timezone
 from ninja import Router, Schema
 
 from apps.accounts.models import EmailOTP, User
@@ -85,13 +86,26 @@ def _set_refresh_cookie(response: HttpResponse, refresh_token: str) -> None:
 
 @router.post(
     "/auth/request-code",
-    response={202: None, 422: ErrorResponse},
+    response={202: None, 429: ErrorResponse, 422: ErrorResponse},
     auth=None,
     summary="Request a one-time verification code",
 )
 def request_code(request: HttpRequest, payload: RequestCodeInput) -> HttpResponse:
     """Send a 6-digit OTP to *email*. Always returns 202 to prevent
     user enumeration. The email is sent only if the address is valid."""
+
+    now = timezone.now()
+    latest_otp = (
+        EmailOTP.objects.filter(email=payload.email)
+        .order_by("-created_at")
+        .first()
+    )
+    if latest_otp and (now - latest_otp.created_at).total_seconds() < latest_otp.cooldown_seconds:
+        return JsonResponse(
+            {"detail": "Too many requests. Please wait before requesting another code."},
+            status=429,
+        )
+
     code = EmailOTP.generate_code()
     otp = EmailOTP.objects.create(email=payload.email)
     otp.set_code(code)

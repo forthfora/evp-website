@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+from datetime import timedelta
 from unittest.mock import patch
 
 import hypothesis.strategies as st
 from django.test import TestCase
+from django.utils import timezone
+from freezegun import freeze_time
 from hypothesis import assume, given, settings
 from hypothesis.extra.django import TestCase as HypothesisTestCase
 
@@ -55,14 +58,103 @@ class AuthAPITests(TestCase):
     @patch("apps.accounts.api.send_otp_email")
     def test_request_code_returns_202_for_existing_user(self, mock_send) -> None:
         """request-code returns 202 for existing users too (no enumeration)."""
-        User.objects.create_user(email="existing@example.com")
+        User.objects.create_user("existing@example.com")
         response = self.client.post(
             self.request_code_url,
             {"email": "existing@example.com"},
             content_type="application/json",
         )
         self.assertEqual(response.status_code, 202)
-        
+
+    @patch("apps.accounts.api.send_otp_email")
+    def test_request_code_ratelimit_exceeded(self, mock_send) -> None:
+        """Rapid repeated request-code for the same email returns 429."""
+        email = "ratelimit@example.com"
+
+        # First request succeeds
+        resp1 = self.client.post(
+            self.request_code_url,
+            {"email": email},
+            content_type="application/json",
+        )
+        self.assertEqual(resp1.status_code, 202)
+
+        # Second request immediately after is rate-limited
+        resp2 = self.client.post(
+            self.request_code_url,
+            {"email": email},
+            content_type="application/json",
+        )
+        self.assertEqual(resp2.status_code, 429)
+
+    @patch("apps.accounts.api.send_otp_email")
+    def test_request_code_ratelimit_expires(self, mock_send) -> None:
+        """request-code works again for the same email after cooldown."""
+        email = "cooldown@example.com"
+
+        # First request just before cooldown expiry
+        with freeze_time(timezone.now() - timedelta(seconds=61)):
+            resp1 = self.client.post(
+                self.request_code_url,
+                {"email": email},
+                content_type="application/json",
+            )
+            self.assertEqual(resp1.status_code, 202)
+
+        # 61 seconds later — cooldown has passed, request should succeed
+        resp2 = self.client.post(
+            self.request_code_url,
+            {"email": email},
+            content_type="application/json",
+        )
+        self.assertEqual(resp2.status_code, 202)
+
+    @patch("apps.accounts.api.send_otp_email")
+    def test_request_code_ratelimit_per_email(self, mock_send) -> None:
+        """Rate limiting is per-email; a second email is not blocked."""
+        # First request for email A
+        self.client.post(
+            self.request_code_url,
+            {"email": "a@example.com"},
+            content_type="application/json",
+        )
+
+        # Request for email B succeeds (different cooldown bucket)
+        resp_b = self.client.post(
+            self.request_code_url,
+            {"email": "b@example.com"},
+            content_type="application/json",
+        )
+        self.assertEqual(resp_b.status_code, 202)
+
+    @patch("apps.accounts.api.send_otp_email")
+    def test_verify_code_max_attempts_lockout(self, mock_send) -> None:
+        """After max failed verify attempts, even a correct code is rejected."""
+        email = "lockout@example.com"
+        self.client.post(
+            self.request_code_url,
+            {"email": email},
+            content_type="application/json",
+        )
+        code = mock_send.call_args[0][1]
+
+        # Exhaust attempts with wrong codes
+        wrong = str((int(code) + 1) % 1_000_000).zfill(6)
+        for _ in range(5):
+            self.client.post(
+                self.verify_code_url,
+                {"email": email, "code": wrong},
+                content_type="application/json",
+            )
+
+        # Now even the correct code fails
+        response = self.client.post(
+            self.verify_code_url,
+            {"email": email, "code": code},
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 400)
+
     @patch("apps.accounts.api.send_otp_email")
     def test_verify_code_creates_new_user_and_returns_tokens(
         self, mock_send

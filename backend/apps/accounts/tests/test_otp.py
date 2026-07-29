@@ -69,6 +69,8 @@ class EmailOTPModelTests(HypothesisTestCase):
         for _ in range(otp.max_attempts):
             otp.consume(wrong_code)
 
+        self.assertGreaterEqual(otp.attempts, otp.max_attempts)
+
         # Now even the correct code fails
         result = otp.consume(code)
         self.assertFalse(result)
