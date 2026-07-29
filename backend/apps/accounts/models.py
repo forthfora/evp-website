@@ -74,6 +74,9 @@ class Role(models.TextChoices):
 
 
 class User(AbstractUser):
+    # Declare the implicit primary key so Pylance can resolve `user.id`
+    id: int
+
     # remove default fields
     first_name = None
     last_name = None

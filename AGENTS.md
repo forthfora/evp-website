@@ -45,6 +45,7 @@ evp-website/
 - **Python ≥ 3.13**, **Django 6**, **Django Ninja 1.6** (REST API, Pydantic validation)
 - **jwtninja** for JWT auth, **django-cors-headers**, **django-jazzmin** (admin theme)
 - **Gunicorn** (WSGI server in prod), **uv** for dependency management
+- **Ruff** (linter, configured in `backend/pyproject.toml`)
 - DB: MySQL/PyMySQL in prod (psycopg also available); SQLite (`db.sqlite3`) locally
 - Custom `User` model in `apps/accounts/models.py` — email is `USERNAME_FIELD`; no first/last name
 
@@ -85,6 +86,8 @@ uv run python manage.py migrate
 uv run python manage.py runserver
 uv run python manage.py createsuperuser
 uv run python manage.py test           # run tests
+uv run ruff check                       # lint all Python files
+uv run ruff check --fix                 # lint + auto-fix
 ```
 
 ### Frontend (standalone)
@@ -100,8 +103,8 @@ npm run format     # Prettier
 
 ## Conventions & Gotchas
 
-- **Backend code style**: modern typing (`from __future__ import annotations`, PEP 695 generics e.g. `class UserManager[T]`), type hints everywhere.
-- **Run backend commands with `uv run`**: always prefix Python commands with `uv run` (e.g. `uv run python manage.py migrate`, `uv run pytest`). Never invoke `python` or `.venv\Scripts\python.exe` directly — `uv run` resolves the correct venv automatically.
+- **Backend code style**: modern typing (`from __future__ import annotations`, PEP 695 generics e.g. `class UserManager[T]`), type hints everywhere. Linted with **Ruff** — run `uv run ruff check` before committing.
+- **Run backend commands with `uv run`**: always prefix Python commands with `uv run` (e.g. `uv run python manage.py migrate`, `uv run pytest`, `uv run ruff check`). Never invoke `python` or `.venv\Scripts\python.exe` directly — `uv run` resolves the correct venv automatically.
 - **API**: register routers in `backend/config/api.py`; URL prefix `/api/`. Schemas live next to apps (e.g. `apps/core/schemas.py`).
 - **Auth**: JWT via `jwtninja`; email+password login (no username login).
 - **Frontend pages**: each page lives in `src/pages/<name>/<Name>Page.tsx`; add routes in `src/app/browser-router.tsx` wrapped by `AppLayout`; unknown paths throw a 404 `Response`.
