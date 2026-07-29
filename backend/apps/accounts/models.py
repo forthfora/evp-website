@@ -85,6 +85,10 @@ class User(AbstractUser):
     username = models.CharField(max_length=254, unique=True)
     image = models.URLField(default="", blank=True)
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.MEMBER)
+    receives_newsletter_emails = models.BooleanField(
+        default=True,
+        help_text="Unsubscribe from newsletter emails",
+    )
 
     EMAIL_FIELD = "email"
     USERNAME_FIELD = "email"

@@ -181,9 +181,9 @@ don't each reinvent role checks.
 
 **Depends on:** T12, T6
 
-- [ ] T13.1 — Write tests first: publishing an issue (setting `published_at` for the first time) triggers exactly one call to `send_email` per subscribed member; publishing an already-published issue again does not re-send
-- [ ] T13.2 — Implement the notification: either a `post_save` signal on `NewsletterIssue` checking the transition to published, or an explicit call inside the "publish" API action — prefer the explicit call for clarity and testability over a signal
-- [ ] T13.3 — For now, treat every `User` as subscribed (send to all); leave a clearly-commented extension point (e.g. a `receives_newsletter_emails` boolean, default `True`) so unsubscribe can be added later without an API shape change
+- [x] T13.1 — Write tests first: publishing an issue (setting `published_at` for the first time) triggers exactly one call to `send_email` per subscribed member; publishing an already-published issue again does not re-send
+- [x] T13.2 — Implement the notification: either a `post_save` signal on `NewsletterIssue` checking the transition to published, or an explicit call inside the "publish" API action — prefer the explicit call for clarity and testability over a signal
+- [x] T13.3 — For now, treat every `User` as subscribed (send to all); leave a clearly-commented extension point (e.g. a `receives_newsletter_emails` boolean, default `True`) so unsubscribe can be added later without an API shape change
 
 ---
 

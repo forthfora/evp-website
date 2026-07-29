@@ -2,11 +2,14 @@ from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003
 
+from django.conf import settings
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
 from jwt_ninja.auth_classes import JWTAuth
 from ninja import Router, Schema
 
+from apps.accounts.models import User
+from apps.core.email import send_email
 from apps.core.permissions import require_role
 from apps.newsletter.models import NewsletterIssue
 
@@ -73,10 +76,53 @@ def update_issue(
 ) -> NewsletterIssue:
     """Update an existing newsletter issue (committee only)."""
     issue = get_object_or_404(NewsletterIssue, id=issue_id)
+
+    was_published = issue.published_at is not None
     for field, value in payload.dict(exclude_unset=True).items():
         setattr(issue, field, value)
     issue.save()
+
+    # Notify subscribers when an issue transitions to published
+    now_published = issue.published_at is not None
+    if not was_published and now_published:
+        _notify_subscribers(issue)
+
     return issue
+
+
+def _notify_subscribers(issue: NewsletterIssue) -> None:
+    """Send an email notification for a newly published issue to all
+    subscribed users.
+
+    This is called explicitly from the publish endpoint rather than via
+    a Django signal, for clarity and testability.
+    """
+    subscribers = User.objects.filter(receives_newsletter_emails=True)
+    body = _build_newsletter_html(issue)
+    for user in subscribers:
+        send_email(
+            to=user.email,
+            subject=f"New EVP Newsletter: {issue.title}",
+            body=body,
+            from_email=settings.FROM_EMAIL,
+        )
+
+
+def _build_newsletter_html(issue: NewsletterIssue) -> str:
+    """Build a minimal HTML email body for a newsletter issue."""
+    return f"""<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: sans-serif; padding: 2rem;">
+    <h1>{issue.title}</h1>
+    <p>{issue.body}</p>
+    <hr>
+    <p style="color: #666; font-size: 0.85rem;">
+        You are receiving this because you are a member of Edinburgh
+        VenturePoint.
+    </p>
+</body>
+</html>"""
 
 
 @router.delete(
