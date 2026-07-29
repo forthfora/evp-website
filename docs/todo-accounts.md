@@ -174,8 +174,8 @@ don't each reinvent role checks.
 
 **Depends on:** T10, T11
 
-- [ ] T12.1 — Write tests first: `GET /api/newsletter/issues` returns only published issues to any authenticated member; `POST/PATCH/DELETE` return 403 for non-committee roles and succeed for committee
-- [ ] T12.2 — Implement `GET /api/newsletter/issues` (auth: any authenticated user) and `POST` / `PATCH /{id}` / `DELETE /{id}` (auth: `require_role("committee")`) in `apps/newsletter/api.py`; register the router in `config/api.py`
+- [x] T12.1 — Write tests first: `GET /api/newsletter/issues` returns only published issues to any authenticated member; `POST/PATCH/DELETE` return 403 for non-committee roles and succeed for committee
+- [x] T12.2 — Implement `GET /api/newsletter/issues` (auth: any authenticated user) and `POST` / `PATCH /{id}` / `DELETE /{id}` (auth: `require_role("committee")`) in `apps/newsletter/api.py`; register the router in `config/api.py`
 
 ### T13 — Newsletter publish email notification
 
