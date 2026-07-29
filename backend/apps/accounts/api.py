@@ -4,6 +4,7 @@ import time
 
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.utils import timezone
+from jwt_ninja.auth_classes import JWTAuth
 from ninja import Router, Schema
 
 from apps.accounts.models import EmailOTP, User
@@ -27,6 +28,12 @@ class AuthResponse(Schema):
 
 class ErrorResponse(Schema):
     detail: str
+
+
+class MeResponse(Schema):
+    email: str
+    role: str
+    date_joined: str
 
 
 def _issue_tokens(user: User) -> tuple[str, str]:
@@ -163,3 +170,19 @@ def verify_code(request: HttpRequest, payload: VerifyCodeInput) -> HttpResponse:
     response = JsonResponse({"access": access_token})
     _set_refresh_cookie(response, refresh_token)
     return response
+
+
+@router.get(
+    "/accounts/me",
+    response={200: MeResponse},
+    auth=JWTAuth(),
+    summary="Return the authenticated user's profile",
+)
+def accounts_me(request: HttpRequest) -> MeResponse:
+    """Return the current user's email, role, and join date."""
+    user: User = request.auth.user  # type: ignore[union-attr]
+    return MeResponse(
+        email=user.email,
+        role=user.role,
+        date_joined=user.date_joined.isoformat(),
+    )

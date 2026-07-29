@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import time
 from datetime import timedelta
 from unittest.mock import patch
 
@@ -9,6 +10,9 @@ from django.utils import timezone
 from freezegun import freeze_time
 from hypothesis import assume, given, settings
 from hypothesis.extra.django import TestCase as HypothesisTestCase
+from jwt_ninja import settings as jwt_settings
+from jwt_ninja.cryptography import generate_jwt
+from jwt_ninja.models import Session
 
 from apps.accounts.models import EmailOTP, User
 
@@ -261,6 +265,50 @@ class AuthAPITests(TestCase):
         assert "refresh_token" in cookies
         refresh_cookie = cookies["refresh_token"]
         assert refresh_cookie["httponly"]
+
+    def _obtain_access_token(self, email: str) -> str:
+        """Helper: create user + return a valid access token via jwtninja."""
+        user, _ = User.objects.get_or_create(email=email, defaults={"username": email})
+        session = Session.create_session(user=user, ip_address="127.0.0.1")
+
+        now = int(time.time())
+        payload = jwt_settings.jwt_settings.payload_class(
+            user_id=user.id,
+            type="access",
+            exp=now + jwt_settings.jwt_settings.ACCESS_TOKEN_EXPIRE_SECONDS,
+            session_id=session.id,
+        )
+        return generate_jwt(payload)
+
+    def test_accounts_me_authenticated(self) -> None:
+        """Authenticated request to /api/accounts/me returns the user profile."""
+        email = "me-test@example.com"
+        token = self._obtain_access_token(email)
+
+        response = self.client.get(
+            "/api/accounts/me",
+            HTTP_AUTHORIZATION=f"Bearer {token}",
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["email"] == email
+        assert data["role"] == "member"
+        assert "date_joined" in data
+
+    def test_accounts_me_unauthenticated(self) -> None:
+        """Unauthenticated request to /api/accounts/me returns 401."""
+        response = self.client.get("/api/accounts/me")
+        assert response.status_code == 401
+
+    def test_accounts_me_with_invalid_token(self) -> None:
+        """Request with an invalid token returns 401."""
+        # A JWT with three segments but a bogus signature
+        bogus_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxfQ.bogus"
+        response = self.client.get(
+            "/api/accounts/me",
+            HTTP_AUTHORIZATION=f"Bearer {bogus_token}",
+        )
+        assert response.status_code == 401
 
 
 class AuthAPIPropertyTests(HypothesisTestCase):

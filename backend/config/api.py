@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.http import Http404, HttpRequest, HttpResponse
+from jwt_ninja.errors import APIError
 from ninja import NinjaAPI
 from ninja.errors import AuthorizationError, HttpError, ValidationError
 
@@ -73,6 +74,15 @@ def http_error_handler(request: HttpRequest, exc: HttpError) -> HttpResponse:
             request, {"errors": {"token": ["is missing"]}}, status=401
         )
     return api.create_response(request, {"detail": str(exc)}, status=exc.status_code)
+
+
+@api.exception_handler(APIError)
+def jwt_api_error_handler(request: HttpRequest, exc: APIError) -> HttpResponse:
+    return api.create_response(
+        request,
+        {"detail": exc.error_code},
+        status=exc.http_status_code,
+    )
 
 
 api.add_router("", "apps.core.api.router")

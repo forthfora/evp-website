@@ -140,8 +140,8 @@ Prevents spamming an inbox with codes or brute-forcing a 6-digit code.
 
 **Depends on:** T7
 
-- [ ] T9.1 — Write tests first: authenticated request returns the current user's `email` and `role`; unauthenticated request returns 401
-- [ ] T9.2 — Implement `GET /api/accounts/me` returning a small Pydantic schema (`email`, `role`, `date_joined`) — this is what the frontend `AuthContext` will call on load to hydrate session state
+- [x] T9.1 — Write tests first: authenticated request returns the current user's `email` and `role`; unauthenticated request returns 401
+- [x] T9.2 — Implement `GET /api/accounts/me` returning a small Pydantic schema (`email`, `role`, `date_joined`) — this is what the frontend `AuthContext` will call on load to hydrate session state
 
 ---
 
