@@ -106,7 +106,7 @@ def request_code(request: HttpRequest, payload: RequestCodeInput) -> HttpRespons
     ):
         return JsonResponse(
             {
-                "detail": "Too many requests. Please wait before requesting another code."
+                "detail": "Too many requests. Please wait before requesting another code."  # noqa: E501
             },
             status=429,
         )

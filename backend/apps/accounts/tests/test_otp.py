@@ -4,6 +4,7 @@ import string
 from datetime import timedelta
 
 import hypothesis.strategies as st
+import pytest
 from django.utils import timezone
 from freezegun import freeze_time
 from hypothesis import given
@@ -88,10 +89,8 @@ class EmailOTPModelTests(HypothesisTestCase):
             otp = EmailOTP.objects.create(email="test@example.com")
             expected = timezone.now() + timedelta(minutes=10)
             # Allow 1s tolerance for execution time
-            self.assertAlmostEqual(
-                otp.expires_at.timestamp(),
-                expected.timestamp(),
-                delta=1,
+            assert otp.expires_at.timestamp() == pytest.approx(
+                expected.timestamp(), abs=1
             )
 
     def test_generate_code_returns_six_digits(self) -> None:

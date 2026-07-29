@@ -80,12 +80,12 @@ class User(AbstractUser):
 
     email = models.EmailField("Email Address", unique=True)
     username = models.CharField(max_length=254, unique=True)
-    image = models.URLField(null=True, blank=True)
+    image = models.URLField(default="", blank=True)
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.MEMBER)
 
     EMAIL_FIELD = "email"
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS: list[str] = []
+    REQUIRED_FIELDS: list[str] = []  # noqa: RUF012
 
     objects = UserManager()  # type: ignore
 
@@ -124,6 +124,9 @@ class EmailOTP(models.Model):
     class Meta:
         verbose_name = "Email OTP"
         verbose_name_plural = "Email OTPs"
+
+    def __str__(self) -> str:
+        return f"OTP for {self.email} (valid: {self.is_valid})"
 
     @property
     def is_valid(self) -> bool:
@@ -175,6 +178,3 @@ class EmailOTP(models.Model):
         self.consumed_at = timezone.now()
         self.save(update_fields=["attempts", "consumed_at"])
         return True
-
-    def __str__(self) -> str:
-        return f"OTP for {self.email} (valid: {self.is_valid})"

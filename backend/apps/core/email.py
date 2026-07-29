@@ -46,7 +46,7 @@ def _build_otp_html(code: str) -> str:
     <p>Kind regards,<br>The Edinburgh VenturePoint team</p>
 </body>
 </html>
-"""
+"""  # noqa: E501
 
 
 def send_email(
