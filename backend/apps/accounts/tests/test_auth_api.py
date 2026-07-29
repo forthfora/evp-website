@@ -156,9 +156,7 @@ class AuthAPITests(TestCase):
         self.assertEqual(response.status_code, 400)
 
     @patch("apps.accounts.api.send_otp_email")
-    def test_verify_code_creates_new_user_and_returns_tokens(
-        self, mock_send
-    ) -> None:
+    def test_verify_code_creates_new_user_and_returns_tokens(self, mock_send) -> None:
         """verify-code with correct code creates user and returns JWT tokens."""
         self.client.post(
             self.request_code_url,
@@ -293,5 +291,5 @@ class AuthAPIPropertyTests(HypothesisTestCase):
             {"email": email, "code": wrong_code},
             content_type="application/json",
         )
-        self.assertNotEqual(response.status_code, 200) # redundant
+        self.assertNotEqual(response.status_code, 200)  # redundant
         self.assertIn(response.status_code, (400, 401))

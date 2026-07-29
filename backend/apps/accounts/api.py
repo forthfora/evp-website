@@ -11,15 +11,19 @@ from apps.core.email import send_otp_email
 
 router = Router(tags=["Authentication"])
 
+
 class RequestCodeInput(Schema):
     email: str
+
 
 class VerifyCodeInput(Schema):
     email: str
     code: str
 
+
 class AuthResponse(Schema):
     access: str
+
 
 class ErrorResponse(Schema):
     detail: str
@@ -34,11 +38,10 @@ def _issue_tokens(user: User) -> tuple[str, str]:
     from jwt_ninja import settings as jwt_settings
     from jwt_ninja.cryptography import generate_jwt
     from jwt_ninja.models import Session
-    from jwt_ninja.request import get_client_ip
 
     session = Session.create_session(
         user=user,
-        ip_address="", # not available during OTP flow
+        ip_address="",  # not available during OTP flow
     )
 
     now = int(time.time())
@@ -83,7 +86,6 @@ def _set_refresh_cookie(response: HttpResponse, refresh_token: str) -> None:
     )
 
 
-
 @router.post(
     "/auth/request-code",
     response={202: None, 429: ErrorResponse, 422: ErrorResponse},
@@ -96,13 +98,16 @@ def request_code(request: HttpRequest, payload: RequestCodeInput) -> HttpRespons
 
     now = timezone.now()
     latest_otp = (
-        EmailOTP.objects.filter(email=payload.email)
-        .order_by("-created_at")
-        .first()
+        EmailOTP.objects.filter(email=payload.email).order_by("-created_at").first()
     )
-    if latest_otp and (now - latest_otp.created_at).total_seconds() < latest_otp.cooldown_seconds:
+    if (
+        latest_otp
+        and (now - latest_otp.created_at).total_seconds() < latest_otp.cooldown_seconds
+    ):
         return JsonResponse(
-            {"detail": "Too many requests. Please wait before requesting another code."},
+            {
+                "detail": "Too many requests. Please wait before requesting another code."
+            },
             status=429,
         )
 
@@ -113,6 +118,7 @@ def request_code(request: HttpRequest, payload: RequestCodeInput) -> HttpRespons
 
     send_otp_email(payload.email, code)
     return HttpResponse(status=202)
+
 
 @router.post(
     "/auth/verify-code",

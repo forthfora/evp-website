@@ -6,15 +6,14 @@ from datetime import timedelta
 import hypothesis.strategies as st
 from django.utils import timezone
 from freezegun import freeze_time
-from hypothesis import given, settings
+from hypothesis import given
 from hypothesis.extra.django import TestCase as HypothesisTestCase
 
 from apps.accounts.models import EmailOTP
 
 # Strategy for generating valid 6-digit numeric codes (as strings)
-valid_code = st.text(
-    alphabet=string.digits, min_size=6, max_size=6
-)
+valid_code = st.text(alphabet=string.digits, min_size=6, max_size=6)
+
 
 class EmailOTPModelTests(HypothesisTestCase):
     @given(email=st.emails(), code=valid_code)
@@ -45,9 +44,7 @@ class EmailOTPModelTests(HypothesisTestCase):
         self.assertFalse(otp.is_valid)
 
     @given(email=st.emails(), code=valid_code)
-    def test_consume_with_wrong_code_returns_false(
-        self, email: str, code: str
-    ) -> None:
+    def test_consume_with_wrong_code_returns_false(self, email: str, code: str) -> None:
         """consume() with a wrong code returns False and increments attempts."""
         otp = EmailOTP.objects.create(email=email)
         otp.set_code(code)
@@ -76,9 +73,7 @@ class EmailOTPModelTests(HypothesisTestCase):
         self.assertFalse(result)
 
     @given(email=st.emails(), code=valid_code)
-    def test_consume_success_marks_consumed_at(
-        self, email: str, code: str
-    ) -> None:
+    def test_consume_success_marks_consumed_at(self, email: str, code: str) -> None:
         """A successful consume() sets consumed_at and returns True."""
         otp = EmailOTP.objects.create(email=email)
         otp.set_code(code)

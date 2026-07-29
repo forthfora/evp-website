@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
-from django.conf import settings
 from django.test import TestCase, override_settings
 
 from apps.core.email import send_email, send_otp_email

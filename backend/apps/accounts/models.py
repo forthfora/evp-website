@@ -1,10 +1,11 @@
 from __future__ import annotations  # make type hints lazy
+
 import secrets
 from datetime import timedelta
 
 from django.contrib.auth.hashers import check_password, make_password
-from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.db import models
 from django.utils import timezone
 
 
@@ -80,9 +81,7 @@ class User(AbstractUser):
     email = models.EmailField("Email Address", unique=True)
     username = models.CharField(max_length=254, unique=True)
     image = models.URLField(null=True, blank=True)
-    role = models.CharField(
-        max_length=20, choices=Role.choices, default=Role.MEMBER
-    )
+    role = models.CharField(max_length=20, choices=Role.choices, default=Role.MEMBER)
 
     EMAIL_FIELD = "email"
     USERNAME_FIELD = "email"
@@ -181,4 +180,3 @@ class EmailOTP(models.Model):
 
     def __str__(self) -> str:
         return f"OTP for {self.email} (valid: {self.is_valid})"
-    

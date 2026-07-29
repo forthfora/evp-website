@@ -12,19 +12,22 @@ api = NinjaAPI(
     docs_url="docs" if settings.DEBUG else None,
 )
 
+
 # pydantic validation error handler (request-schema mismatch)
 @api.exception_handler(ValidationError)
-def validation_error_handler(request: HttpRequest, exc: ValidationError) -> HttpResponse:
+def validation_error_handler(
+    request: HttpRequest, exc: ValidationError
+) -> HttpResponse:
     errors: dict[str, list[str]] = {}
 
     for error in exc.errors:
         # extract field name from loc (if loc exists)
-        loc = error.get("loc", []) 
+        loc = error.get("loc", [])
         field = str(loc[-1]) if loc else "unknown"
 
         msg = error.get("msg", "")
 
-        # strip unnecessary prefixes 
+        # strip unnecessary prefixes
         for prefix in ("Value error, ", "Assertion failed, "):
             if msg.startswith(prefix):
                 msg = msg[len(prefix) :]
@@ -42,19 +45,33 @@ def _resource_from_path(path: str) -> str:
 
 @api.exception_handler(Http404)
 def not_found_handler(request: HttpRequest, exc: Http404) -> HttpResponse:
-    resource = exc.resource if isinstance(exc, ResourceNotFound) else _resource_from_path(request.path)
-    return api.create_response(request, {"errors": {resource: ["not found"]}}, status=404)
+    resource = (
+        exc.resource
+        if isinstance(exc, ResourceNotFound)
+        else _resource_from_path(request.path)
+    )
+    return api.create_response(
+        request, {"errors": {resource: ["not found"]}}, status=404
+    )
 
 
 @api.exception_handler(AuthorizationError)
-def authorization_error_handler(request: HttpRequest, exc: AuthorizationError) -> HttpResponse:
-    return api.create_response(request, {"errors": {_resource_from_path(request.path): ["forbidden"]}}, status=403)
+def authorization_error_handler(
+    request: HttpRequest, exc: AuthorizationError
+) -> HttpResponse:
+    return api.create_response(
+        request,
+        {"errors": {_resource_from_path(request.path): ["forbidden"]}},
+        status=403,
+    )
 
 
 @api.exception_handler(HttpError)
 def http_error_handler(request: HttpRequest, exc: HttpError) -> HttpResponse:
     if exc.status_code == 401:
-        return api.create_response(request, {"errors": {"token": ["is missing"]}}, status=401)
+        return api.create_response(
+            request, {"errors": {"token": ["is missing"]}}, status=401
+        )
     return api.create_response(request, {"detail": str(exc)}, status=exc.status_code)
 
 

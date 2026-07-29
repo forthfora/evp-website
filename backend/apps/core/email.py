@@ -9,15 +9,18 @@ logger = logging.getLogger(__name__)
 
 try:
     import resend
+
     resend.api_key = settings.RESEND_API_KEY
 except ImportError:
     resend = None  # type: ignore[assignment]
     logger.warning("resend package not installed: emails will be logged only")
 
+
 # record class
 @dataclass
 class EmailResult:
     """Lightweight result wrapper for sent emails."""
+
     success: bool
     message: str
 

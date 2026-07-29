@@ -6,14 +6,11 @@ from apps.core.schemas import ContactSchema, ErrorResponse, SuccessResponse
 
 router = Router()
 
+
 @router.post("/contact", response={200: SuccessResponse, 500: ErrorResponse})
 def send_contact_email(request, data: ContactSchema):
     email_subject = f"EVP Contact: {data.name}"
-    email_body = (
-        f"Name: {data.name}\n"
-        f"Email: {data.email}\n\n"
-        f"Message:\n{data.message}"
-    )
+    email_body = f"Name: {data.name}\nEmail: {data.email}\n\nMessage:\n{data.message}"
 
     try:
         send_mail(
@@ -24,6 +21,6 @@ def send_contact_email(request, data: ContactSchema):
             fail_silently=False,
         )
         return 200, {"success": "Message sent successfully!"}
-        
+
     except Exception as e:
-        return 500, {"error": f"Internal server error: {str(e)}"}
+        return 500, {"error": f"Internal server error: {e!s}"}

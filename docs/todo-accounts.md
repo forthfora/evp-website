@@ -121,11 +121,11 @@ may not exist yet at request time.
 
 **Depends on:** T5, T6
 
-- [ ] T7.1 — Write tests first: integration tests in `apps/accounts/tests/test_auth_api.py` covering — request-code always returns 202 whether or not the user exists (no user enumeration); verify-code with a correct unexpired code creates the user if new and returns JWT tokens; verify-code with a wrong/expired/consumed code returns 400/401 and does not issue tokens
-- [ ] T7.2 — Add a hypothesis property test: for any valid email and any 6-digit code that does _not_ match the stored one, verify-code never succeeds
-- [ ] T7.3 — Implement `POST /api/auth/request-code` in `apps/accounts/api.py`: creates an `EmailOTP`, calls `send_otp_email`
-- [ ] T7.4 — Implement `POST /api/auth/verify-code`: validates via `EmailOTP.consume`, gets-or-creates the `User` (unusable password, `role=member`), issues tokens through the existing `jwtninja` integration
-- [ ] T7.5 — Wire the refresh token into an `HttpOnly` cookie on the response per the ADR (T1), keep the access token in the JSON body for the frontend to hold in memory
+- [x] T7.1 — Write tests first: integration tests in `apps/accounts/tests/test_auth_api.py` covering — request-code always returns 202 whether or not the user exists (no user enumeration); verify-code with a correct unexpired code creates the user if new and returns JWT tokens; verify-code with a wrong/expired/consumed code returns 400/401 and does not issue tokens
+- [x] T7.2 — Add a hypothesis property test: for any valid email and any 6-digit code that does _not_ match the stored one, verify-code never succeeds
+- [x] T7.3 — Implement `POST /api/auth/request-code` in `apps/accounts/api.py`: creates an `EmailOTP`, calls `send_otp_email`
+- [x] T7.4 — Implement `POST /api/auth/verify-code`: validates via `EmailOTP.consume`, gets-or-creates the `User` (unusable password, `role=member`), issues tokens through the existing `jwtninja` integration
+- [x] T7.5 — Wire the refresh token into an `HttpOnly` cookie on the response per the ADR (T1), keep the access token in the JSON body for the frontend to hold in memory
 
 ### T8 — Rate limiting for OTP requests
 
@@ -133,8 +133,8 @@ may not exist yet at request time.
 
 Prevents spamming an inbox with codes or brute-forcing a 6-digit code.
 
-- [ ] T8.1 — Write tests first: assert that repeated `request-code` calls for the same email within a cooldown window (e.g. 60s) are rejected or throttled, and that verify-code respects `EmailOTP`'s max-attempts lockout from T5.4
-- [ ] T8.2 — Implement a simple cooldown check (DB-timestamp based is fine at this scale — no need for Redis yet) in the `request-code` view
+- [x] T8.1 — Write tests first: assert that repeated `request-code` calls for the same email within a cooldown window (e.g. 60s) are rejected or throttled, and that verify-code respects `EmailOTP`'s max-attempts lockout from T5.4
+- [x] T8.2 — Implement a simple cooldown check (DB-timestamp based is fine at this scale — no need for Redis yet) in the `request-code` view
 
 ### T9 — `/api/accounts/me` profile endpoint
 
