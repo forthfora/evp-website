@@ -111,10 +111,10 @@ or discarded — SQLite dev DB can simply be rebuilt.
 The refactor has not been extensively tested or reviewed. Do this before
 building on top of it.
 
-- [ ] T2.1 — Run the full suite: `uv run pytest`, `uv run ruff check`, `uv run python manage.py check`; fix any failures before proceeding
-- [ ] T2.2 — Fix `can_send_notifications` in `apps/core/permissions.py` to check `user.is_admin` (per the role contract — only Admin sends update emails); update/add a hypothesis property test covering the full role matrix for this helper
-- [ ] T2.3 — Fix the docstring drift in `permissions.py` (`can_manage_entry` comments claim committee can manage any entry — code and requirements say own entries only) and the `TYPE_CHECKING` import path (`backend.apps.*` → `apps.*`)
-- [ ] T2.4 — Replace the `FROM_EMAIL = "[EMAIL]"` placeholder in `config/settings.py` with an env-driven value (`python-decouple`); document it in `backend/.env.example`
+- [x] T2.1 — Run the full suite: `uv run pytest`, `uv run ruff check`, `uv run python manage.py check`; fix any failures before proceeding
+- [x] T2.2 — Fix `can_send_notifications` in `apps/core/permissions.py` to check `user.is_admin` (per the role contract — only Admin sends update emails); update/add a hypothesis property test covering the full role matrix for this helper
+- [x] T2.3 — Fix the docstring drift in `permissions.py` (`can_manage_startup` comments claim committee can manage any entry — code and requirements say own entries only) and the `TYPE_CHECKING` import path (`backend.apps.*` → `apps.*`)
+- [x] T2.4 — Replace the `FROM_EMAIL = "[EMAIL]"` placeholder in `config/settings.py` with an env-driven value (`python-decouple`); document it in `backend/.env.example`
 
 ### T3 — Members-list endpoint
 

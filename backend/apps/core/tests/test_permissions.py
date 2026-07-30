@@ -8,7 +8,7 @@ from hypothesis.extra.django import TestCase as HypothesisTestCase
 from jwt_ninja.errors import APIError
 
 from apps.accounts.models import Role, User
-from apps.core.permissions import can_manage_entry, require_role
+from apps.core.permissions import can_manage_entry, can_send_notifications, require_role
 from apps.startupdb.models import StartupEntry
 
 
@@ -138,3 +138,22 @@ class IsOwnerOrCommitteeTests(TestCase):
         other_scout.save()
         obj = StartupEntry(created_by=other_scout)
         assert can_manage_entry(self.scout, obj) is False
+
+
+class CanSendNotificationsPropertyTests(HypothesisTestCase):
+    """Hypothesis property test over the role matrix for
+    ``can_send_notifications``."""
+
+    @settings(deadline=None, max_examples=30)
+    @given(
+        role=st.sampled_from([r.value for r in Role]),
+    )
+    def test_can_send_notifications_matrix(self, role: str) -> None:
+        user = User.objects.create_user(f"{role}@test.com")
+        user.role = role
+        user.save()
+        result = can_send_notifications(user)
+        if role == Role.ADMIN:
+            assert result is True
+        else:
+            assert result is False

@@ -218,8 +218,8 @@ def update_entry(
     entry_id: int,
     payload: EntryPatchIn,
 ) -> StartupEntry:
-    """Update a startup entry.  Scouts may only update their own entries;
-    committee may update any entry.
+    """Update a startup entry.  Scouts/committee may only update their own entries;
+    admin may update any entry.
     """
     entry = get_object_or_404(StartupEntry, id=entry_id)
     user = request.auth.user  # type: ignore[union-attr]

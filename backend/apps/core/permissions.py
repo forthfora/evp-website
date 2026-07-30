@@ -6,9 +6,10 @@ from jwt_ninja.auth_classes import AuthDetails, JWTAuth
 from jwt_ninja.errors import APIError
 
 if TYPE_CHECKING:
-    from backend.apps.accounts.models import User
     from django.db import models
     from django.http import HttpRequest
+
+    from apps.accounts.models import User
 
 
 class RoleAuth(JWTAuth):
