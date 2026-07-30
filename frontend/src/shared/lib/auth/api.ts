@@ -46,8 +46,8 @@ async function apiFetch<T>(url: string, options: RequestInit = {}): Promise<T> {
 		throw new ApiRequestError(response.status, body);
 	}
 
-	// 204 No Content — nothing to parse
-	if (response.status === 204) {
+	// 202 Accepted / 204 No Content — nothing to parse
+	if (response.status === 202 || response.status === 204) {
 		return undefined as T;
 	}
 
