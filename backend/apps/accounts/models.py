@@ -17,18 +17,15 @@ def get_otp_expiry():
 class UserManager[T](BaseUserManager):
     def create_user(
         self,
-        username: str,  # first positional — maps to USERNAME_FIELD (email)
-        email: str | None = None,
+        email: str,
+        username: str | None = None,
         password: str | None = None,
         **other_fields,
     ) -> User:
-        # When USERNAME_FIELD = "email", Django passes email as the first
-        # positional arg.  We also accept an explicit `email` kwarg — if
-        # given we prefer it, otherwise fall back to the positional value.
-        email_value = email or username
-        username_value = other_fields.pop("username", email_value)
+        if username is None:
+            username = email
 
-        user = User(email=email_value, username=username_value, **other_fields)
+        user = User(email=email, username=username, **other_fields)
 
         if password:
             user.set_password(password)
@@ -40,17 +37,13 @@ class UserManager[T](BaseUserManager):
 
     def create_superuser(
         self,
-        username: str,
-        email: str | None = None,
+        email: str,
+        username: str | None = None,
         password: str | None = None,
         **other_fields,
     ) -> User:
-        # username is the value for USERNAME_FIELD ("email"); superuser
-        # requires that it equals the explicit email (if given).
-        email_value = email or username
-
-        if username != email_value:
-            raise ValueError("Superuser must be assigned with username=email")
+        if username is None:
+            username = email
 
         other_fields.setdefault("is_staff", True)
         other_fields.setdefault("is_superuser", True)
@@ -62,9 +55,7 @@ class UserManager[T](BaseUserManager):
         if other_fields.get("is_superuser") is not True:
             raise ValueError("Superuser must be assigned to is_superuser=True.")
 
-        return self.create_user(
-            username, email=email, password=password, **other_fields
-        )
+        return self.create_user(email, username, password=password, **other_fields)
 
 
 class Role(models.TextChoices):
@@ -75,7 +66,6 @@ class Role(models.TextChoices):
 
 
 class User(AbstractUser):
-    # Declare the implicit primary key so Pylance can resolve `user.id`
     id: int
 
     # remove default fields
