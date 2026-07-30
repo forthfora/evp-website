@@ -195,10 +195,10 @@ don't each reinvent role checks.
 
 Kept intentionally generic since you'll define the real schema later.
 
-- [ ] T14.1 — Write tests first: model tests for default field values and that `created_by` is required
-- [ ] T14.2 — Implement `DirectoryEntry` in a new `apps/directory/` app: `title` (CharField), `description` (TextField, blank), `extra` (JSONField, default `dict`, for whatever ad-hoc fields you add before this gets a real schema), `created_by` FK to `User`, `created_at`, `updated_at`
-- [ ] T14.3 — Register in Django admin (committee can already reach it there too, as a fallback management path) with `list_display` on `title`, `created_by`, `created_at`
-- [ ] T14.4 — Seed a management command or fixture with 3–5 dummy entries for local dev/demo purposes
+- [x] T14.1 — Write tests first: model tests for default field values and that `created_by` is required
+- [x] T14.2 — Implement `DirectoryEntry` in a new `apps/directory/` app: `title` (CharField), `description` (TextField, blank), `extra` (JSONField, default `dict`, for whatever ad-hoc fields you add before this gets a real schema), `created_by` FK to `User`, `created_at`, `updated_at`
+- [x] T14.3 — Register in Django admin (committee can already reach it there too, as a fallback management path) with `list_display` on `title`, `created_by`, `created_at`
+- [x] T14.4 — Seed a management command or fixture with 3–5 dummy entries for local dev/demo purposes
 
 ### T15 — Directory API endpoints with ownership permissions
 
