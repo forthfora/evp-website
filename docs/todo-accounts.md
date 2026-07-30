@@ -150,9 +150,9 @@ Per ADR 0001: access token in React state only (never localStorage); refresh
 via the HttpOnly cookie set by `verify-code` (and jwtninja's refresh
 endpoint under `/api/auth/`).
 
-- [ ] T6.1 — Write tests first (Vitest + React Testing Library): `AuthContext` starts unauthenticated, becomes authenticated after a successful `verifyCode`, clears on logout/401
-- [ ] T6.2 — Implement `AuthProvider` in `frontend/src/shared/lib/auth/` holding `{accessToken, user: {email, role}}` in state; on mount, attempt silent refresh via the cookie, then call `GET /api/accounts/me` to hydrate
-- [ ] T6.3 — Add an `apiFetch` wrapper that attaches the access token, retries once on 401 via the refresh cookie, and surfaces a clean logged-out state on repeated failure
+- [x] T6.1 — Write tests first (Vitest + React Testing Library): `AuthContext` starts unauthenticated, becomes authenticated after a successful `verifyCode`, clears on logout/401
+- [x] T6.2 — Implement `AuthProvider` in `frontend/src/shared/lib/auth/` holding `{accessToken, user: {email, role}}` in state; on mount, attempt silent refresh via the cookie, then call `GET /api/accounts/me` to hydrate
+- [x] T6.3 — Add an `apiFetch` wrapper that attaches the access token, retries once on 401 via the refresh cookie, and surfaces a clean logged-out state on repeated failure
 
 ### T7 — Register/Login page
 

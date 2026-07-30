@@ -50,7 +50,7 @@ def _build_otp_html(code: str) -> str:
 
 
 def send_email(
-    to: str,
+    to: str | list[str],
     subject: str,
     body: str,
     *,
@@ -59,7 +59,7 @@ def send_email(
     """Send an email via Resend, or log it in DEBUG mode.
 
     Args:
-        to: Recipient email address.
+        to: Recipient email address(es). A single string or a list of strings.
         subject: Email subject line.
         body: Plain-text or HTML body content.
         from_email: Sender address (defaults to ``settings.FROM_EMAIL``).
@@ -68,12 +68,13 @@ def send_email(
         An ``EmailResult`` with success status and message.
     """
     sender = from_email or settings.FROM_EMAIL
+    recipients = [to] if isinstance(to, str) else to
 
     # DEBUG mode, or if resend fails to load for whatever reason
     if settings.DEBUG or resend is None:
         logger.info(
             "[DEBUG EMAIL] To: %s | Subject: %s | Body:\n%s",
-            to,
+            ", ".join(recipients),
             subject,
             body,
         )
@@ -83,7 +84,7 @@ def send_email(
         response = resend.Emails.send(
             params={
                 "from": sender,
-                "to": [to],
+                "to": recipients,
                 "subject": subject,
                 "html": body,
             }

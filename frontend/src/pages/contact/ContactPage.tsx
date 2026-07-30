@@ -8,6 +8,7 @@ import { PageMeta, RadialGlowOverlay, SectionDivider, Socials, UnderlinedTitle }
 import { motion } from 'framer-motion';
 import { type ReactNode, useRef, useState } from 'react';
 
+import { sendContact } from '@/shared/lib/contact/api';
 import { slideIn } from '@/shared/lib/motion';
 
 type FormState = 'idle' | 'submitting' | 'success' | 'error';
@@ -16,12 +17,6 @@ interface FormFields {
 	name: string;
 	email: string;
 	message: string;
-}
-
-interface ApiResponse {
-	error?: string;
-	message?: string;
-	success?: boolean;
 }
 
 export function ContactPage() {
@@ -236,30 +231,10 @@ function ContactFormSection() {
 		setStatus('submitting');
 
 		try {
-			const response = await fetch('api/contact', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify(fields),
-			});
-
-			const contentType = response.headers.get('content-type');
-			let data: ApiResponse = {};
-
-			if (contentType && contentType.includes('application/json')) {
-				data = await response.json();
-			}
-
-			if (response.ok) {
-				setStatus('success');
-				setFields({ name: '', email: '', message: '' });
-			} else {
-				console.error('Server rejected the request:', data.error || response.statusText);
-				setStatus('error');
-			}
-		} catch (error) {
-			console.error('Network or parsing error:', error);
+			await sendContact(fields);
+			setStatus('success');
+			setFields({ name: '', email: '', message: '' });
+		} catch {
 			setStatus('error');
 		}
 	}

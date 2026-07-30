@@ -1,7 +1,7 @@
 from django.conf import settings
-from django.core.mail import send_mail
 from ninja import Router
 
+from apps.core.email import send_email
 from apps.core.schemas import ContactSchema, ErrorResponse, SuccessResponse
 
 router = Router()
@@ -13,14 +13,16 @@ def send_contact_email(request, data: ContactSchema):
     email_body = f"Name: {data.name}\nEmail: {data.email}\n\nMessage:\n{data.message}"
 
     try:
-        send_mail(
+        result = send_email(
+            to=settings.TO_EMAILS,
             subject=email_subject,
-            message=email_body,
+            body=email_body,
             from_email=settings.FROM_EMAIL,
-            recipient_list=settings.TO_EMAILS,
-            fail_silently=False,
         )
-        return 200, {"success": "Message sent successfully!"}
+
+        if result.success:
+            return 200, {"success": "Message sent successfully!"}
+        return 500, {"error": result.message}
 
     except Exception as e:
         return 500, {"error": f"Internal server error: {e!s}"}
