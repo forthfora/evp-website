@@ -1,6 +1,7 @@
 import { createBrowserRouter } from 'react-router';
 
 import { AboutPage } from '@/pages/about/AboutPage';
+import { AuthPage } from '@/pages/auth/AuthPage';
 import { ContactPage } from '@/pages/contact/ContactPage';
 import { ErrorPage } from '@/pages/ErrorPage';
 import { EventsPage } from '@/pages/events/EventsPage';
@@ -23,6 +24,7 @@ export const browserRouter = createBrowserRouter([
 					{ path: 'startups', element: <StartupsPage /> },
 					{ path: 'contact', element: <ContactPage /> },
 					{ path: 'events', element: <EventsPage /> },
+					{ path: 'join', element: <AuthPage /> },
 
 					// catch all for invalid pages
 					{

@@ -158,8 +158,8 @@ endpoint under `/api/auth/`).
 
 **Depends on:** T6
 
-- [ ] T7.1 — Write tests first: email step → code step → success redirects to the member area; invalid code shows an inline error; cooldown (429) shows a "wait before resending" message
-- [ ] T7.2 — Build `frontend/src/pages/auth/AuthPage.tsx` as a two-step flow (email → 6-digit code) using existing shared UI primitives and Tailwind conventions; add the route (e.g. `/join`) in `browser-router.tsx`
+- [x] T7.1 — Write tests first: email step → code step → success redirects to the member area; invalid code shows an inline error; cooldown (429) shows a "wait before resending" message
+- [x] T7.2 — Build `frontend/src/pages/auth/AuthPage.tsx` as a two-step flow (email → 6-digit code) using existing shared UI primitives and Tailwind conventions; add the route (e.g. `/join`) in `browser-router.tsx`
 
 ### T8 — Route guards
 
