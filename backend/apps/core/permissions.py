@@ -54,7 +54,12 @@ def require_role(*roles: str) -> RoleAuth:
 
 
 def is_owner_or_committee(user: User, obj: Any) -> bool:
-    """Return ``True`` if *user* is a committee member or owns *obj*
-    (i.e. ``obj.created_by == user``).  Intended for use in directory-style
-    resources where scouts may only edit their own entries."""
-    return user.is_committee or getattr(obj, "created_by", None) == user
+    """Return ``True`` if *user* is a committee member, or is a privileged
+    user (scout/committee) who owns *obj* (``obj.created_by == user``).
+
+    Intended for use in directory-style resources where scouts may only
+    edit their own entries and members cannot edit at all.
+    """
+    return user.is_committee or (
+        user.is_privileged and getattr(obj, "created_by", None) == user
+    )

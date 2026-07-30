@@ -87,29 +87,40 @@ class IsOwnerOrCommitteeTests(TestCase):
     """Tests for the ownership helper."""
 
     def setUp(self) -> None:
-        self.owner = User.objects.create_user("owner@test.com")
+        self.scout = User.objects.create_user("scout@test.com")
+        self.scout.role = Role.SCOUT
+        self.scout.save()
+        self.member = User.objects.create_user("member@test.com")
         self.other = User.objects.create_user("other@test.com")
 
-    def test_owner_is_owner(self) -> None:
-        """The creator of an object is its owner."""
-        obj = type("Obj", (), {"created_by": self.owner})()
-        assert is_owner_or_committee(self.owner, obj) is True
+    def test_scout_owns_own_entry(self) -> None:
+        """A scout who created an entry is its owner."""
+        obj = type("Obj", (), {"created_by": self.scout})()
+        assert is_owner_or_committee(self.scout, obj) is True
 
-    def test_committee_is_owner(self) -> None:
-        """A committee member is always considered an owner."""
-        self.owner.role = Role.COMMITTEE
-        self.owner.save()
+    def test_member_does_not_own_entry(self) -> None:
+        """A plain member is never considered an owner, even if they
+        created the object — only privileged roles can be owners."""
+        obj = type("Obj", (), {"created_by": self.member})()
+        assert is_owner_or_committee(self.member, obj) is False
+
+    def test_committee_is_always_owner(self) -> None:
+        """A committee member is always considered an owner regardless of
+        who created the object."""
+        self.member.role = Role.COMMITTEE
+        self.member.save()
         obj = type("Obj", (), {"created_by": self.other})()
-        assert is_owner_or_committee(self.owner, obj) is True
+        assert is_owner_or_committee(self.member, obj) is True
 
     def test_stranger_is_not_owner(self) -> None:
         """A non-owner, non-committee user is not an owner."""
-        obj = type("Obj", (), {"created_by": self.owner})()
+        obj = type("Obj", (), {"created_by": self.scout})()
         assert is_owner_or_committee(self.other, obj) is False
 
     def test_scout_is_not_owner_of_others(self) -> None:
         """A scout is not an owner of another scout's entry."""
-        self.owner.role = Role.SCOUT
-        self.owner.save()
-        obj = type("Obj", (), {"created_by": self.owner})()
-        assert is_owner_or_committee(self.other, obj) is False
+        other_scout = User.objects.create_user("other_scout@test.com")
+        other_scout.role = Role.SCOUT
+        other_scout.save()
+        obj = type("Obj", (), {"created_by": other_scout})()
+        assert is_owner_or_committee(self.scout, obj) is False

@@ -88,6 +88,7 @@ def jwt_api_error_handler(request: HttpRequest, exc: APIError) -> HttpResponse:
 api.add_router("", "apps.core.api.router")
 api.add_router("", "apps.accounts.api.router")
 api.add_router("", "apps.newsletter.api.router")
+api.add_router("", "apps.directory.api.router")
 api.add_router("/auth", "jwt_ninja.api.router")
 
 # URL layout (Option B):

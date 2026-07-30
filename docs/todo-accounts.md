@@ -204,9 +204,9 @@ Kept intentionally generic since you'll define the real schema later.
 
 **Depends on:** T10, T14
 
-- [ ] T15.1 — Write tests first, including a hypothesis property test over `(role, is_owner)` combinations: list/create allowed for `scout` and `committee` only; edit/delete allowed when `role == committee` OR (`role == scout` AND `is_owner`); denied in every other combination (including plain `member`)
-- [ ] T15.2 — Implement `GET /api/entries`, `POST /api/entries` (auth: `require_role("scout", "committee")`) and `PATCH /api/entries/{id}` / `DELETE /api/entries/{id}` (auth: role check + `is_owner_or_committee` from T10.3) in `apps/directory/api.py`; register the router in `config/api.py`
-- [ ] T15.3 — Ensure `created_by` is always set server-side from the authenticated user on create, never trusted from the request body
+- [x] T15.1 — Write tests first, including a hypothesis property test over `(role, is_owner)` combinations: list/create allowed for `scout` and `committee` only; edit/delete allowed when `role == committee` OR (`role == scout` AND `is_owner`); denied in every other combination (including plain `member`)
+- [x] T15.2 — Implement `GET /api/entries`, `POST /api/entries` (auth: `require_role("scout", "committee")`) and `PATCH /api/entries/{id}` / `DELETE /api/entries/{id}` (auth: role check + `is_owner_or_committee` from T10.3) in `apps/directory/api.py`; register the router in `config/api.py`
+- [x] T15.3 — Ensure `created_by` is always set server-side from the authenticated user on create, never trusted from the request body
 
 ---
 
