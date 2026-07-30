@@ -120,8 +120,8 @@ building on top of it.
 
 **Depends on:** T2
 
-- [ ] T3.1 — Write tests first in `apps/accounts/tests/` (new `test_members_api.py`): `GET /api/accounts/members` returns 401 unauthenticated, 403 for member/scout, 200 with the full member list for committee and admin; include a hypothesis property test over the role matrix
-- [ ] T3.2 — Implement `GET /api/accounts/members` with `auth=require_role("committee", "admin")`, returning a list schema (`id`, `email`, `role`, `image`, `date_joined`, `receives_update_emails`)
+- [x] T3.1 — Write tests first in `apps/accounts/tests/` (new `test_members_api.py`): `GET /api/accounts/members` returns 401 unauthenticated, 403 for member/scout, 200 with the full member list for committee and admin; include a hypothesis property test over the role matrix
+- [x] T3.2 — Implement `GET /api/accounts/members` with `auth=require_role("committee", "admin")`, returning a list schema (`id`, `email`, `role`, `image`, `date_joined`, `receives_update_emails`)
 
 ### T4 — Admin update-email endpoint
 

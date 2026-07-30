@@ -9,6 +9,7 @@ from ninja import Router, Schema
 
 from apps.accounts.models import EmailOTP, User
 from apps.core.email import send_otp_email
+from apps.core.permissions import require_role
 
 router = Router(tags=["Authentication"])
 
@@ -34,6 +35,15 @@ class MeResponse(Schema):
     email: str
     role: str
     date_joined: str
+
+
+class MemberOut(Schema):
+    id: int
+    email: str
+    role: str
+    image: str
+    date_joined: str
+    receives_update_emails: bool
 
 
 def _issue_tokens(user: User) -> tuple[str, str]:
@@ -186,3 +196,25 @@ def accounts_me(request: HttpRequest) -> MeResponse:
         role=user.role,
         date_joined=user.date_joined.isoformat(),
     )
+
+
+@router.get(
+    "/accounts/members",
+    response=list[MemberOut],
+    auth=require_role("committee", "admin"),
+    summary="List all members (committee/admin only)",
+)
+def list_members(request: HttpRequest) -> list[MemberOut]:
+    """Return all registered users.  Only available to committee and admin."""
+    users = User.objects.all().order_by("email")
+    return [
+        MemberOut(
+            id=u.id,
+            email=u.email,
+            role=u.role,
+            image=u.image,
+            date_joined=u.date_joined.isoformat(),
+            receives_update_emails=u.receives_update_emails,
+        )
+        for u in users
+    ]
