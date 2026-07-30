@@ -6,82 +6,81 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
 from ninja import Router, Schema
 
-from apps.core.permissions import is_owner_or_committee, require_role
-from apps.directory.models import DirectoryEntry
+from apps.core.permissions import can_manage_startup, require_role
+from apps.startupdb.models import StartupEntry
 
-router = Router(tags=["Directory"])
+router = Router(tags=["StartupDB"])
 
 
 class EntryOut(Schema):
     id: int
-    title: str
+    name: str
     description: str
-    extra: dict
+
     created_by_id: int
     created_at: datetime
     updated_at: datetime
 
 
 class EntryIn(Schema):
-    title: str
+    name: str
     description: str = ""
 
 
 class EntryPatchIn(Schema):
-    title: str | None = None
+    name: str | None = None
     description: str | None = None
-    extra: dict | None = None
 
 
 @router.get(
-    "/entries",
+    "/startupdb",
     response=list[EntryOut],
-    auth=require_role("scout", "committee"),
-    summary="List all directory entries",
+    auth=require_role("scout", "committee", "admin"),
+    summary="List all startup entries",
 )
-def list_entries(request: HttpRequest) -> list[DirectoryEntry]:
-    """Return all directory entries (scout/committee only)."""
-    return list(DirectoryEntry.objects.all())
+def list_entries(request: HttpRequest) -> list[StartupEntry]:
+    """Return all startup entries (scout/committee/admin only)."""
+    return list(StartupEntry.objects.all())
 
 
 @router.post(
-    "/entries",
+    "/startupdb",
     response=EntryOut,
-    auth=require_role("scout", "committee"),
-    summary="Create a directory entry",
+    auth=require_role("scout", "committee", "admin"),
+    summary="Create a startup entry",
 )
-def create_entry(request: HttpRequest, payload: EntryIn) -> DirectoryEntry:
-    """Create a new directory entry (scout/committee only).
+def create_entry(request: HttpRequest, payload: EntryIn) -> StartupEntry:
+    """Create a new startup entry (scout/committee/admin only).
 
     ``created_by`` is always set from the authenticated user — the request
     body must not contain it (T15.3).
     """
     user = request.auth.user  # type: ignore[union-attr]
-    return DirectoryEntry.objects.create(
-        title=payload.title,
+    return StartupEntry.objects.create(
+        name=payload.name,
         description=payload.description,
         created_by=user,
     )
 
 
 @router.patch(
-    "/entries/{entry_id}",
+    "/startupdb/{entry_id}",
     response=EntryOut,
-    auth=require_role("scout", "committee"),
-    summary="Update a directory entry (owner or committee)",
+    auth=require_role("scout", "committee", "admin"),
+    summary="Update a startup entry (owner or admin)",
 )
 def update_entry(
     request: HttpRequest,
     entry_id: int,
     payload: EntryPatchIn,
-) -> DirectoryEntry:
-    """Update a directory entry.  Scouts may only update their own entries;
+) -> StartupEntry:
+    """Update a startup entry.  Scouts may only update their own entries;
     committee may update any entry.
     """
-    entry = get_object_or_404(DirectoryEntry, id=entry_id)
+    entry = get_object_or_404(StartupEntry, id=entry_id)
     user = request.auth.user  # type: ignore[union-attr]
 
-    if not is_owner_or_committee(user, entry):
+    if not can_manage_startup(user, entry):
         from ninja.errors import HttpError
 
         raise HttpError(403, "Forbidden")
@@ -93,22 +92,22 @@ def update_entry(
 
 
 @router.delete(
-    "/entries/{entry_id}",
+    "/startupdb/{entry_id}",
     response={204: None},
-    auth=require_role("scout", "committee"),
-    summary="Delete a directory entry (owner or committee)",
+    auth=require_role("scout", "committee", "admin"),
+    summary="Delete a startup entry (owner or admin)",
 )
 def delete_entry(
     request: HttpRequest,
     entry_id: int,
 ) -> HttpResponse:
-    """Delete a directory entry.  Scouts may only delete their own entries;
-    committee may delete any entry.
+    """Delete a startup entry.  Scouts/committee may only delete their own entries;
+    admin may delete any entry.
     """
-    entry = get_object_or_404(DirectoryEntry, id=entry_id)
+    entry = get_object_or_404(StartupEntry, id=entry_id)
     user = request.auth.user  # type: ignore[union-attr]
 
-    if not is_owner_or_committee(user, entry):
+    if not can_manage_startup(user, entry):
         from ninja.errors import HttpError
 
         raise HttpError(403, "Forbidden")

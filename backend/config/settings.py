@@ -92,8 +92,7 @@ INSTALLED_APPS = [
     # Local Apps
     "apps.core",
     "apps.accounts",
-    "apps.newsletter",
-    "apps.directory",
+    "apps.startupdb",
 ]
 
 MIDDLEWARE = [

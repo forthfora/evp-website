@@ -8,7 +8,8 @@ from hypothesis.extra.django import TestCase as HypothesisTestCase
 from jwt_ninja.errors import APIError
 
 from apps.accounts.models import Role, User
-from apps.core.permissions import is_owner_or_committee, require_role
+from apps.core.permissions import can_manage_startup, require_role
+from apps.startupdb.models import StartupEntry
 
 
 class RequireRoleTests(HypothesisTestCase):
@@ -82,6 +83,19 @@ class RequireRoleTests(HypothesisTestCase):
         details = AuthDetails(user=user, session=session)
         assert auth.check_roles(details) is True
 
+    def test_require_role_allows_admin(self) -> None:
+        """committee role passes require_role('admin')."""
+        user = User.objects.create_user("admin@test.com")
+        user.role = Role.ADMIN
+        user.save()
+        auth = require_role("admin")
+        from jwt_ninja.auth_classes import AuthDetails
+        from jwt_ninja.models import Session
+
+        session = Session.create_session(user=user, ip_address="127.0.0.1")
+        details = AuthDetails(user=user, session=session)
+        assert auth.check_roles(details) is True
+
 
 class IsOwnerOrCommitteeTests(TestCase):
     """Tests for the ownership helper."""
@@ -95,32 +109,32 @@ class IsOwnerOrCommitteeTests(TestCase):
 
     def test_scout_owns_own_entry(self) -> None:
         """A scout who created an entry is its owner."""
-        obj = type("Obj", (), {"created_by": self.scout})()
-        assert is_owner_or_committee(self.scout, obj) is True
+        obj = StartupEntry(created_by=self.scout)
+        assert can_manage_startup(self.scout, obj) is True
 
     def test_member_does_not_own_entry(self) -> None:
         """A plain member is never considered an owner, even if they
         created the object — only privileged roles can be owners."""
-        obj = type("Obj", (), {"created_by": self.member})()
-        assert is_owner_or_committee(self.member, obj) is False
+        obj = StartupEntry(created_by=self.member)
+        assert can_manage_startup(self.member, obj) is False
 
     def test_committee_is_always_owner(self) -> None:
-        """A committee member is always considered an owner regardless of
+        """An admin member is always considered an owner regardless of
         who created the object."""
-        self.member.role = Role.COMMITTEE
+        self.member.role = Role.ADMIN
         self.member.save()
-        obj = type("Obj", (), {"created_by": self.other})()
-        assert is_owner_or_committee(self.member, obj) is True
+        obj = StartupEntry(created_by=self.other)
+        assert can_manage_startup(self.member, obj) is True
 
     def test_stranger_is_not_owner(self) -> None:
-        """A non-owner, non-committee user is not an owner."""
-        obj = type("Obj", (), {"created_by": self.scout})()
-        assert is_owner_or_committee(self.other, obj) is False
+        """A non-owner, non-admin user is not an owner."""
+        obj = StartupEntry(created_by=self.scout)
+        assert can_manage_startup(self.other, obj) is False
 
     def test_scout_is_not_owner_of_others(self) -> None:
         """A scout is not an owner of another scout's entry."""
         other_scout = User.objects.create_user("other_scout@test.com")
         other_scout.role = Role.SCOUT
         other_scout.save()
-        obj = type("Obj", (), {"created_by": other_scout})()
-        assert is_owner_or_committee(self.scout, obj) is False
+        obj = StartupEntry(created_by=other_scout)
+        assert can_manage_startup(self.scout, obj) is False

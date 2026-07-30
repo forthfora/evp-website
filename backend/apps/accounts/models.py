@@ -71,6 +71,7 @@ class Role(models.TextChoices):
     MEMBER = "member", "Member"
     SCOUT = "scout", "Scout"
     COMMITTEE = "committee", "Committee"
+    ADMIN = "admin", "Admin"
 
 
 class User(AbstractUser):
@@ -85,9 +86,9 @@ class User(AbstractUser):
     username = models.CharField(max_length=254, unique=True)
     image = models.URLField(default="", blank=True)
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.MEMBER)
-    receives_newsletter_emails = models.BooleanField(
+    receives_update_emails = models.BooleanField(
         default=True,
-        help_text="Unsubscribe from newsletter emails",
+        help_text="Whether this user receives non-essential update emails.",
     )
 
     EMAIL_FIELD = "email"
@@ -105,9 +106,8 @@ class User(AbstractUser):
         return self.role == Role.COMMITTEE
 
     @property
-    def is_privileged(self) -> bool:
-        """Used for permission gates. Free user is the default."""
-        return self.role in (Role.SCOUT, Role.COMMITTEE)
+    def is_admin(self) -> bool:
+        return self.role == Role.ADMIN
 
 
 class EmailOTP(models.Model):

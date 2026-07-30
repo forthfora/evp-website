@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from jwt_ninja.auth_classes import AuthDetails, JWTAuth
 from jwt_ninja.errors import APIError
 
 if TYPE_CHECKING:
+    from backend.apps.accounts.models import User
+    from backend.apps.startupdb.models import StartupEntry
     from django.http import HttpRequest
-
-    from apps.accounts.models import User
 
 
 class RoleAuth(JWTAuth):
@@ -17,7 +17,7 @@ class RoleAuth(JWTAuth):
 
     Usage::
 
-        @router.get("/admin", auth=RoleAuth("committee"))
+        @router.get("/admin", auth=RoleAuth("admin"))
         def admin_endpoint(request):
             ...
 
@@ -29,10 +29,13 @@ class RoleAuth(JWTAuth):
 
     def authenticate(self, request: HttpRequest, token: str) -> AuthDetails | None:
         details = super().authenticate(request, token)
+
         if details is None:
             return None
+
         if not self.check_roles(details):
             raise APIError("forbidden", 403)
+
         return details
 
     def check_roles(self, details: AuthDetails) -> bool:
@@ -46,20 +49,26 @@ def require_role(*roles: str) -> RoleAuth:
     """Shorthand to create a :class:`RoleAuth` instance for use as a
     Django Ninja ``auth`` parameter::
 
-        @router.get("/entries", auth=require_role("scout", "committee"))
+        @router.get("/startupdb", auth=require_role("scout", "committee"))
         def list_entries(request):
             ...
     """
     return RoleAuth(*roles)
 
 
-def is_owner_or_committee(user: User, obj: Any) -> bool:
-    """Return ``True`` if *user* is a committee member, or is a privileged
-    user (scout/committee) who owns *obj* (``obj.created_by == user``).
+def can_manage_startup(user: User, obj: StartupEntry) -> bool:
+    if user.is_admin:
+        return True
 
-    Intended for use in directory-style resources where scouts may only
-    edit their own entries and members cannot edit at all.
-    """
-    return user.is_committee or (
-        user.is_privileged and getattr(obj, "created_by", None) == user
-    )
+    if not user.is_committee and not user.is_scout:
+        return False
+
+    return getattr(obj, "created_by", None) == user
+
+
+def can_view_startups(user: User) -> bool:
+    return user.is_admin or user.is_committee or user.is_scout
+
+
+def can_send_notifications(user: User) -> bool:
+    return user.is_committee
