@@ -45,7 +45,7 @@ Key permission helpers in `apps/core/permissions.py`:
 
 - `require_role(*roles)` — Django Ninja auth class (`RoleAuth(JWTAuth)`),
   used as `auth=require_role("scout", "committee", "admin")`.
-- `can_manage_startup(user, entry)` — **admin** bypasses ownership;
+- `can_manage_entry(user, entry)` — **admin** bypasses ownership;
   scout/committee may only manage entries where `entry.created_by == user`.
 - `can_view_startups(user)` — scout/committee/admin.
 - `can_send_notifications(user)` — **currently checks `is_committee` only and
@@ -90,7 +90,7 @@ Endpoints (all `auth=require_role("scout", "committee", "admin")`):
 - `GET/POST /api/startupdb/founders`, `PATCH/DELETE /api/startupdb/founders/{id}`
   — founders (to be added with the `Founder` model)
 - `created_by` forced server-side on create; PATCH/DELETE guarded by
-  `can_manage_startup` (403 otherwise)
+  `can_manage_entry` (403 otherwise)
 
 ### Email
 
@@ -107,7 +107,7 @@ Endpoints (all `auth=require_role("scout", "committee", "admin")`):
    in the Django admin — two orthogonal switches, set together by convention.
 2. **Committee currently equals Scout for startup permissions.** This is
    intentional and matches the requirement "currently, same permissions as
-   scout, subject to change." `can_manage_startup` is the single choke point
+   scout, subject to change." `can_manage_entry` is the single choke point
    where a future Committee-elevated rule would be added.
 3. **No newsletter models.** Admin communications are ad-hoc emails sent to
    all members with `receives_update_emails=True`. There is no persistent
@@ -131,7 +131,7 @@ Endpoints (all `auth=require_role("scout", "committee", "admin")`):
    - *Why M2M over FK:* a founder can found or co-found several startups;
      a plain FK from Founder → Startup would force duplicate founder records.
 6. **Same ownership rules for founders as startups.** `Founder.created_by`
-   follows the `can_manage_startup` pattern: scouts/committee manage their
+   follows the `can_manage_entry` pattern: scouts/committee manage their
    own founder records, admin manages all. Editing a startup's founder
    *links* remains governed by the startup's `created_by`.
 

@@ -95,14 +95,14 @@ target state (see ADR 0002 for the design notes).
 `linkedin`, `location`, `notes`. Existing dev data will need to be migrated
 or discarded — SQLite dev DB can simply be rebuilt.
 
-- [ ] T1.1 — Write tests first in `apps/startupdb/tests/test_models.py`: `Founder` field defaults and `occupation` choices; composite name uniqueness (duplicate `(first_name, last_name)` rejected); `StartupEntry.name` uniqueness; a startup can link multiple founders and a founder can link to multiple startups; `created_by` required on both models
-- [ ] T1.2 — Implement the `Founder` model with a `unique_together` (or `UniqueConstraint`) on `(first_name, last_name)` and an `Occupation` `TextChoices` enum (`BACHELORS`, `MASTERS`, `PHD`, `GRADUATED`)
-- [ ] T1.3 — Restructure `StartupEntry`: make `name` unique, replace the `founders` CharField with `founders = ManyToManyField(Founder, related_name="startups")`, add `founding_date`, `linkedin`, `location`, `notes`; drop the now-redundant old fields per the target schema
-- [ ] T1.4 — Generate and run migrations (dev DB rebuild is acceptable); confirm T1.1 tests pass
-- [ ] T1.5 — Update `apps/startupdb/api.py` schemas and endpoints: `FounderIn`/`FounderOut`/`FounderPatchIn`; founder CRUD endpoints (`GET/POST /api/startupdb/founders`, `PATCH/DELETE /api/startupdb/founders/{id}`) behind the same `require_role("scout", "committee", "admin")` + `can_manage_startup` ownership rules as startups; update `EntryIn`/`EntryOut`/`EntryPatchIn` to the new shape (founder IDs in, nested or expanded founder objects out)
-- [ ] T1.6 — Write API tests first (before T1.5 implementation per testing policy), including a hypothesis property test over `(role, is_owner)` for founder edit/delete mirroring the startup matrix; update existing startup API tests to the new schema
-- [ ] T1.7 — Register `Founder` in `apps/startupdb/admin.py` (`list_display` on name, occupation, created_by); add founders inline or a filter widget on the `StartupEntry` admin
-- [ ] T1.8 — Seed/update dummy data: 3–5 founders and 3–5 startups with founder links for local dev/demo
+- [x] T1.1 — Write tests first in `apps/startupdb/tests/test_models.py`: `Founder` field defaults and `occupation` choices; composite name uniqueness (duplicate `(first_name, last_name)` rejected); `StartupEntry.name` uniqueness; a startup can link multiple founders and a founder can link to multiple startups; `created_by` required on both models
+- [x] T1.2 — Implement the `Founder` model with a `unique_together` (or `UniqueConstraint`) on `(first_name, last_name)` and an `Occupation` `TextChoices` enum (`BACHELORS`, `MASTERS`, `PHD`, `GRADUATED`)
+- [x] T1.3 — Restructure `StartupEntry`: make `name` unique, replace the `founders` CharField with `founders = ManyToManyField(Founder, related_name="startups")`, add `founding_date`, `linkedin`, `location`, `notes`; drop the now-redundant old fields per the target schema
+- [x] T1.4 — Generate and run migrations (dev DB rebuild is acceptable); confirm T1.1 tests pass
+- [x] T1.5 — Update `apps/startupdb/api.py` schemas and endpoints: `FounderIn`/`FounderOut`/`FounderPatchIn`; founder CRUD endpoints (`GET/POST /api/startupdb/founders`, `PATCH/DELETE /api/startupdb/founders/{id}`) behind the same `require_role("scout", "committee", "admin")` + `can_manage_entry` ownership rules as startups; update `EntryIn`/`EntryOut`/`EntryPatchIn` to the new shape (founder IDs in, nested or expanded founder objects out)
+- [x] T1.6 — Write API tests first (before T1.5 implementation per testing policy), including a hypothesis property test over `(role, is_owner)` for founder edit/delete mirroring the startup matrix; update existing startup API tests to the new schema
+- [x] T1.7 — Register `Founder` in `apps/startupdb/admin.py` (`list_display` on name, occupation, created_by); add founders inline or a filter widget on the `StartupEntry` admin
+- [x] T1.8 — Seed/update dummy data: 3–5 founders and 3–5 startups with founder links for local dev/demo
 
 ### T2 — Verify the refactored backend
 
@@ -113,7 +113,7 @@ building on top of it.
 
 - [ ] T2.1 — Run the full suite: `uv run pytest`, `uv run ruff check`, `uv run python manage.py check`; fix any failures before proceeding
 - [ ] T2.2 — Fix `can_send_notifications` in `apps/core/permissions.py` to check `user.is_admin` (per the role contract — only Admin sends update emails); update/add a hypothesis property test covering the full role matrix for this helper
-- [ ] T2.3 — Fix the docstring drift in `permissions.py` (`can_manage_startup` comments claim committee can manage any entry — code and requirements say own entries only) and the `TYPE_CHECKING` import path (`backend.apps.*` → `apps.*`)
+- [ ] T2.3 — Fix the docstring drift in `permissions.py` (`can_manage_entry` comments claim committee can manage any entry — code and requirements say own entries only) and the `TYPE_CHECKING` import path (`backend.apps.*` → `apps.*`)
 - [ ] T2.4 — Replace the `FROM_EMAIL = "[EMAIL]"` placeholder in `config/settings.py` with an env-driven value (`python-decouple`); document it in `backend/.env.example`
 
 ### T3 — Members-list endpoint
@@ -245,7 +245,7 @@ so adding a field later touches one file.
 | JWT issue + HttpOnly refresh cookie                       | `apps/accounts/api.py::_issue_tokens`     |
 | `/api/accounts/me`                                        | `apps/accounts/api.py`                    |
 | Role field (4 roles) + `is_scout/is_committee/is_admin`   | `apps/accounts/models.py`                 |
-| `require_role`, `can_manage_startup`, `can_view_startups` | `apps/core/permissions.py`                |
+| `require_role`, `can_manage_entry`, `can_view_startups` | `apps/core/permissions.py`                |
 | Startup CRUD `/api/startupdb` with ownership rules        | `apps/startupdb/api.py` (schema update in T1) |
 | Resend email wrapper (`send_email`, `send_otp_email`)     | `apps/core/email.py`                      |
 | `receives_update_emails` opt-out flag                     | `apps/accounts/models.py`                 |
@@ -258,7 +258,7 @@ so adding a field later touches one file.
 - Async/queued email fan-out (e.g. Celery) is deferred — synchronous sending
   is accepted at current membership scale (ADR 0002 Known Issue #9).
 - Committee startup permissions currently equal Scout's; any future elevation
-  is a one-function change in `can_manage_startup` (ADR 0002 Decision 2).
+  is a one-function change in `can_manage_entry` (ADR 0002 Decision 2).
 - No persistent newsletter/issue archive — admin emails are ad-hoc sends.
 - Public `/startups` showcase page remains static; surfacing `StartupEntry`
   data publicly is a separate future decision.

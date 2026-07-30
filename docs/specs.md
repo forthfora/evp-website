@@ -137,7 +137,7 @@ change; the rule lives in a single backend permission function.
 ## 9. Future Considerations
 
 - Password-based login as an additional auth mechanism (extension point documented in ADR 0001).
-- Elevated Committee permissions on the startup database (single-function change in `can_manage_startup`).
+- Elevated Committee permissions on the startup database (single-function change in `can_manage_entry`).
 - Async/queued delivery for admin update emails if membership grows.
 - Event RSVP/ticketing integration.
 - Public startup directory surfacing `StartupEntry` data, with submissions via the API.

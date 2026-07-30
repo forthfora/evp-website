@@ -8,7 +8,7 @@ from hypothesis.extra.django import TestCase as HypothesisTestCase
 from jwt_ninja.errors import APIError
 
 from apps.accounts.models import Role, User
-from apps.core.permissions import can_manage_startup, require_role
+from apps.core.permissions import can_manage_entry, require_role
 from apps.startupdb.models import StartupEntry
 
 
@@ -110,13 +110,13 @@ class IsOwnerOrCommitteeTests(TestCase):
     def test_scout_owns_own_entry(self) -> None:
         """A scout who created an entry is its owner."""
         obj = StartupEntry(created_by=self.scout)
-        assert can_manage_startup(self.scout, obj) is True
+        assert can_manage_entry(self.scout, obj) is True
 
     def test_member_does_not_own_entry(self) -> None:
         """A plain member is never considered an owner, even if they
         created the object — only privileged roles can be owners."""
         obj = StartupEntry(created_by=self.member)
-        assert can_manage_startup(self.member, obj) is False
+        assert can_manage_entry(self.member, obj) is False
 
     def test_committee_is_always_owner(self) -> None:
         """An admin member is always considered an owner regardless of
@@ -124,12 +124,12 @@ class IsOwnerOrCommitteeTests(TestCase):
         self.member.role = Role.ADMIN
         self.member.save()
         obj = StartupEntry(created_by=self.other)
-        assert can_manage_startup(self.member, obj) is True
+        assert can_manage_entry(self.member, obj) is True
 
     def test_stranger_is_not_owner(self) -> None:
         """A non-owner, non-admin user is not an owner."""
         obj = StartupEntry(created_by=self.scout)
-        assert can_manage_startup(self.other, obj) is False
+        assert can_manage_entry(self.other, obj) is False
 
     def test_scout_is_not_owner_of_others(self) -> None:
         """A scout is not an owner of another scout's entry."""
@@ -137,4 +137,4 @@ class IsOwnerOrCommitteeTests(TestCase):
         other_scout.role = Role.SCOUT
         other_scout.save()
         obj = StartupEntry(created_by=other_scout)
-        assert can_manage_startup(self.scout, obj) is False
+        assert can_manage_entry(self.scout, obj) is False

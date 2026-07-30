@@ -52,7 +52,7 @@ evp-website/
 - Startup database in `apps/startupdb/` — two record types (see `docs/adr/0002-roles-startupdb-and-admin-comms.md`):
   - `Founder`: composite natural key `(first_name, last_name)`, `occupation` choices (`bachelors`/`masters`/`phd`/`graduated`), plus `location`, `linkedin`, `email`, `notes`
   - `StartupEntry`: unique `name`, `founders` M2M → `Founder`, `founding_date`, `description`, `website`, `linkedin`, `email`, `location`, `notes`
-  - Both carry `created_by` FK → User; API under `/api/startupdb` gated by `require_role("scout", "committee", "admin")`; edit/delete via `can_manage_startup` (own records only; admin manages all)
+  - Both carry `created_by` FK → User; API under `/api/startupdb` gated by `require_role("scout", "committee", "admin")`; edit/delete via `can_manage_entry` (own records only; admin manages all)
 
 ### Frontend
 

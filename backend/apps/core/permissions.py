@@ -7,7 +7,7 @@ from jwt_ninja.errors import APIError
 
 if TYPE_CHECKING:
     from backend.apps.accounts.models import User
-    from backend.apps.startupdb.models import StartupEntry
+    from django.db import models
     from django.http import HttpRequest
 
 
@@ -56,7 +56,7 @@ def require_role(*roles: str) -> RoleAuth:
     return RoleAuth(*roles)
 
 
-def can_manage_startup(user: User, obj: StartupEntry) -> bool:
+def can_manage_entry(user: User, obj: models.Model) -> bool:
     if user.is_admin:
         return True
 
