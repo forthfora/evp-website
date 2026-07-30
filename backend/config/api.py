@@ -88,6 +88,7 @@ def jwt_api_error_handler(request: HttpRequest, exc: APIError) -> HttpResponse:
 api.add_router("", "apps.core.api.router")
 api.add_router("", "apps.accounts.api.router")
 api.add_router("", "apps.startupdb.api.router")
+api.add_router("", "apps.updates.api.router")
 api.add_router("/auth", "jwt_ninja.api.router")
 
 # URL layout:
@@ -95,6 +96,8 @@ api.add_router("/auth", "jwt_ninja.api.router")
 #   /api/auth/request-code, /api/auth/verify-code  — accounts (OTP auth)
 
 #   /api/accounts/me    — accounts (current user profile)
+#   /api/accounts/members — accounts (member list, committee/admin)
 
 #   /api/contact        — core (contact form)
-#   /api/startupdb/...    — directory (scout/committee entries with ownership)
+#   /api/startupdb/...  — startupdb (scout/committee entries with ownership)
+#   /api/updates/...    — updates (admin email broadcasts)

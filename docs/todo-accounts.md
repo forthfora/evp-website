@@ -127,9 +127,9 @@ building on top of it.
 
 **Depends on:** T2, T3
 
-- [ ] T4.1 — Write tests first: `POST /api/updates/send` returns 401 unauthenticated, 403 for member/scout/committee, 200 for admin; assert `send_email` is called exactly once per user with `receives_update_emails=True` and never for opted-out users (mock the email layer); hypothesis property test over the role matrix
-- [ ] T4.2 — Implement `POST /api/updates/send` (subject + body in, per-member send via `apps/core/email.py::send_email`, summary counts out: `{sent, skipped, failed}`). Synchronous fan-out is accepted for now — see ADR 0002 Known Issue #9
-- [ ] T4.3 — Register the router in `config/api.py`; confirm it appears in `/api/docs`
+- [x] T4.1 — Write tests first: `POST /api/updates/send` returns 401 unauthenticated, 403 for member/scout/committee, 200 for admin; assert `send_email` is called exactly once per user with `receives_update_emails=True` and never for opted-out users (mock the email layer); hypothesis property test over the role matrix
+- [x] T4.2 — Implement `POST /api/updates/send` (subject + body in, per-member send via `apps/core/email.py::send_email`, summary counts out: `{sent, skipped, failed}`). Synchronous fan-out is accepted for now — see ADR 0002 Known Issue #9
+- [x] T4.3 — Register the router in `config/api.py`; confirm it appears in `/api/docs`
 
 ---
 
