@@ -6,7 +6,9 @@ import { ContactPage } from '@/pages/contact/ContactPage';
 import { ErrorPage } from '@/pages/ErrorPage';
 import { EventsPage } from '@/pages/events/EventsPage';
 import { HomePage } from '@/pages/home/HomePage';
+import { MemberPlaceholder } from '@/pages/member/MemberPlaceholder';
 import { StartupsPage } from '@/pages/startups/StartupsPage';
+import { ProtectedRoute } from '@/shared/lib/auth/ProtectedRoute';
 
 import { AppLayout } from './app-layout';
 
@@ -25,6 +27,14 @@ export const browserRouter = createBrowserRouter([
 					{ path: 'contact', element: <ContactPage /> },
 					{ path: 'events', element: <EventsPage /> },
 					{ path: 'join', element: <AuthPage /> },
+					{
+						path: 'member',
+						element: (
+							<ProtectedRoute>
+								<MemberPlaceholder />
+							</ProtectedRoute>
+						),
+					},
 
 					// catch all for invalid pages
 					{

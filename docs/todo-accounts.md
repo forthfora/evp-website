@@ -165,8 +165,8 @@ endpoint under `/api/auth/`).
 
 **Depends on:** T6
 
-- [ ] T8.1 — Write tests first: unauthenticated visit to a protected route redirects to `/join`; a `member` visiting a scout+/committee+/admin-only route gets a 403-style page; matching roles pass through
-- [ ] T8.2 — Implement `ProtectedRoute` (any authenticated user) and `RoleRoute(roles: Role[])` wrappers; wire into `browser-router.tsx` around the member-area routes in Phase 2
+- [x] T8.1 — Write tests first: unauthenticated visit to a protected route redirects to `/join`; a `member` visiting a scout+/committee+/admin-only route gets a 403-style page; matching roles pass through
+- [x] T8.2 — Implement `ProtectedRoute` (any authenticated user) and `RoleRoute(roles: Role[])` wrappers; wire into `browser-router.tsx` around the member-area routes in Phase 2
 
 ### T9 — Navbar / `AppLayout` auth state
 
