@@ -139,8 +139,8 @@ building on top of it.
 
 **Depends on:** T2
 
-- [ ] T5.1 — Add zod schemas for the auth payloads (`RequestCodeInput`, `VerifyCodeInput`, `AuthResponse` (`{access}`), `MeResponse` (`{email, role, date_joined}`), plus a `Role` enum mirroring the backend) in `frontend/src/shared/lib/`
-- [ ] T5.2 — Add typed fetch functions (`requestCode(email)`, `verifyCode(email, code)`, `fetchMe()`) wired through TanStack React Query, matching the API's structured error shape (`{"errors": {field: [msgs]}}`)
+- [x] T5.1 — Add zod schemas for the auth payloads (`RequestCodeInput`, `VerifyCodeInput`, `AuthResponse` (`{access}`), `MeResponse` (`{email, role, date_joined}`), plus a `Role` enum mirroring the backend) in `frontend/src/shared/lib/`
+- [x] T5.2 — Add typed fetch functions (`requestCode(email)`, `verifyCode(email, code)`, `fetchMe()`) wired through TanStack React Query, matching the API's structured error shape (`{"errors": {field: [msgs]}}`)
 
 ### T6 — `AuthContext` & token storage
 
