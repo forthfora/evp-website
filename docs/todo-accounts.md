@@ -172,7 +172,7 @@ endpoint under `/api/auth/`).
 
 **Depends on:** T6
 
-- [ ] T9.1 — Update the shared navbar: "Join / Log in" when signed out; account menu (email, role badge, log out) when signed in, following existing header styling in `app/app-layout`
+- [x] T9.1 — Update the shared navbar: "Join / Log in" when signed out; account menu (email, role badge, log out) when signed in, following existing header styling in `app/app-layout`
 
 ---
 
@@ -185,9 +185,9 @@ endpoint under `/api/auth/`).
 Layout per role isn't fixed yet — build a registry, not hard-coded pages, so
 future widgets are a one-line registration.
 
-- [ ] T10.1 — Write tests first: mocked `AuthContext` with role `member` renders only member-eligible widgets; `scout`/`committee`/`admin` render their additional widgets
-- [ ] T10.2 — Build `frontend/src/pages/member/MemberDashboardPage.tsx` reading `user.role` from `AuthContext`, rendering widgets filtered by a `visibleTo: Role[]` field declared alongside each widget
-- [ ] T10.3 — Register the dashboard route (e.g. `/member`) behind `ProtectedRoute` from T8
+- [x] T10.1 — Write tests first: mocked `AuthContext` with role `member` renders only member-eligible widgets; `scout`/`committee`/`admin` render their additional widgets
+- [x] T10.2 — Build `frontend/src/pages/member/MemberDashboardPage.tsx` reading `user.role` from `AuthContext`, rendering widgets filtered by a `visibleTo: Role[]` field declared alongside each widget
+- [x] T10.3 — Register the dashboard route (e.g. `/member`) behind `ProtectedRoute` from T8
 
 ### T11 — Startup database UI
 

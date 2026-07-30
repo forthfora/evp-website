@@ -6,7 +6,7 @@ import { ContactPage } from '@/pages/contact/ContactPage';
 import { ErrorPage } from '@/pages/ErrorPage';
 import { EventsPage } from '@/pages/events/EventsPage';
 import { HomePage } from '@/pages/home/HomePage';
-import { MemberPlaceholder } from '@/pages/member/MemberPlaceholder';
+import { MemberDashboardPage } from '@/pages/member/MemberDashboardPage';
 import { StartupsPage } from '@/pages/startups/StartupsPage';
 import { ProtectedRoute } from '@/shared/lib/auth/ProtectedRoute';
 
@@ -31,7 +31,7 @@ export const browserRouter = createBrowserRouter([
 						path: 'member',
 						element: (
 							<ProtectedRoute>
-								<MemberPlaceholder />
+								<MemberDashboardPage />
 							</ProtectedRoute>
 						),
 					},
