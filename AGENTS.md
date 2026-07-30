@@ -13,8 +13,9 @@ Live site: https://edinburghventurepoint.com — hosted on Tardis servers (https
 evp-website/
 ├── backend/                  # Django + Django Ninja API
 │   ├── apps/
-│   │   ├── accounts/         # Custom User model, auth API
-│   │   └── core/             # Shared API/schemas
+│   │   ├── accounts/         # Custom User model (4 roles), passwordless OTP auth API
+│   │   ├── core/             # Shared API/schemas, permissions, email service
+│   │   └── startupdb/        # StartupEntry + Founder models, startup database API
 │   ├── config/               # Django settings, urls, api.py (NinjaAPI root)
 │   ├── helpers/exceptions.py
 │   ├── manage.py
@@ -47,7 +48,11 @@ evp-website/
 - **Gunicorn** (WSGI server in prod), **uv** for dependency management
 - **Ruff** (linter, configured in `backend/pyproject.toml`)
 - DB: MySQL/PyMySQL in prod (psycopg also available); SQLite (`db.sqlite3`) locally
-- Custom `User` model in `apps/accounts/models.py` — email is `USERNAME_FIELD`; no first/last name
+- Custom `User` model in `apps/accounts/models.py` — email is `USERNAME_FIELD`; no first/last name. Four roles (`member` default, `scout`, `committee`, `admin`), elevated manually via the Django admin; passwordless OTP auth (see `docs/adr/0001-passwordless-auth.md`)
+- Startup database in `apps/startupdb/` — two record types (see `docs/adr/0002-roles-startupdb-and-admin-comms.md`):
+  - `Founder`: composite natural key `(first_name, last_name)`, `occupation` choices (`bachelors`/`masters`/`phd`/`graduated`), plus `location`, `linkedin`, `email`, `notes`
+  - `StartupEntry`: unique `name`, `founders` M2M → `Founder`, `founding_date`, `description`, `website`, `linkedin`, `email`, `location`, `notes`
+  - Both carry `created_by` FK → User; API under `/api/startupdb` gated by `require_role("scout", "committee", "admin")`; edit/delete via `can_manage_startup` (own records only; admin manages all)
 
 ### Frontend
 
@@ -106,7 +111,7 @@ npm run format     # Prettier
 - **Backend code style**: modern typing (`from __future__ import annotations`, PEP 695 generics e.g. `class UserManager[T]`), type hints everywhere. Linted with **Ruff** — run `uv run ruff check` before committing.
 - **Run backend commands with `uv run`**: always prefix Python commands with `uv run` (e.g. `uv run python manage.py migrate`, `uv run pytest`, `uv run ruff check`). Never invoke `python` or `.venv\Scripts\python.exe` directly — `uv run` resolves the correct venv automatically.
 - **API**: register routers in `backend/config/api.py`; URL prefix `/api/`. Schemas live next to apps (e.g. `apps/core/schemas.py`).
-- **Auth**: JWT via `jwtninja`; email+password login (no username login).
+- **Auth**: JWT via `jwtninja`; passwordless email OTP (`request-code`/`verify-code`), access token in body + refresh token in HttpOnly cookie. Role checks via `require_role(...)` in `apps/core/permissions.py`.
 - **Frontend pages**: each page lives in `src/pages/<name>/<Name>Page.tsx`; add routes in `src/app/browser-router.tsx` wrapped by `AppLayout`; unknown paths throw a 404 `Response`.
 - **Styling**: Tailwind utility classes preferred; merge classes with `clsx` + `tailwind-merge`.
 - **Lint/format before committing**: `npm run lint` and `npm run format` must pass.

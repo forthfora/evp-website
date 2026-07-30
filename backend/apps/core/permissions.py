@@ -71,4 +71,4 @@ def can_view_startups(user: User) -> bool:
 
 
 def can_send_notifications(user: User) -> bool:
-    return user.is_committee
+    return user.is_admin

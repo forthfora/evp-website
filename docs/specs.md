@@ -5,13 +5,15 @@
 | **Product**      | Edinburgh VenturePoint (EVP) Website      |
 | **Status**       | Live — https://edinburghventurepoint.com  |
 | **Hosting**      | Tardis servers (https://tardisproject.uk) |
-| **Last updated** | 2026-07-28                                |
+| **Last updated** | 2026-07-30                                |
 
 ## 1. Overview
 
 The official website for **Edinburgh VenturePoint**, an entrepreneurship society at the
 University of Edinburgh. The site presents the society to students, founders, sponsors,
-and partners; showcases events and startups; and provides contact pathways.
+and partners; showcases events and startups; provides contact pathways; and gives
+members accounts with role-based access to an internal startup database and
+society communications.
 
 ## 2. Goals & Objectives
 
@@ -20,6 +22,9 @@ and partners; showcases events and startups; and provides contact pathways.
 - Showcase member/alumni **startups**.
 - Provide clear **contact** channels for enquiries and sponsorship.
 - Communicate the society's mission, team, and history (**About**).
+- Allow **members** to create passwordless accounts (email one-time code).
+- Maintain an internal **startup database** contributed to by Scouts and managed by Admins.
+- Let **Admins** send update emails to all members.
 - Allow committee members to manage content via an admin panel.
 
 ## 3. Target Audience
@@ -44,24 +49,68 @@ and partners; showcases events and startups; and provides contact pathways.
 
 ### 4.2 Backend Capabilities
 
-- **Accounts**: custom email-based user model, JWT authentication, admin management.
-- **Admin panel** (`/admin/`, Jazzmin-themed) for committee content management.
-- **REST API** (`/api/`, Django Ninja) with auto-generated docs at `/api/docs`.
+- **Accounts**: custom email-based user model, **passwordless authentication**
+  (one-time email code → JWT; see `docs/adr/0001-passwordless-auth.md`),
+  admin management.
+- **Roles**: every account has one of four roles — `member` (default),
+  `scout`, `committee`, `admin` — elevated manually via the Django admin.
+  See §4.3 for the capability matrix and `docs/adr/0002-roles-startupdb-and-admin-comms.md`
+  for the full architecture.
+- **Startup database**: `StartupEntry` records (unique name, founders,
+  founding date, description, website, linkedin, email, location, notes)
+  linked many-to-many to `Founder` records (first & last name as the
+  composite natural key, occupation, location, linkedin, email, notes), with
+  an ownership-based permission model, exposed at `/api/startupdb`. The
+  schema is expected to evolve.
+- **Admin communications**: Admins can send update emails to all members
+  (opt-out via `receives_update_emails`).
+- **Admin panel** (`/admin/`, Jazzmin-themed) for committee/admin content and
+  role management.
+- **REST API** (`/api/`, Django Ninja) with auto-generated docs at `/api/docs`
+  (DEBUG only).
 
-### 4.3 Out of Scope (for now)
+### 4.3 Roles & Permissions
 
-- Public user registration / member accounts on the frontend.
+| Capability                        | Member | Scout | Committee | Admin |
+| --------------------------------- | ------ | ----- | --------- | ----- |
+| View startup database             | ❌     | ✅    | ✅        | ✅    |
+| Add startups/founders             | ❌     | ✅    | ✅        | ✅    |
+| Edit/delete **own** startups/founders | ❌  | ✅    | ✅        | ✅    |
+| Edit/delete **any** startup/founder   | ❌  | ❌    | ❌        | ✅    |
+| View all members                  | ❌     | ❌    | ✅        | ✅    |
+| Send update emails to all members | ❌     | ❌    | ❌        | ✅    |
+| Django admin panel                | ❌     | ❌    | ❌        | ✅    |
+
+Committee startup permissions currently equal Scout's and are subject to
+change; the rule lives in a single backend permission function.
+
+### 4.4 Out of Scope (for now)
+
+- Password-based login (the schema keeps the extension point open — see ADR 0001).
 - Payments, ticketing, or e-commerce.
 - Blog/CMS beyond what the admin panel manages.
+- A persistent newsletter/issue archive — admin emails are ad-hoc sends.
+- Public display of the internal startup database (the `/startups` page remains
+  a curated showcase).
 
 ## 5. Functional Requirements
 
 1. The site shall render all public pages as a client-side React SPA with a shared layout.
 2. Unknown routes shall display a styled 404 error page.
-3. The backend shall expose a versioned REST API under `/api/` with OpenAPI docs.
-4. Authentication shall use email + password issuing JWT tokens.
-5. Administrators shall manage users and content through the Django admin panel.
-6. The frontend shall fetch dynamic data via the API (TanStack React Query) with runtime validation (zod).
+3. The backend shall expose a REST API under `/api/` with OpenAPI docs (DEBUG only).
+4. Authentication shall be passwordless: users request a one-time code by email and
+   verify it to receive JWT tokens (access token in the response body, refresh token
+   in an HttpOnly cookie).
+5. Every account shall have a role (`member`, `scout`, `committee`, `admin`),
+   changeable only by staff through the Django admin.
+6. The startup database shall store startups and founders as separate record
+   types, linked many-to-many (a startup has one or more founders; a founder
+   may appear on multiple startups). Both shall be readable and writable per
+   the role matrix in §4.3, with `created_by` always set server-side from the
+   authenticated user.
+7. Administrators shall manage users, roles, and content through the Django admin panel.
+8. Admins shall be able to send update emails to all members who have not opted out.
+9. The frontend shall fetch dynamic data via the API (TanStack React Query) with runtime validation (zod).
 
 ## 6. Non-Functional Requirements
 
@@ -87,7 +136,10 @@ and partners; showcases events and startups; and provides contact pathways.
 
 ## 9. Future Considerations
 
-- Member sign-up / login on the frontend using the existing JWT backend.
+- Password-based login as an additional auth mechanism (extension point documented in ADR 0001).
+- Elevated Committee permissions on the startup database (single-function change in `can_manage_startup`).
+- Async/queued delivery for admin update emails if membership grows.
 - Event RSVP/ticketing integration.
-- Startup directory with submissions via the API.
-- Newsletter signup and sponsor logo management via the admin panel.
+- Public startup directory surfacing `StartupEntry` data, with submissions via the API.
+- Member profile pages (avatars, bios) building on the existing `User.image` field.
+- Unsubscribe/self-service email preference management on the frontend.
