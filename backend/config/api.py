@@ -91,11 +91,11 @@ api.add_router("", "apps.newsletter.api.router")
 api.add_router("", "apps.directory.api.router")
 api.add_router("/auth", "jwt_ninja.api.router")
 
-# URL layout (Option B):
-#   /api/auth/          — jwt_ninja (token refresh, etc.)
-#   /api/auth/request-code, /api/auth/verify-code  — accounts app (future OTP endpoints)
-#   /api/contact        — core app
-#   /api/accounts/me    — accounts app (future profile endpoint)
-# New routers (newsletter, directory) go below with descriptive prefixes:
-#   /api/newsletter/...
+# URL layout:
+#   /api/auth/          — jwt_ninja (token refresh, logout)
+#   /api/auth/request-code, /api/auth/verify-code  — accounts (OTP auth)
+#   /api/accounts/me    — accounts (current user profile)
+#   /api/contact        — core (contact form)
+#   /api/newsletter/... — newsletter (CRUD + publish notification)
+#   /api/entries/...    — directory (scout/committee entries with ownership)
 #   /api/entries/...

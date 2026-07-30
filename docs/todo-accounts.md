@@ -216,10 +216,10 @@ Kept intentionally generic since you'll define the real schema later.
 
 **Depends on:** T7, T9, T12, T13, T15
 
-- [ ] T16.1 — Confirm all new routers (`accounts` auth endpoints, `newsletter`, `directory`) are mounted under `/api/` in `config/api.py` and appear in `/api/docs`
-- [ ] T16.2 — Update `backend/.env.example` with any new settings introduced along the way (OTP code TTL/cooldown values, confirm `RESEND_API_KEY` is documented, `FRONTEND_URL` if needed for cookie domain/CORS)
-- [ ] T16.3 — Run `uv run pytest` (and/or `uv run python manage.py test`) for the full suite; run `uv run python manage.py check` to catch model/migration drift
-- [ ] T16.4 — Sanity-check CORS/cookie settings still work for the `HttpOnly` refresh cookie given the existing `django-cors-headers` config (cookies require `CORS_ALLOW_CREDENTIALS = True` and a non-wildcard allowed origin)
+- [x] T16.1 — Confirm all new routers (`accounts` auth endpoints, `newsletter`, `directory`) are mounted under `/api/` in `config/api.py` and appear in `/api/docs`
+- [x] T16.2 — Update `backend/.env.example` with any new settings introduced along the way (OTP code TTL/cooldown values, confirm `RESEND_API_KEY` is documented, `FRONTEND_URL` if needed for cookie domain/CORS)
+- [x] T16.3 — Run `uv run pytest` (and/or `uv run python manage.py test`) for the full suite; run `uv run python manage.py check` to catch model/migration drift
+- [x] T16.4 — Sanity-check CORS/cookie settings still work for the `HttpOnly` refresh cookie given the existing `django-cors-headers` config (cookies require `CORS_ALLOW_CREDENTIALS = True` and a non-wildcard allowed origin)
 
 ---
 
