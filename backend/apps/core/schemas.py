@@ -1,15 +1,11 @@
 from ninja import Schema
 
 
-class ContactSchema(Schema):
+class CSRFOut(Schema):
+    csrftoken: str
+
+
+class ContactIn(Schema):
     name: str
     email: str
     message: str
-
-
-class SuccessResponse(Schema):
-    success: str
-
-
-class ErrorResponse(Schema):
-    error: str

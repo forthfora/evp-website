@@ -98,7 +98,7 @@ export async function authFetch<T>(
 
 async function tryRefresh(): Promise<boolean> {
 	try {
-		const resp = await fetch('/api/auth/refresh', { method: 'POST' });
+		const resp = await fetch('/api/auth/refresh/', { method: 'POST' });
 		if (!resp.ok) return false;
 
 		const { access } = (await resp.json()) as { access: string };

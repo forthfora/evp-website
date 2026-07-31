@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 import sys
-from datetime import timedelta
 from pathlib import Path
 
 from decouple import config
@@ -94,11 +93,11 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "ninja",
     "corsheaders",
-    "jwt_ninja",
     # Local Apps
     "apps.core",
     "apps.accounts",
     "apps.startupdb",
+    "apps.updates",
 ]
 
 MIDDLEWARE = [
@@ -177,12 +176,6 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Custom Auth
 AUTH_USER_MODEL = "accounts.User"
-
-# JWT Configuration
-JWT_NINJA = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
-}
 
 if "test" in sys.argv:
     # use a faster, less secure hasher for tests.

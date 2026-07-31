@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.http import Http404, HttpRequest, HttpResponse
-from jwt_ninja.errors import APIError
 from ninja import NinjaAPI
 from ninja.errors import AuthorizationError, HttpError, ValidationError
 
@@ -76,28 +75,7 @@ def http_error_handler(request: HttpRequest, exc: HttpError) -> HttpResponse:
     return api.create_response(request, {"detail": str(exc)}, status=exc.status_code)
 
 
-@api.exception_handler(APIError)
-def jwt_api_error_handler(request: HttpRequest, exc: APIError) -> HttpResponse:
-    return api.create_response(
-        request,
-        {"detail": exc.error_code},
-        status=exc.http_status_code,
-    )
-
-
 api.add_router("", "apps.core.api.router")
-api.add_router("", "apps.accounts.api.router")
-api.add_router("", "apps.startupdb.api.router")
-api.add_router("", "apps.updates.api.router")
-api.add_router("/auth", "jwt_ninja.api.router")
-
-# URL layout:
-#   /api/auth/          — jwt_ninja (token refresh, logout)
-#   /api/auth/request-code, /api/auth/verify-code  — accounts (OTP auth)
-
-#   /api/accounts/me    — accounts (current user profile)
-#   /api/accounts/members — accounts (member list, committee/admin)
-
-#   /api/contact        — core (contact form)
-#   /api/startupdb/...  — startupdb (scout/committee entries with ownership)
-#   /api/updates/...    — updates (admin email broadcasts)
+api.add_router("/account/", "apps.accounts.api.router")
+api.add_router("/startupdb/", "apps.startupdb.api.router")
+api.add_router("/updates/", "apps.updates.api.router")

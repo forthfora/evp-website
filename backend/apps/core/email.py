@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
 
 from django.conf import settings
 
@@ -16,13 +15,8 @@ except ImportError:
     logger.warning("resend package not installed: emails will be logged only")
 
 
-# record class
-@dataclass
-class EmailResult:
-    """Lightweight result wrapper for sent emails."""
-
-    success: bool
-    message: str
+class EmailSendError(Exception):
+    """Raised when an email fails to send, for any reason."""
 
 
 def _build_otp_html(code: str) -> str:
@@ -55,7 +49,7 @@ def send_email(
     body: str,
     *,
     from_email: str | None = None,
-) -> EmailResult:
+):
     """Send an email via Resend, or log it in DEBUG mode.
 
     Args:
@@ -64,46 +58,48 @@ def send_email(
         body: Plain-text or HTML body content.
         from_email: Sender address (defaults to ``settings.FROM_EMAIL``).
 
-    Returns:
-        An ``EmailResult`` with success status and message.
+    Raises:
+        EmailSendError: If the email API fails to load or send the email.
     """
     sender = from_email or settings.FROM_EMAIL
     recipients = [to] if isinstance(to, str) else to
 
-    # DEBUG mode, or if resend fails to load for whatever reason
-    if settings.DEBUG or resend is None:
+    if settings.DEBUG:
         logger.info(
             "[DEBUG EMAIL] To: %s | Subject: %s | Body:\n%s",
             ", ".join(recipients),
             subject,
             body,
         )
-        return EmailResult(success=True, message="Logged to console (DEBUG mode)")
 
-    try:
-        response = resend.Emails.send(
-            params={
-                "from": sender,
-                "to": recipients,
-                "subject": subject,
-                "html": body,
-            }
-        )
-        return EmailResult(success=True, message=f"Sent (id={response['id']})")
-    except Exception as exc:
-        logger.error("Failed to send email via Resend: %s", exc)
-        return EmailResult(success=False, message=str(exc))
+    else:
+        try:
+            if resend is None:
+                raise ValueError("Resend API is missing.")
+
+            resend.Emails.send(
+                params={
+                    "from": sender,
+                    "to": recipients,
+                    "subject": subject,
+                    "html": body,
+                }
+            )
+
+        except Exception as err:
+            logger.error("Failed to send email via Resend: %s", err)
+            raise EmailSendError(err) from err
 
 
-def send_otp_email(email: str, code: str) -> EmailResult:
+def send_otp_email(email: str, code: str):
     """Send a one-time passcode email.
 
     Args:
         email: The recipient's email address.
         code: The 6-digit numeric code to include.
 
-    Returns:
-        An ``EmailResult`` indicating success or failure.
+    Raises:
+        EmailSendError: If the email API fails to load or send the email.
     """
     html_body = _build_otp_html(code)
     return send_email(

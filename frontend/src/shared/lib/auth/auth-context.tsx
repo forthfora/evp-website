@@ -15,7 +15,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 		async function trySilentRefresh() {
 			try {
-				const refreshResp = await fetch('/api/auth/refresh', {
+				const refreshResp = await fetch('/api/auth/refresh/', {
 					method: 'POST',
 				});
 

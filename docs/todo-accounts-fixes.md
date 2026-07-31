@@ -13,3 +13,5 @@ Fixes for the future. Ignore for now.
 
 - make the join button and member profile button more flashy
 - replace reach out in some areas with join.
+
+- tarids.ac in CORS_ALLOWED_HEADERS

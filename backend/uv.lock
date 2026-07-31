@@ -150,7 +150,6 @@ dependencies = [
     { name = "django-jazzmin" },
     { name = "django-ninja" },
     { name = "gunicorn" },
-    { name = "jwtninja" },
     { name = "psycopg", extra = ["binary"] },
     { name = "pydantic" },
     { name = "pydantic-core" },
@@ -183,7 +182,6 @@ requires-dist = [
     { name = "django-jazzmin", specifier = ">=3.0.4" },
     { name = "django-ninja", specifier = "==1.6.2" },
     { name = "gunicorn", specifier = ">=26.0.0" },
-    { name = "jwtninja", specifier = "==0.4.0" },
     { name = "psycopg", extras = ["binary"], specifier = ">=3.3.4" },
     { name = "pydantic", specifier = "==2.13.4" },
     { name = "pydantic-core", specifier = "==2.46.4" },
@@ -293,21 +291,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/72/34/14ca021ce8e5dfedc35312d08ba8bf51fdd999c576889fc2c24cb97f4f10/iniconfig-2.3.0.tar.gz", hash = "sha256:c76315c77db068650d49c5b56314774a7804df16fee4402c1f19d6d15d8c4730", size = 20503, upload-time = "2025-10-18T21:55:43.219Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl", hash = "sha256:f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12", size = 7484, upload-time = "2025-10-18T21:55:41.639Z" },
-]
-
-[[package]]
-name = "jwtninja"
-version = "0.4.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "django-ninja" },
-    { name = "pydantic" },
-    { name = "pydantic-settings" },
-    { name = "pyjwt" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/07/2e/ac9578c1762ccb18a44f9c022b2d4eefc20b04534a7fe40bf5521659c387/jwtninja-0.4.0.tar.gz", hash = "sha256:ea616e3447eb0f341dac33007108597e32ef5d145e72b81ed3f9e3568cc1ca28", size = 36370, upload-time = "2026-04-22T18:09:50.44Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/ed/2e/6b6b06c7d6791b7e4cc3007f45ffbb0b8a7d3d7a3d04d502f804430c19e4/jwtninja-0.4.0-py3-none-any.whl", hash = "sha256:0ab71d1535df99d7133fe635158968d983d1dc8ba1a8a2b43c1677a7121f85f4", size = 28703, upload-time = "2026-04-22T18:09:51.566Z" },
 ]
 
 [[package]]

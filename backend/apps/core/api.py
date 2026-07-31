@@ -1,28 +1,41 @@
+import logging
+
 from django.conf import settings
+from django.http import HttpResponse
+from django.middleware.csrf import get_token
 from ninja import Router
+from ninja.errors import HttpError
 
-from apps.core.email import send_email
-from apps.core.schemas import ContactSchema, ErrorResponse, SuccessResponse
+from apps.core.email import EmailSendError, send_email
+from apps.core.schemas import ContactIn, CSRFOut
 
-router = Router()
+logger = logging.getLogger(__name__)
+
+router = Router(tags=["Core"])
 
 
-@router.post("/contact", response={200: SuccessResponse, 500: ErrorResponse})
-def send_contact_email(request, data: ContactSchema):
+@router.get("/csrf", auth=None, response={200: CSRFOut})
+def get_csrf(request):
+    return {"csrftoken": get_token(request)}
+
+
+@router.post("/contact", auth=None, response={204: None, 500: None})
+def send_contact_email(request, data: ContactIn) -> HttpResponse:
     email_subject = f"EVP Contact: {data.name}"
     email_body = f"Name: {data.name}\nEmail: {data.email}\n\nMessage:\n{data.message}"
 
     try:
-        result = send_email(
+        send_email(
             to=settings.TO_EMAILS,
             subject=email_subject,
             body=email_body,
             from_email=settings.FROM_EMAIL,
         )
+        return HttpResponse(status=204)
 
-        if result.success:
-            return 200, {"success": "Message sent successfully!"}
-        return 500, {"error": result.message}
-
-    except Exception as e:
-        return 500, {"error": f"Internal server error: {e!s}"}
+    except EmailSendError as err:
+        logger.exception("Unexpected error calling send_email")
+        raise HttpError(
+            500,
+            "An unexpected error occured. Our email server may be down. Please try again later.",  # noqa: E501
+        ) from err

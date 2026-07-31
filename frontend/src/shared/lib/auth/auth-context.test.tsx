@@ -92,7 +92,7 @@ describe('AuthContext', () => {
 		// Mock a successful refresh response
 		const fetchMock = vi.spyOn(globalThis, 'fetch');
 		fetchMock.mockImplementation(async (url) => {
-			if (url.toString().includes('/api/auth/refresh')) {
+			if (url.toString().includes('/api/auth/refresh/')) {
 				return new Response(JSON.stringify({ access: 'refreshed-token' }), {
 					status: 200,
 					headers: { 'Content-Type': 'application/json' },
@@ -124,7 +124,7 @@ describe('AuthContext', () => {
 	it('stays unauthenticated when silent refresh fails', async () => {
 		const fetchMock = vi.spyOn(globalThis, 'fetch');
 		fetchMock.mockImplementation(async (url) => {
-			if (url.toString().includes('/api/auth/refresh')) {
+			if (url.toString().includes('/api/auth/refresh/')) {
 				return new Response(JSON.stringify({ detail: 'no cookie' }), {
 					status: 401,
 					headers: { 'Content-Type': 'application/json' },

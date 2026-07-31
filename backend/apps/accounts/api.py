@@ -1,197 +1,93 @@
 from __future__ import annotations
 
-import time
+from typing import TYPE_CHECKING
 
-from django.http import HttpRequest, HttpResponse, JsonResponse
-from django.utils import timezone
-from jwt_ninja.auth_classes import JWTAuth
-from ninja import Router, Schema
+from django.contrib.auth import login, logout
+from django.http import HttpResponse
+from ninja import Router
+from ninja.errors import HttpError, logger
+from ninja.security import django_auth
 
 from apps.accounts.models import EmailOTP, User
-from apps.core.email import send_otp_email
-from apps.core.permissions import require_role
+from apps.accounts.schemas import MemberOut, MeOut, RequestOTPIn, VerifyOTPIn
+from apps.core.email import EmailSendError, send_otp_email
+from apps.core.permissions import RoleAuth
 
-router = Router(tags=["Authentication"])
+if TYPE_CHECKING:
+    from django.http import HttpRequest
 
-
-class RequestCodeInput(Schema):
-    email: str
-
-
-class VerifyCodeInput(Schema):
-    email: str
-    code: str
-
-
-class AuthResponse(Schema):
-    access: str
-
-
-class ErrorResponse(Schema):
-    detail: str
-
-
-class MeResponse(Schema):
-    email: str
-    role: str
-    date_joined: str
-
-
-class MemberOut(Schema):
-    id: int
-    email: str
-    role: str
-    image: str
-    date_joined: str
-    receives_update_emails: bool
-
-
-def _issue_tokens(user: User) -> tuple[str, str]:
-    """Issue a new access+refresh token pair for *user* using jwtninja.
-
-    Mirrors the token-creation logic from ``jwt_ninja.api.login`` so
-    the standard refresh / logout endpoints continue to work.
-    """
-    from jwt_ninja import settings as jwt_settings
-    from jwt_ninja.cryptography import generate_jwt
-    from jwt_ninja.models import Session
-
-    session = Session.create_session(
-        user=user,
-        ip_address="",  # not available during OTP flow
-    )
-
-    now = int(time.time())
-    payload_cls = jwt_settings.jwt_settings.payload_class
-
-    access_payload = payload_cls(
-        user_id=user.id,
-        type="access",
-        exp=now + jwt_settings.jwt_settings.ACCESS_TOKEN_EXPIRE_SECONDS,
-        session_id=session.id,
-    )
-    access_token = generate_jwt(access_payload)
-
-    refresh_payload = payload_cls(
-        user_id=user.id,
-        type="refresh",
-        exp=now + jwt_settings.jwt_settings.REFRESH_TOKEN_EXPIRE_SECONDS,
-        session_id=session.id,
-    )
-    refresh_token = generate_jwt(refresh_payload)
-
-    return access_token, refresh_token
-
-
-def _set_refresh_cookie(response: HttpResponse, refresh_token: str) -> None:
-    """Set the refresh token as an HttpOnly, Secure, SameSite=Lax cookie.
-
-    Uses the same cookie settings as jwtninja so the existing refresh
-    endpoint can consume it.
-    """
-    from jwt_ninja import settings as jwt_settings
-
-    response.set_cookie(
-        key=jwt_settings.jwt_settings.REFRESH_COOKIE_NAME,
-        value=refresh_token,
-        max_age=jwt_settings.jwt_settings.REFRESH_TOKEN_EXPIRE_SECONDS,
-        path=jwt_settings.jwt_settings.REFRESH_COOKIE_PATH,
-        domain=jwt_settings.jwt_settings.REFRESH_COOKIE_DOMAIN,
-        secure=jwt_settings.jwt_settings.REFRESH_COOKIE_SECURE,
-        httponly=True,
-        samesite=jwt_settings.jwt_settings.REFRESH_COOKIE_SAMESITE,
-    )
+router = Router(tags=["Accounts"])
 
 
 @router.post(
-    "/auth/request-code",
-    response={202: None, 429: ErrorResponse, 422: ErrorResponse},
+    "/otp/request",
     auth=None,
-    summary="Request a one-time verification code",
+    response={204: None, 500: None},
+    summary="Sends a new OTP to the provided email.",
 )
-def request_code(request: HttpRequest, payload: RequestCodeInput) -> HttpResponse:
-    """Send a 6-digit OTP to *email*. Always returns 202 to prevent
-    user enumeration. The email is sent only if the address is valid."""
+def request_otp(request, payload: RequestOTPIn) -> HttpResponse:
+    otp = EmailOTP.generate(payload.email)
 
-    now = timezone.now()
-    latest_otp = (
-        EmailOTP.objects.filter(email=payload.email).order_by("-created_at").first()
-    )
-    if (
-        latest_otp
-        and (now - latest_otp.created_at).total_seconds() < latest_otp.cooldown_seconds
-    ):
-        return JsonResponse(
-            {
-                "detail": "Too many requests. Please wait before requesting another code."  # noqa: E501
-            },
-            status=429,
-        )
+    try:
+        send_otp_email(payload.email, otp.code)
 
-    code = EmailOTP.generate_code()
-    otp = EmailOTP.objects.create(email=payload.email)
-    otp.set_code(code)
-    otp.save()  # persist the code_hash and expires_at
+    except EmailSendError as err:
+        logger.exception("Failed to send OTP email")
+        raise HttpError(
+            500,
+            "An unexpected error occured. Our email server may be down. Please try again later.",  # noqa: E501
+        ) from err
 
-    send_otp_email(payload.email, code)
-    return HttpResponse(status=202)
+    return HttpResponse(status=204)
 
 
 @router.post(
-    "/auth/verify-code",
-    response={200: AuthResponse, 400: ErrorResponse},
+    "/otp/verify",
     auth=None,
-    summary="Verify a one-time code and obtain JWT tokens",
+    response={204: None, 401: None},
+    summary="Verifies the provided OTP code.",
 )
-def verify_code(request: HttpRequest, payload: VerifyCodeInput) -> HttpResponse:
-    """Validate *code* for *email*, create a User if one doesn't exist,
-    and return JWT access + refresh tokens."""
-    # Find the most recent unconsumed OTP for this email
+def verify_otp(request, payload: VerifyOTPIn) -> HttpResponse:
     otp = (
-        EmailOTP.objects.filter(email=payload.email, consumed_at=None)
+        EmailOTP.objects.filter(email=payload.email, consumed=False)
         .order_by("-created_at")
         .first()
     )
 
-    if otp is None or not otp.is_valid:
-        return JsonResponse(
-            {"detail": "Invalid or expired verification code."},
-            status=400,
-        )
+    if otp is None:
+        raise HttpError(401, "Invalid or expired OTP.")
 
-    if not otp.consume(payload.code):
-        return JsonResponse(
-            {"detail": "Invalid or expired verification code."},
-            status=400,
-        )
+    ok = otp.try_consume(payload.code)
 
-    # Get or create the user
-    user, created = User.objects.get_or_create(
-        email=payload.email,
-        defaults={"username": payload.email},
-    )
+    if not ok:
+        raise HttpError(401, "Invalid or expired OTP.")
 
-    if created:
-        user.set_unusable_password()
-        user.save(update_fields=["password"])
+    user, _ = User.objects.get_or_create(email=payload.email)
+    login(request, user)
 
-    access_token, refresh_token = _issue_tokens(user)
+    return HttpResponse(status=204)
 
-    response = JsonResponse({"access": access_token})
-    _set_refresh_cookie(response, refresh_token)
-    return response
+
+@router.post(
+    "/logout",
+    auth=django_auth,
+    response={204: None, 401: None},
+    summary="Logs the authenticated user out.",
+)
+def logout_view(request) -> HttpResponse:
+    logout(request)
+    return HttpResponse(status=204)
 
 
 @router.get(
-    "/accounts/me",
-    response={200: MeResponse},
-    auth=JWTAuth(),
-    summary="Return the authenticated user's profile",
+    "/me",
+    auth=django_auth,
+    response={200: MeOut, 401: None},
+    summary="Returns the authenticated user's profile.",
 )
-def accounts_me(request: HttpRequest) -> MeResponse:
-    """Return the current user's email, role, and join date."""
-    user: User = request.auth.user  # type: ignore[union-attr]
-    return MeResponse(
+def accounts_me(request: HttpRequest) -> MeOut:
+    user: User = request.user  # type: ignore
+    return MeOut(
         email=user.email,
         role=user.role,
         date_joined=user.date_joined.isoformat(),
@@ -199,13 +95,12 @@ def accounts_me(request: HttpRequest) -> MeResponse:
 
 
 @router.get(
-    "/accounts/members",
-    response=list[MemberOut],
-    auth=require_role("committee", "admin"),
-    summary="List all members (committee/admin only)",
+    "/members",
+    auth=RoleAuth("admin", "committee"),
+    response={200: list[MemberOut], 401: None, 403: None},
+    summary="List all members.",
 )
 def list_members(request: HttpRequest) -> list[MemberOut]:
-    """Return all registered users.  Only available to committee and admin."""
     users = User.objects.all().order_by("email")
     return [
         MemberOut(

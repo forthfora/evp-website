@@ -3,7 +3,6 @@ from __future__ import annotations  # make type hints lazy
 import secrets
 from datetime import timedelta
 
-from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.utils import timezone
@@ -101,23 +100,14 @@ class User(AbstractUser):
 
 
 class EmailOTP(models.Model):
-    """A short-lived one-time passcode for passwordless authentication.
-
-    Stores a hashed code tied to an email address (not a User foreign key) so that
-    codes can be requested before the user account exists.
-    """
-
     email = models.EmailField()
+    code = models.CharField(max_length=6, editable=False)
 
-    # OTP declaraton
-    code_hash = models.CharField(max_length=128, editable=False)
-    created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField(default=get_otp_expiry)
-    consumed_at = models.DateTimeField(null=True, blank=True)
+    consumed = False
 
     attempts = models.IntegerField(default=0)
 
-    # tells Django how to render and handle this model
     class Meta:
         verbose_name = "Email OTP"
         verbose_name_plural = "Email OTPs"
@@ -125,13 +115,19 @@ class EmailOTP(models.Model):
     def __str__(self) -> str:
         return f"OTP for {self.email} (valid: {self.is_valid})"
 
+    @staticmethod
+    def generate(email: str) -> EmailOTP:
+        code = f"{secrets.randbelow(1_000_000):06d}"
+        return EmailOTP(email=email, code=code)
+
     @property
     def is_valid(self) -> bool:
-        """True when not consumed, not expired, and not locked out."""
-        if self.consumed_at is not None:
+        if self.consumed:
             return False
+
         if timezone.now() >= self.expires_at:
             return False
+
         return not self.attempts >= self.max_attempts
 
     @property
@@ -142,36 +138,18 @@ class EmailOTP(models.Model):
     @property
     def cooldown_seconds(self) -> int:
         """Minimum seconds between request-code calls for the same email."""
-        return 60
+        return 1  # HACK
 
-    @staticmethod
-    def generate_code() -> str:
-        """Generate a random 6-digit numeric code as a string."""
-        # secrets over random since it generates cryptographically stronger numbers
-        return f"{secrets.randbelow(1_000_000):06d}"
-
-    def set_code(self, code: str) -> None:
-        """Hash and store the given code."""
-        self.code_hash = make_password(code)
-        self.expires_at = timezone.now() + timedelta(minutes=10)
-
-    def consume(self, code: str) -> bool:
-        """Attempt to verify and consume this OTP.
-
-        Increments the attempt counter regardless of success. Returns True
-        if the code is correct, the OTP is still valid, and it hasn't been
-        consumed yet.
-        """
+    def try_consume(self, code: str) -> bool:
         self.attempts += 1
+        self.save(update_fields=["attempts"])
+
+        if code != self.code:
+            return False
 
         if not self.is_valid:
-            self.save(update_fields=["attempts"])
             return False
 
-        if not check_password(code, self.code_hash):
-            self.save(update_fields=["attempts"])
-            return False
-
-        self.consumed_at = timezone.now()
-        self.save(update_fields=["attempts", "consumed_at"])
+        self.consumed = True
+        self.save(update_fields=["consumed"])
         return True

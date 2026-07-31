@@ -14,7 +14,6 @@ class Occupation(models.TextChoices):
 class Founder(models.Model):
     id: int
 
-    # Reverse relation from StartupEntry.founders M2M (runtime-generated)
     startups: models.Manager[StartupEntry]
 
     first_name = models.CharField(max_length=100)
