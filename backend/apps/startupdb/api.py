@@ -59,7 +59,7 @@ def create_founder(request: HttpRequest, payload: FounderIn) -> Founder:
 @router.patch(
     "/founders/{founder_id}",
     response={200: FounderOut, 401: None, 403: None, 404: None},
-    summary="Update a founder (owner or admin).",
+    summary="Update a founder. (owner or admin)",
 )
 def update_founder(
     request: HttpRequest,
@@ -82,7 +82,7 @@ def update_founder(
 @router.delete(
     "/founders/{founder_id}",
     response={204: None, 401: None, 403: None, 404: None},
-    summary="Delete a founder.",
+    summary="Delete a founder. (owner or admin)",
 )
 def delete_founder(
     request: HttpRequest,
@@ -104,14 +104,13 @@ def delete_founder(
     summary="List all startup entries.",
 )
 def list_entries(request: HttpRequest) -> list[StartupEntry]:
-    """Return all startup entries."""
     return list(StartupEntry.objects.all())
 
 
 @router.post(
     "/",
     response={201: EntryOut, 401: None, 403: None},
-    summary="Create a new startup entry",
+    summary="Create a new startup entry.",
 )
 def create_entry(request: HttpRequest, payload: EntryIn) -> StartupEntry:
     user: User = request.user  # type: ignore
@@ -127,7 +126,7 @@ def create_entry(request: HttpRequest, payload: EntryIn) -> StartupEntry:
 @router.patch(
     "/{entry_id}",
     response={200: EntryOut, 401: None, 403: None, 404: None},
-    summary="Update a startup entry.",
+    summary="Update a startup entry. (owner or admin)",
 )
 def update_entry(
     request: HttpRequest,
@@ -156,7 +155,7 @@ def update_entry(
 @router.delete(
     "/{entry_id}",
     response={204: None, 401: None, 403: None, 404: None},
-    summary="Delete a startup entry.",
+    summary="Delete a startup entry. (owner or admin)",
 )
 def delete_entry(
     request: HttpRequest,

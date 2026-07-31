@@ -20,6 +20,18 @@ class MemberOut(Schema):
     id: int
     email: str
     role: str
-    image: str
     date_joined: str
     receives_update_emails: bool
+
+
+class SendAllEmailIn(Schema):
+    subject: str
+    body: str
+
+
+class SendAllEmailOut(Schema):
+    subject: str
+    body: str
+    sent: int
+    skipped: int
+    failed: int

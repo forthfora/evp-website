@@ -76,6 +76,5 @@ def http_error_handler(request: HttpRequest, exc: HttpError) -> HttpResponse:
 
 
 api.add_router("", "apps.core.api.router")
-api.add_router("/account/", "apps.accounts.api.router")
+api.add_router("/accounts/", "apps.accounts.api.router")
 api.add_router("/startupdb/", "apps.startupdb.api.router")
-api.add_router("/updates/", "apps.updates.api.router")

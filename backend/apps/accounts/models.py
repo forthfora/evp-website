@@ -73,16 +73,12 @@ class User(AbstractUser):
 
     email = models.EmailField("Email Address", unique=True)
     username = models.CharField(max_length=254, unique=True)
-    image = models.URLField(default="", blank=True)
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.MEMBER)
+
     receives_update_emails = models.BooleanField(
         default=True,
         help_text="Whether this user receives non-essential update emails.",
     )
-
-    EMAIL_FIELD = "email"
-    USERNAME_FIELD = "email"
-    REQUIRED_FIELDS: list[str] = []  # noqa: RUF012
 
     objects = UserManager()  # type: ignore
 
@@ -101,10 +97,12 @@ class User(AbstractUser):
 
 class EmailOTP(models.Model):
     email = models.EmailField()
-    code = models.CharField(max_length=6, editable=False)
+    code = models.CharField(
+        default=f"{secrets.randbelow(1_000_000):06d}", max_length=6, editable=False
+    )
 
     expires_at = models.DateTimeField(default=get_otp_expiry)
-    consumed = False
+    consumed = models.BooleanField(default=False)
 
     attempts = models.IntegerField(default=0)
 
@@ -114,11 +112,6 @@ class EmailOTP(models.Model):
 
     def __str__(self) -> str:
         return f"OTP for {self.email} (valid: {self.is_valid})"
-
-    @staticmethod
-    def generate(email: str) -> EmailOTP:
-        code = f"{secrets.randbelow(1_000_000):06d}"
-        return EmailOTP(email=email, code=code)
 
     @property
     def is_valid(self) -> bool:
