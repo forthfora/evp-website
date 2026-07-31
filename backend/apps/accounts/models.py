@@ -1,6 +1,7 @@
 from __future__ import annotations  # make type hints lazy
 
 import secrets
+import uuid
 from datetime import timedelta
 
 from django.contrib.auth.models import AbstractUser, BaseUserManager
@@ -18,31 +19,43 @@ def generate_otp_code() -> str:
     return f"{secrets.randbelow(1_000_000):06d}"
 
 
-class UserManager[T](BaseUserManager):
+def generate_username() -> str:
+    return uuid.uuid4().hex
+
+
+class UserManager(BaseUserManager):
     def create_user(
         self,
         email: str,
+        first_name: str = "",
+        last_name: str = "",
         username: str | None = None,
         **other_fields,
     ) -> User:
-        if username is None:
-            username = email
+        if not email:
+            raise ValueError("Accounts must have an email.")
 
-        user = User(email=email, username=username, **other_fields)
-        user.set_unusable_password()  # passwordless account (auth or invite-only)
+        fields: dict = {
+            "email": email,
+            "first_name": first_name,
+            "last_name": last_name,
+            **other_fields,
+        }
+        if username is not None:
+            fields["username"] = username
+
+        user = self.model(**fields)
+        user.set_unusable_password()
         user.save()
         return user
 
     def create_superuser(
         self,
         email: str,
-        username: str | None = None,
-        password: str | None = None,
+        first_name: str = "",
+        last_name: str = "",
         **other_fields,
     ) -> User:
-        if username is None:
-            username = email
-
         other_fields.setdefault("is_staff", True)
         other_fields.setdefault("is_superuser", True)
         other_fields.setdefault("is_active", True)
@@ -53,7 +66,7 @@ class UserManager[T](BaseUserManager):
         if other_fields.get("is_superuser") is not True:
             raise ValueError("Superuser must be assigned to is_superuser=True.")
 
-        return self.create_user(email, username, password=password, **other_fields)
+        return self.create_user(email, first_name, last_name, **other_fields)
 
 
 class Role(models.TextChoices):
@@ -64,7 +77,17 @@ class Role(models.TextChoices):
 
 
 class User(AbstractUser):
-    id: int
+    username = models.CharField(
+        "Username",
+        max_length=150,
+        unique=True,
+        default=generate_username,
+        editable=False,
+    )
+    email = models.EmailField(unique=True)
+    first_name = models.CharField("First Name", max_length=150)
+    last_name = models.CharField("Last Name", max_length=150)
+
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.MEMBER)
 
     receives_update_emails = models.BooleanField(
@@ -73,6 +96,9 @@ class User(AbstractUser):
     )
 
     objects = UserManager()  # type: ignore
+
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["username", "first_name", "last_name"]  # noqa: RUF012
 
     @property
     def is_scout(self) -> bool:

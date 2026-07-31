@@ -20,17 +20,44 @@ export const VerifyOTPInputSchema = z.object({
 	code: z.string().regex(/^\d{6}$/, 'Code must be 6 digits.'),
 });
 
+/** `POST /api/accounts/otp/request` */
+export const RequestOTPOutSchema = z.object({
+	exists: z.boolean(),
+});
+
+/** `POST /api/accounts/otp/verify` */
+export const VerifyOTPOutSchema = z.object({
+	created: z.boolean(),
+});
+
 /** `GET /api/accounts/me` */
 export const MeResponseSchema = z.object({
-	id: z.number(),
+	// Stable, globally-unique user ID (never shown in the UI).
+	username: z.string(),
 	email: z.string(),
 	role: RoleSchema,
 	date_joined: z.string(),
+	first_name: z.string(),
+	last_name: z.string(),
+	receives_update_emails: z.boolean(),
+});
+
+/** `PATCH /api/accounts/me` */
+export const UpdateMeInputSchema = z.object({
+	first_name: z.string().max(150).optional(),
+	last_name: z.string().max(150).optional(),
+	receives_update_emails: z.boolean().optional(),
+});
+
+/** `POST /api/accounts/email/change` */
+export const ChangeEmailInputSchema = z.object({
+	email: z.string().email(),
+	code: z.string().regex(/^\d{6}$/, 'Code must be 6 digits.'),
 });
 
 /** `GET /api/accounts/members` item */
 export const MemberOutSchema = z.object({
-	id: z.number(),
+	username: z.string(),
 	email: z.string(),
 	role: RoleSchema,
 	date_joined: z.string(),
@@ -52,8 +79,12 @@ export const SendAllEmailOutSchema = z.object({
 });
 
 export type RequestOTPInput = z.infer<typeof RequestOTPInputSchema>;
+export type RequestOTPOut = z.infer<typeof RequestOTPOutSchema>;
 export type VerifyOTPInput = z.infer<typeof VerifyOTPInputSchema>;
+export type VerifyOTPOut = z.infer<typeof VerifyOTPOutSchema>;
 export type MeResponse = z.infer<typeof MeResponseSchema>;
+export type UpdateMeInput = z.infer<typeof UpdateMeInputSchema>;
+export type ChangeEmailInput = z.infer<typeof ChangeEmailInputSchema>;
 export type MemberOut = z.infer<typeof MemberOutSchema>;
 export type SendAllEmailInput = z.infer<typeof SendAllEmailInputSchema>;
 export type SendAllEmailOut = z.infer<typeof SendAllEmailOutSchema>;

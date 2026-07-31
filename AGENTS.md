@@ -47,11 +47,11 @@ evp-website/
 - **Gunicorn** (WSGI server in prod), **uv** for dependency management
 - **Ruff** (linter, configured in `backend/pyproject.toml`)
 - DB: MySQL/PyMySQL in prod (psycopg also available); SQLite (`db.sqlite3`) locally
-- Custom `User` model in `apps/accounts/models.py` — email is `USERNAME_FIELD`; no first/last name. Four roles (`member` default, `scout`, `committee`, `admin`), elevated manually via the Django admin; passwordless **session-based** OTP auth: `POST /api/accounts/otp/request` + `/otp/verify` set a Django session cookie (no JWT), `POST /api/accounts/logout`, profile at `GET /api/accounts/me`, CSRF bootstrap at `GET /api/csrf`
+- Custom `User` model in `apps/accounts/models.py` — email is `USERNAME_FIELD`; `first_name`/`last_name`; **`username` is an auto-generated, globally-unique, immutable user ID** (never the email, never shown in the UI) that keeps a user's activity attributable even if their email changes. Four roles (`member` default, `scout`, `committee`, `admin`), elevated manually via the Django admin. Passwordless **session-based** OTP auth: `POST /api/accounts/otp/request` (returns `{exists}` — drives the unified login/signup flow) + `/otp/verify` (returns `{created}`; sets a Django session cookie, no JWT), `POST /api/accounts/logout`, profile `GET /api/accounts/me`, profile update `PATCH /api/accounts/me`, OTP-verified email change `POST /api/accounts/email/change`, CSRF bootstrap at `GET /api/csrf`
 - Startup database in `apps/startupdb/` — two record types (see `docs/adr/0002-roles-startupdb-and-admin-comms.md`):
   - `Founder`: composite natural key `(first_name, last_name)`, `occupation` choices (`bachelors`/`masters`/`phd`/`graduated`), plus `location`, `linkedin`, `email`, `notes`
   - `StartupEntry`: unique `name`, `founders` M2M → `Founder`, `founding_date`, `description`, `website`, `linkedin`, `email`, `location`, `notes`
-  - Both carry `created_by` FK → User; API under `/api/startupdb` gated by `require_role("scout", "committee", "admin")`; edit/delete via `can_manage_entry` (own records only; admin manages all)
+  - Both carry `created_by` FK → User; the API exposes it as `created_by` = the creator's stable `username` (never the DB id). API under `/api/startupdb` gated by `require_role("scout", "committee", "admin")`; edit/delete via `can_manage_entry` (own records only; admin manages all)
 
 ### Frontend
 

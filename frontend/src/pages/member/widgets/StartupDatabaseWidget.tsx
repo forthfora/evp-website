@@ -28,10 +28,10 @@ const ghostBtnClass =
 	'border-accent/30 hover:border-accent/60 cursor-pointer rounded-lg border px-4 py-2 text-sm transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-40';
 
 /** Ownership rule mirroring `can_manage_entry` in the backend. */
-function canManage(createdById: number, userId: number | undefined, role: Role): boolean {
+function canManage(createdBy: string, username: string | undefined, role: Role): boolean {
 	if (role === 'admin') return true;
 	if (role === 'scout' || role === 'committee') {
-		return userId !== undefined && createdById === userId;
+		return username !== undefined && createdBy === username;
 	}
 	return false;
 }
@@ -41,7 +41,7 @@ export function StartupDatabaseWidget() {
 	const [tab, setTab] = useState<'startups' | 'founders'>('startups');
 
 	const role = user?.role ?? 'member';
-	const userId = user?.id;
+	const username = user?.username;
 
 	return (
 		<div className="glass-box flex w-full flex-col rounded-2xl p-8">
@@ -69,15 +69,15 @@ export function StartupDatabaseWidget() {
 			</div>
 
 			{tab === 'startups' ? (
-				<StartupsSection userId={userId} role={role} />
+				<StartupsSection username={username} role={role} />
 			) : (
-				<FoundersSection userId={userId} role={role} />
+				<FoundersSection username={username} role={role} />
 			)}
 		</div>
 	);
 }
 
-function StartupsSection({ userId, role }: { userId: number | undefined; role: Role }) {
+function StartupsSection({ username, role }: { username: string | undefined; role: Role }) {
 	const queryClient = useQueryClient();
 	const {
 		data: startups = [],
@@ -158,7 +158,7 @@ function StartupsSection({ userId, role }: { userId: number | undefined; role: R
 				)}
 
 				{startups.map((startup) => {
-					const manage = canManage(startup.created_by_id, userId, role);
+					const manage = canManage(startup.created_by, username, role);
 					const foundersText =
 						startup.founders.length > 0
 							? startup.founders.map((f) => `${f.first_name} ${f.last_name}`).join(', ')
@@ -441,7 +441,7 @@ function StartupForm({
 	);
 }
 
-function FoundersSection({ userId, role }: { userId: number | undefined; role: Role }) {
+function FoundersSection({ username, role }: { username: string | undefined; role: Role }) {
 	const queryClient = useQueryClient();
 	const {
 		data: founders = [],
@@ -521,7 +521,7 @@ function FoundersSection({ userId, role }: { userId: number | undefined; role: R
 				)}
 
 				{founders.map((founder) => {
-					const manage = canManage(founder.created_by_id, userId, role);
+					const manage = canManage(founder.created_by, username, role);
 					return (
 						<div
 							key={founder.id}

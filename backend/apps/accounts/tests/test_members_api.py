@@ -73,14 +73,21 @@ class MembersAPITests(TestCase):
         assert len(resp.json()) == 6
 
     def test_list_returns_expected_fields(self) -> None:
-        """Each member entry has id, email, role, date_joined and
-        receives_update_emails."""
+        """Each member entry has username, email, role, date_joined and
+        receives_update_emails (no internal DB id)."""
         self._login(self.admin)
         resp = self.client.get(self.url)
         assert resp.status_code == 200
         entry = resp.json()[0]
-        for field in ("id", "email", "role", "date_joined", "receives_update_emails"):
+        for field in (
+            "username",
+            "email",
+            "role",
+            "date_joined",
+            "receives_update_emails",
+        ):
             assert field in entry
+        assert "id" not in entry
 
 
 class MembersPermissionPropertyTests(HypothesisTestCase):

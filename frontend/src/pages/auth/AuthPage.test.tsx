@@ -6,12 +6,15 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { AuthPage } from './AuthPage';
 
-const { mockLogin, mockNavigate, mockRequestCode, mockVerifyCode } = vi.hoisted(() => ({
-	mockLogin: vi.fn(),
-	mockNavigate: vi.fn(),
-	mockRequestCode: vi.fn(),
-	mockVerifyCode: vi.fn(),
-}));
+const { mockLogin, mockNavigate, mockRequestCode, mockVerifyCode, mockUpdateMe } = vi.hoisted(
+	() => ({
+		mockLogin: vi.fn(),
+		mockNavigate: vi.fn(),
+		mockRequestCode: vi.fn(),
+		mockVerifyCode: vi.fn(),
+		mockUpdateMe: vi.fn(),
+	}),
+);
 
 vi.mock('react-router', async () => {
 	const actual = await vi.importActual('react-router');
@@ -37,6 +40,10 @@ vi.mock('@/shared/lib/auth/api', () => ({
 		mutateAsync: mockVerifyCode,
 		isPending: false,
 	}),
+	useUpdateMe: () => ({
+		mutateAsync: mockUpdateMe,
+		isPending: false,
+	}),
 	ApiRequestError: class extends Error {
 		status: number;
 		constructor(status: number, message: string) {
@@ -46,7 +53,6 @@ vi.mock('@/shared/lib/auth/api', () => ({
 		}
 	},
 }));
-
 function createWrapper() {
 	const queryClient = new QueryClient({
 		defaultOptions: { queries: { retry: false } },
@@ -81,7 +87,7 @@ describe('AuthPage', () => {
 	});
 
 	it('calls requestCode with the entered email and advances to code step', async () => {
-		mockRequestCode.mockResolvedValue(undefined);
+		mockRequestCode.mockResolvedValue({ exists: true });
 
 		render(<AuthPage />, { wrapper: createWrapper() });
 
@@ -99,7 +105,7 @@ describe('AuthPage', () => {
 	});
 
 	it('shows an error when verifyCode fails', async () => {
-		mockRequestCode.mockResolvedValue(undefined);
+		mockRequestCode.mockResolvedValue({ exists: true });
 		mockVerifyCode.mockRejectedValue(new Error('Invalid or expired code.'));
 
 		render(<AuthPage />, { wrapper: createWrapper() });
@@ -127,8 +133,8 @@ describe('AuthPage', () => {
 	});
 
 	it('calls login and navigates on successful verify', async () => {
-		mockRequestCode.mockResolvedValue(undefined);
-		mockVerifyCode.mockResolvedValue(undefined);
+		mockRequestCode.mockResolvedValue({ exists: true });
+		mockVerifyCode.mockResolvedValue({ created: false });
 
 		render(<AuthPage />, { wrapper: createWrapper() });
 
@@ -160,6 +166,44 @@ describe('AuthPage', () => {
 		expect(mockLogin).toHaveBeenCalledTimes(1);
 
 		// Should navigate to the member area
+		expect(mockNavigate).toHaveBeenCalledWith('/member');
+	});
+
+	it('prompts for names and saves them for a brand-new account', async () => {
+		mockRequestCode.mockResolvedValue({ exists: false });
+		mockVerifyCode.mockResolvedValue({ created: true });
+		mockUpdateMe.mockResolvedValue({});
+
+		render(<AuthPage />, { wrapper: createWrapper() });
+
+		// Email step
+		await userEvent.type(screen.getByPlaceholderText(/your email|you@/i), 'new@example.com');
+		await userEvent.click(screen.getByRole('button', { name: /send code|continue/i }));
+
+		// Code step
+		await waitFor(() => {
+			expect(screen.getByText(/check your email/i)).toBeInTheDocument();
+		});
+		const codeInputs = screen.getAllByRole('textbox');
+		for (let i = 0; i < 6; i++) {
+			await userEvent.type(codeInputs[i], `${i + 1}`);
+		}
+		await userEvent.click(screen.getByRole('button', { name: /verify|sign in/i }));
+
+		// Names step
+		await waitFor(() => {
+			expect(screen.getByText(/tell us your name/i)).toBeInTheDocument();
+		});
+		await userEvent.type(screen.getByPlaceholderText('First name'), 'Ada');
+		await userEvent.type(screen.getByPlaceholderText('Last name'), 'Lovelace');
+		await userEvent.click(screen.getByRole('button', { name: /continue/i }));
+
+		await waitFor(() => {
+			expect(mockUpdateMe).toHaveBeenCalledWith({
+				first_name: 'Ada',
+				last_name: 'Lovelace',
+			});
+		});
 		expect(mockNavigate).toHaveBeenCalledWith('/member');
 	});
 });

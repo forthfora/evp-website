@@ -15,10 +15,13 @@ vi.mock('./api', () => ({
 }));
 
 const memberProfile = {
-	id: 1,
+	username: 'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6',
 	email: 'member@test.com',
 	role: 'member' as const,
 	date_joined: '2026-01-01T00:00:00',
+	first_name: 'Ada',
+	last_name: 'Lovelace',
+	receives_update_emails: true,
 };
 
 function Probe() {

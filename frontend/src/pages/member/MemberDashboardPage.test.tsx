@@ -33,7 +33,7 @@ describe('MemberDashboardPage', () => {
 	it('renders only member-eligible widgets for member role', async () => {
 		mockUseAuth.mockReturnValue({
 			isAuthenticated: true,
-			user: { email: 'member@test.com', role: 'member' },
+			user: { username: 'u-member', email: 'member@test.com', role: 'member' },
 		});
 
 		const { MemberDashboardPage } = await import('./MemberDashboardPage');
@@ -51,7 +51,7 @@ describe('MemberDashboardPage', () => {
 	it('renders scout widgets for scout role', async () => {
 		mockUseAuth.mockReturnValue({
 			isAuthenticated: true,
-			user: { email: 'scout@test.com', role: 'scout' },
+			user: { username: 'u-scout', email: 'scout@test.com', role: 'scout' },
 		});
 
 		const { MemberDashboardPage } = await import('./MemberDashboardPage');
@@ -69,7 +69,7 @@ describe('MemberDashboardPage', () => {
 	it('renders committee widgets for committee role', async () => {
 		mockUseAuth.mockReturnValue({
 			isAuthenticated: true,
-			user: { email: 'committee@test.com', role: 'committee' },
+			user: { username: 'u-committee', email: 'committee@test.com', role: 'committee' },
 		});
 
 		const { MemberDashboardPage } = await import('./MemberDashboardPage');
@@ -87,7 +87,7 @@ describe('MemberDashboardPage', () => {
 	it('renders admin widgets for admin role', async () => {
 		mockUseAuth.mockReturnValue({
 			isAuthenticated: true,
-			user: { email: 'admin@test.com', role: 'admin' },
+			user: { username: 'u-admin', email: 'admin@test.com', role: 'admin' },
 		});
 
 		const { MemberDashboardPage } = await import('./MemberDashboardPage');

@@ -13,7 +13,7 @@ class FounderOut(Schema):
     email: str
     notes: str
 
-    created_by_id: int
+    created_by: str
     created_at: datetime
     updated_at: datetime
 
@@ -50,7 +50,7 @@ class StartupOut(Schema):
     founding_date: date | None
     founders: list[FounderOut]
 
-    created_by_id: int
+    created_by: str
     created_at: datetime
     updated_at: datetime
 

@@ -24,6 +24,42 @@ if TYPE_CHECKING:
 router = Router(tags=["StartupDB"], auth=RoleAuth("admin", "committee", "scout"))
 
 
+def _founder_out(founder: Founder) -> FounderOut:
+    """Serialize a founder, exposing the creator's stable username as `created_by`."""
+    return FounderOut(
+        id=founder.id,
+        first_name=founder.first_name,
+        last_name=founder.last_name,
+        location=founder.location,
+        occupation=founder.occupation,
+        linkedin=founder.linkedin,
+        email=founder.email,
+        notes=founder.notes,
+        created_by=founder.created_by.username,
+        created_at=founder.created_at,
+        updated_at=founder.updated_at,
+    )
+
+
+def _startup_out(entry: StartupEntry) -> StartupOut:
+    """Serialize a startup, exposing the creator's stable username as `created_by`."""
+    return StartupOut(
+        id=entry.id,
+        name=entry.name,
+        description=entry.description,
+        website=entry.website,
+        linkedin=entry.linkedin,
+        email=entry.email,
+        location=entry.location,
+        notes=entry.notes,
+        founding_date=entry.founding_date,
+        founders=[_founder_out(f) for f in entry.founders.all()],
+        created_by=entry.created_by.username,
+        created_at=entry.created_at,
+        updated_at=entry.updated_at,
+    )
+
+
 @router.get(
     "/founders",
     response={
@@ -34,7 +70,7 @@ router = Router(tags=["StartupDB"], auth=RoleAuth("admin", "committee", "scout")
     summary="List all founders.",
 )
 def list_founders(request: HttpRequest):
-    return list(Founder.objects.all())
+    return [_founder_out(f) for f in Founder.objects.all()]
 
 
 @router.post(
@@ -54,7 +90,7 @@ def create_founder(request: HttpRequest, payload: FounderIn):
         notes=payload.notes,
         created_by=user,
     )
-    return 201, founder
+    return 201, _founder_out(founder)
 
 
 @router.patch(
@@ -77,7 +113,7 @@ def update_founder(
         setattr(founder, field, value)
 
     founder.save()
-    return founder
+    return _founder_out(founder)
 
 
 @router.delete(
@@ -105,7 +141,8 @@ def delete_founder(
     summary="List all startup entries.",
 )
 def list_entries(request: HttpRequest):
-    return list(StartupEntry.objects.all())
+    entries = StartupEntry.objects.prefetch_related("founders")
+    return [_startup_out(e) for e in entries]
 
 
 @router.post(
@@ -121,7 +158,7 @@ def create_entry(request: HttpRequest, payload: StartupIn):
     if payload.founder_ids:
         entry.founders.set(Founder.objects.filter(id__in=payload.founder_ids))
 
-    return 201, entry
+    return 201, _startup_out(entry)
 
 
 @router.patch(
@@ -150,7 +187,7 @@ def update_entry(
         entry.founders.set(Founder.objects.filter(id__in=founder_ids))
 
     entry.save()
-    return entry
+    return _startup_out(entry)
 
 
 @router.delete(

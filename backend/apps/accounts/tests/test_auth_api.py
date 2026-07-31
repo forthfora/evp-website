@@ -23,10 +23,11 @@ class RequestOTPTests(TestCase):
         )
 
     @patch("apps.accounts.api.send_otp_email")
-    def test_request_code_returns_204(self, mock_send) -> None:
-        """A valid request returns 204 No Content."""
+    def test_request_code_returns_200_with_exists_false(self, mock_send) -> None:
+        """A valid request returns 200 with exists=False for an unknown email."""
         response = self._request_code("test@example.com")
-        assert response.status_code == 204
+        assert response.status_code == 200
+        assert response.json() == {"exists": False}
 
     @patch("apps.accounts.api.send_otp_email")
     def test_request_code_creates_otp_record(self, mock_send) -> None:
@@ -46,17 +47,19 @@ class RequestOTPTests(TestCase):
         assert code.isdigit()
 
     @patch("apps.accounts.api.send_otp_email")
-    def test_request_code_returns_204_for_existing_user(self, mock_send) -> None:
-        """request-code returns 204 for existing users too (no enumeration)."""
+    def test_request_code_reports_existing_user(self, mock_send) -> None:
+        """request-code reports exists=True for an already-registered email."""
         User.objects.create_user("existing@example.com")
         response = self._request_code("existing@example.com")
-        assert response.status_code == 204
+        assert response.status_code == 200
+        assert response.json() == {"exists": True}
 
     @patch("apps.accounts.api.send_otp_email")
-    def test_request_code_returns_204_for_unknown_email(self, mock_send) -> None:
-        """Unknown emails get 204 so accounts cannot be enumerated."""
+    def test_request_code_reports_unknown_email(self, mock_send) -> None:
+        """Unknown emails are reported as exists=False (drives signup)."""
         response = self._request_code("nobody@example.com")
-        assert response.status_code == 204
+        assert response.status_code == 200
+        assert response.json() == {"exists": False}
 
     @patch("apps.accounts.api.send_otp_email")
     def test_request_code_returns_500_when_email_fails(self, mock_send) -> None:
@@ -81,7 +84,7 @@ class VerifyOTPTests(TestCase):
                 {"email": email},
                 content_type="application/json",
             )
-            assert resp.status_code == 204
+            assert resp.status_code == 200
             return mock_send.call_args[0][1]
 
     def _verify(self, email: str, code: str):
@@ -97,11 +100,14 @@ class VerifyOTPTests(TestCase):
         code = self._request_code(email)
 
         response = self._verify(email, code)
-        assert response.status_code == 204
+        assert response.status_code == 200
+        assert response.json() == {"created": True}
 
         user = User.objects.get(email=email)
         assert user.role == "member"
         assert not user.has_usable_password()
+        # The stable username ID is auto-generated, never the email.
+        assert user.username != email
 
         me = self.client.get(self.me_url)
         assert me.status_code == 200
@@ -114,7 +120,8 @@ class VerifyOTPTests(TestCase):
         code = self._request_code(email)
 
         response = self._verify(email, code)
-        assert response.status_code == 204
+        assert response.status_code == 200
+        assert response.json() == {"created": False}
         assert User.objects.filter(email=email).count() == 1
         assert self.client.get(self.me_url).json()["email"] == email
 
@@ -144,7 +151,7 @@ class VerifyOTPTests(TestCase):
         email = "reuse@example.com"
         code = self._request_code(email)
 
-        assert self._verify(email, code).status_code == 204
+        assert self._verify(email, code).status_code == 200
         assert self._verify(email, code).status_code == 401
 
     def test_verify_code_with_no_prior_otp_returns_401(self) -> None:
@@ -180,7 +187,11 @@ class MeEndpointTests(TestCase):
         data = response.json()
         assert data["email"] == "me-test@example.com"
         assert data["role"] == "member"
-        assert data["id"] == user.id
+        assert data["username"] == user.username
+        assert data["username"] != user.email
+        assert data["first_name"] == ""
+        assert data["last_name"] == ""
+        assert data["receives_update_emails"] is True
         assert "date_joined" in data
 
     def test_me_unauthenticated_returns_401(self) -> None:
@@ -222,3 +233,117 @@ class LogoutTests(TestCase):
         """Logging out without a session returns 401."""
         response = self.client.post(self.url)
         assert response.status_code == 401
+
+
+class UpdateMeTests(TestCase):
+    """Tests for PATCH /api/accounts/me."""
+
+    url = "/api/accounts/me"
+
+    def _patch(self, payload: dict) -> ...:
+        return self.client.patch(self.url, payload, content_type="application/json")
+
+    def test_update_names_and_opt_in(self) -> None:
+        """Names and the update-email opt-in can be updated."""
+        user = User.objects.create_user("me@example.com")
+        self.client.force_login(user)
+
+        resp = self._patch(
+            {
+                "first_name": "Ada",
+                "last_name": "Lovelace",
+                "receives_update_emails": False,
+            }
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["first_name"] == "Ada"
+        assert data["last_name"] == "Lovelace"
+        assert data["receives_update_emails"] is False
+        assert data["email"] == "me@example.com"
+        assert data["username"] == user.username
+
+    def test_update_partial(self) -> None:
+        """Only the provided fields are changed."""
+        user = User.objects.create_user("me@example.com", first_name="Old")
+        self.client.force_login(user)
+
+        resp = self._patch({"first_name": "New"})
+        assert resp.status_code == 200
+        user.refresh_from_db()
+        assert user.first_name == "New"
+        assert user.last_name == ""
+        assert user.receives_update_emails is True
+
+    def test_update_requires_auth(self) -> None:
+        """Updating the profile without a session returns 401."""
+        resp = self._patch({"first_name": "X"})
+        assert resp.status_code == 401
+
+
+class EmailChangeTests(TestCase):
+    """Tests for POST /api/accounts/email/change."""
+
+    url = "/api/accounts/email/change"
+    request_url = "/api/accounts/otp/request"
+
+    def _request_code(self, email: str) -> str:
+        with patch("apps.accounts.api.send_otp_email") as mock_send:
+            resp = self.client.post(
+                self.request_url,
+                {"email": email},
+                content_type="application/json",
+            )
+            assert resp.status_code == 200
+            return mock_send.call_args[0][1]
+
+    def _change(self, email: str, code: str):
+        return self.client.post(
+            self.url,
+            {"email": email, "code": code},
+            content_type="application/json",
+        )
+
+    def test_change_email_after_otp(self) -> None:
+        """Verifying an OTP for a new email switches the user's email."""
+        user = User.objects.create_user("old@example.com")
+        self.client.force_login(user)
+
+        new_email = "new@example.com"
+        code = self._request_code(new_email)
+
+        resp = self._change(new_email, code)
+        assert resp.status_code == 200
+        assert resp.json()["email"] == new_email
+
+        user.refresh_from_db()
+        assert user.email == new_email
+        # The stable ID does not change when the email changes.
+        assert user.username == resp.json()["username"]
+
+    def test_change_email_rejects_used_email(self) -> None:
+        """Switching to an email owned by another user is rejected."""
+        user = User.objects.create_user("old@example.com")
+        User.objects.create_user("taken@example.com")
+        self.client.force_login(user)
+
+        code = self._request_code("taken@example.com")
+        resp = self._change("taken@example.com", code)
+        assert resp.status_code == 400
+        user.refresh_from_db()
+        assert user.email == "old@example.com"
+
+    def test_change_email_rejects_bad_code(self) -> None:
+        """An invalid code cannot switch the email."""
+        user = User.objects.create_user("old@example.com")
+        self.client.force_login(user)
+
+        resp = self._change("new@example.com", "000000")
+        assert resp.status_code == 401
+        user.refresh_from_db()
+        assert user.email == "old@example.com"
+
+    def test_change_email_requires_auth(self) -> None:
+        """Changing email without a session returns 401."""
+        resp = self._change("new@example.com", "123456")
+        assert resp.status_code == 401

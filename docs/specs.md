@@ -51,9 +51,15 @@ society communications.
 
 - **Accounts**: custom email-based user model, **passwordless authentication**
   (one-time email code → Django **session** cookie, CSRF-protected — no JWT).
-  Endpoints: `POST /api/accounts/otp/request`, `POST /api/accounts/otp/verify`,
-  `POST /api/accounts/logout`, `GET /api/accounts/me`, CSRF bootstrap at
-  `GET /api/csrf`; admin update emails at `POST /api/accounts/sendall`.
+  Every user has an auto-generated, globally-unique, immutable `username` ID
+  (created on account creation, never shown in the UI) so activity stays
+  attributable if the email changes. Unified login/signup: `POST
+  /api/accounts/otp/request` returns `{exists}`; `POST /api/accounts/otp/verify`
+  returns `{created}` and signs the user in — new accounts are created on first
+  verification and then prompted for first/last name. Profile `GET/PATCH
+  /api/accounts/me` (names, update-email opt-in), OTP-verified email change
+  `POST /api/accounts/email/change`, `POST /api/accounts/logout`, CSRF bootstrap
+  at `GET /api/csrf`; admin update emails at `POST /api/accounts/sendall`.
   Admin management.
 - **Roles**: every account has one of four roles — `member` (default),
   `scout`, `committee`, `admin` — elevated manually via the Django admin.
@@ -101,12 +107,22 @@ change; the rule lives in a single backend permission function.
 1. The site shall render all public pages as a client-side React SPA with a shared layout.
 2. Unknown routes shall display a styled 404 error page.
 3. The backend shall expose a REST API under `/api/` with OpenAPI docs (DEBUG only).
-4. Authentication shall be passwordless: users request a one-time code by email and
-   verify it to establish a Django **session** (set via `login()` on the backend).
-   No JWT is issued; mutating requests must send the CSRF token obtained from
+4. Authentication shall be passwordless and unified: the user is first prompted
+   for their email; `POST /api/accounts/otp/request` queries the database and
+   returns `{exists}`. Existing users verify the one-time code to establish a
+   Django **session** (via `login()`); unknown emails also verify the code, at
+   which point a new account is created (`POST /api/accounts/otp/verify` returns
+   `{created}`) and the user is prompted for a first and last name. No JWT is
+   issued; mutating requests must send the CSRF token obtained from
    `GET /api/csrf`.
 5. Every account shall have a role (`member`, `scout`, `committee`, `admin`),
    changeable only by staff through the Django admin.
+5a. Every account shall have an auto-generated, globally-unique, immutable
+   `username` ID (never user-visible) that persists across email changes and is
+   used to attribute activity (e.g. `created_by` on startup database records).
+5b. Users shall manage their account settings (first/last name, email via
+   OTP confirmation, and the update-email opt-in) from an account settings
+   widget in the member area.
 6. The startup database shall store startups and founders as separate record
    types, linked many-to-many (a startup has one or more founders; a founder
    may appear on multiple startups). Both shall be readable and writable per

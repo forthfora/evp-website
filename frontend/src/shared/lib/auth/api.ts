@@ -5,14 +5,26 @@ import { requestJson, resetCsrfToken } from '@/shared/lib/api';
 import { ApiRequestError } from '@/shared/lib/errors';
 
 import type {
+	ChangeEmailInput,
 	MemberOut,
 	MeResponse,
 	RequestOTPInput,
+	RequestOTPOut,
 	SendAllEmailInput,
 	SendAllEmailOut,
+	UpdateMeInput,
 	VerifyOTPInput,
+	VerifyOTPOut,
 } from './schemas';
-import { MemberOutSchema, MeResponseSchema, SendAllEmailOutSchema } from './schemas';
+import {
+	ChangeEmailInputSchema,
+	MemberOutSchema,
+	MeResponseSchema,
+	RequestOTPOutSchema,
+	SendAllEmailOutSchema,
+	UpdateMeInputSchema,
+	VerifyOTPOutSchema,
+} from './schemas';
 
 export { ApiRequestError };
 
@@ -21,21 +33,38 @@ export { ApiRequestError };
  * See `docs/todo.md` for the authoritative endpoint reference.
  */
 
-export async function requestOtp(email: string): Promise<void> {
-	await requestJson('/api/accounts/otp/request', z.undefined(), {
+export async function requestOtp(email: string): Promise<RequestOTPOut> {
+	return requestJson('/api/accounts/otp/request', RequestOTPOutSchema, {
 		method: 'POST',
 		body: JSON.stringify({ email }),
 	});
 }
 
-export async function verifyOtp(email: string, code: string): Promise<void> {
-	await requestJson('/api/accounts/otp/verify', z.undefined(), {
+export async function verifyOtp(email: string, code: string): Promise<VerifyOTPOut> {
+	const out = await requestJson('/api/accounts/otp/verify', VerifyOTPOutSchema, {
 		method: 'POST',
 		body: JSON.stringify({ email, code }),
 	});
 	// Django rotates the CSRF secret on login — drop our cached token so the
 	// next mutating request fetches a fresh one.
 	resetCsrfToken();
+	return out;
+}
+
+export async function updateMe(input: UpdateMeInput): Promise<MeResponse> {
+	const parsed = UpdateMeInputSchema.parse(input);
+	return requestJson('/api/accounts/me', MeResponseSchema, {
+		method: 'PATCH',
+		body: JSON.stringify(parsed),
+	});
+}
+
+export async function changeEmail(email: string, code: string): Promise<MeResponse> {
+	const parsed = ChangeEmailInputSchema.parse({ email, code });
+	return requestJson('/api/accounts/email/change', MeResponseSchema, {
+		method: 'POST',
+		body: JSON.stringify(parsed),
+	});
 }
 
 export async function logout(): Promise<void> {
@@ -67,6 +96,18 @@ export function useRequestOtp() {
 export function useVerifyOtp() {
 	return useMutation({
 		mutationFn: (input: VerifyOTPInput) => verifyOtp(input.email, input.code),
+	});
+}
+
+export function useUpdateMe() {
+	return useMutation({
+		mutationFn: (input: UpdateMeInput) => updateMe(input),
+	});
+}
+
+export function useChangeEmail() {
+	return useMutation({
+		mutationFn: (input: ChangeEmailInput) => changeEmail(input.email, input.code),
 	});
 }
 

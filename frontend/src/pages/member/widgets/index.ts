@@ -2,6 +2,7 @@ import type { Role } from '@/shared/lib/auth/schemas';
 
 import { AdminUpdatesWidget } from './AdminUpdatesWidget';
 import { MembersWidget } from './MembersWidget';
+import { SettingsWidget } from './SettingsWidget';
 import { StartupDatabaseWidget } from './StartupDatabaseWidget';
 import { WelcomeWidget } from './WelcomeWidget';
 
@@ -38,5 +39,11 @@ export const widgetRegistry: Widget[] = [
 		title: 'Send Update',
 		visibleTo: ['admin'],
 		component: AdminUpdatesWidget,
+	},
+	{
+		id: 'settings',
+		title: 'Account Settings',
+		visibleTo: ['member', 'scout', 'committee', 'admin'],
+		component: SettingsWidget,
 	},
 ];

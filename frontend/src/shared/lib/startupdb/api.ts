@@ -19,7 +19,8 @@ export const FounderOutSchema = z.object({
 	linkedin: z.string(),
 	email: z.string(),
 	notes: z.string(),
-	created_by_id: z.number(),
+	// Stable user ID (username) of the creator.
+	created_by: z.string(),
 	created_at: z.string(),
 	updated_at: z.string(),
 });
@@ -45,7 +46,8 @@ export const StartupOutSchema = z.object({
 	notes: z.string(),
 	founding_date: z.string().nullable(),
 	founders: z.array(FounderOutSchema),
-	created_by_id: z.number(),
+	// Stable user ID (username) of the creator.
+	created_by: z.string(),
 	created_at: z.string(),
 	updated_at: z.string(),
 });

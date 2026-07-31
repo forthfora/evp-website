@@ -60,7 +60,7 @@ export function MembersWidget() {
 								</tr>
 							)}
 							{members.map((member) => (
-								<tr key={member.id} className="border-accent/10 border-b">
+								<tr key={member.username} className="border-accent/10 border-b">
 									<td className="py-2 pr-2">
 										<span className="block max-w-45 truncate" title={member.email}>
 											{member.email}
