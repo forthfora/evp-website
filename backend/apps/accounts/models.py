@@ -30,6 +30,7 @@ class UserManager(BaseUserManager):
         first_name: str = "",
         last_name: str = "",
         username: str | None = None,
+        password: str | None = None,
         **other_fields,
     ) -> User:
         if not email:
@@ -45,7 +46,11 @@ class UserManager(BaseUserManager):
             fields["username"] = username
 
         user = self.model(**fields)
-        user.set_unusable_password()
+        if password is None:
+            # Member accounts are passwordless — they log in with an email OTP.
+            user.set_unusable_password()
+        else:
+            user.set_password(password)
         user.save()
         return user
 
@@ -54,6 +59,7 @@ class UserManager(BaseUserManager):
         email: str,
         first_name: str = "",
         last_name: str = "",
+        password: str | None = None,
         **other_fields,
     ) -> User:
         other_fields.setdefault("is_staff", True)
@@ -66,7 +72,9 @@ class UserManager(BaseUserManager):
         if other_fields.get("is_superuser") is not True:
             raise ValueError("Superuser must be assigned to is_superuser=True.")
 
-        return self.create_user(email, first_name, last_name, **other_fields)
+        return self.create_user(
+            email, first_name, last_name, password=password, **other_fields
+        )
 
 
 class Role(models.TextChoices):
@@ -98,7 +106,7 @@ class User(AbstractUser):
     objects = UserManager()  # type: ignore
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["username", "first_name", "last_name"]  # noqa: RUF012
+    REQUIRED_FIELDS = ["first_name", "last_name"]  # noqa: RUF012
 
     @property
     def is_scout(self) -> bool:
