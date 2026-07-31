@@ -69,8 +69,12 @@ def verify_otp(request, payload: VerifyOTPIn):
     if not ok:
         raise HttpError(401, "Invalid or expired OTP.")
 
-    user, _ = User.objects.get_or_create(email=payload.email)
-
+    user, created = User.objects.get_or_create(
+        email=payload.email, defaults={"username": payload.email}
+    )
+    if created:
+        user.set_unusable_password()  # passwordless account
+        user.save(update_fields=["password"])
     login(request, user)
 
     return HttpResponse(status=204)
@@ -93,7 +97,7 @@ def logout_view(request):
     response={200: MeOut, 401: None},
     summary="Returns the authenticated user's profile.",
 )
-def accounts_me(request: HttpRequest) -> MeOut:
+def accounts_me(request: HttpRequest):
     user: User = request.user  # type: ignore
     return MeOut(
         email=user.email,
@@ -108,7 +112,7 @@ def accounts_me(request: HttpRequest) -> MeOut:
     response={200: list[MemberOut], 401: None, 403: None},
     summary="Lists all members. (admin or committee)",
 )
-def list_members(request: HttpRequest) -> list[MemberOut]:
+def list_members(request: HttpRequest):
     users = User.objects.all().order_by("email")
     return [
         MemberOut(
@@ -128,9 +132,7 @@ def list_members(request: HttpRequest) -> list[MemberOut]:
     response={200: SendAllEmailOut, 401: None, 403: None},
     summary="Send an email to all opted-in members. (admin)",
 )
-def send_all_members_email(
-    request: HttpRequest, payload: SendAllEmailIn
-) -> SendAllEmailOut:
+def send_all_members_email(request: HttpRequest, payload: SendAllEmailIn):
     sent = 0
     skipped = 0
     failed = 0

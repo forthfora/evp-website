@@ -44,7 +44,6 @@ evp-website/
 ### Backend
 
 - **Python ≥ 3.13**, **Django 6**, **Django Ninja 1.6** (REST API, Pydantic validation)
-- **jwtninja** for JWT auth, **django-cors-headers**, **django-jazzmin** (admin theme)
 - **Gunicorn** (WSGI server in prod), **uv** for dependency management
 - **Ruff** (linter, configured in `backend/pyproject.toml`)
 - DB: MySQL/PyMySQL in prod (psycopg also available); SQLite (`db.sqlite3`) locally
@@ -111,7 +110,6 @@ npm run format     # Prettier
 - **Backend code style**: modern typing (`from __future__ import annotations`, PEP 695 generics e.g. `class UserManager[T]`), type hints everywhere. Linted with **Ruff** — run `uv run ruff check` before committing.
 - **Run backend commands with `uv run`**: always prefix Python commands with `uv run` (e.g. `uv run python manage.py migrate`, `uv run pytest`, `uv run ruff check`). Never invoke `python` or `.venv\Scripts\python.exe` directly — `uv run` resolves the correct venv automatically.
 - **API**: register routers in `backend/config/api.py`; URL prefix `/api/`. Schemas live next to apps (e.g. `apps/core/schemas.py`).
-- **Auth**: JWT via `jwtninja`; passwordless email OTP (`request-code`/`verify-code`), access token in body + refresh token in HttpOnly cookie. Role checks via `require_role(...)` in `apps/core/permissions.py`.
 - **Frontend pages**: each page lives in `src/pages/<name>/<Name>Page.tsx`; add routes in `src/app/browser-router.tsx` wrapped by `AppLayout`; unknown paths throw a 404 `Response`.
 - **Styling**: Tailwind utility classes preferred; merge classes with `clsx` + `tailwind-merge`.
 - **Lint/format before committing**: `npm run lint` and `npm run format` must pass.
