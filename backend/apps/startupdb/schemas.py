@@ -38,7 +38,7 @@ class FounderPatchIn(Schema):
     notes: str | None = None
 
 
-class EntryOut(Schema):
+class StartupOut(Schema):
     id: int
     name: str
     description: str
@@ -55,7 +55,7 @@ class EntryOut(Schema):
     updated_at: datetime
 
 
-class EntryIn(Schema):
+class StartupIn(Schema):
     name: str
     description: str = ""
     website: str = ""
@@ -67,7 +67,7 @@ class EntryIn(Schema):
     founder_ids: list[int] = []  # noqa: RUF012
 
 
-class EntryPatchIn(Schema):
+class StartupPatchIn(Schema):
     name: str | None = None
     description: str | None = None
     website: str | None = None

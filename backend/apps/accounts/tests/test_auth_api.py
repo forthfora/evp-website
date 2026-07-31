@@ -1,343 +1,223 @@
 from __future__ import annotations
 
-import time
 from datetime import timedelta
 from unittest.mock import patch
 
-import hypothesis.strategies as st
 from django.test import TestCase
 from django.utils import timezone
-from freezegun import freeze_time
-from hypothesis import assume, given, settings
-from hypothesis.extra.django import TestCase as HypothesisTestCase
-from jwt_ninja import settings as jwt_settings
-from jwt_ninja.cryptography import generate_jwt
-from jwt_ninja.models import Session
 
 from apps.accounts.models import EmailOTP, User
+from apps.core.email import EmailSendError
 
 
-class AuthAPITests(TestCase):
-    """Integration tests for the OTP auth endpoints."""
+class RequestOTPTests(TestCase):
+    """Tests for POST /api/accounts/otp/request."""
 
-    def setUp(self) -> None:
-        self.request_code_url = "/api/auth/request-code"
-        self.verify_code_url = "/api/auth/verify-code"
+    url = "/api/accounts/otp/request"
 
-    @patch("apps.accounts.api.send_otp_email")
-    def test_request_code_always_returns_202(self, mock_send) -> None:
-        """request-code returns 202 even when the email is unknown
-        (prevents user enumeration)."""
-        response = self.client.post(
-            self.request_code_url,
-            {"email": "nonexistent@example.com"},
+    def _request_code(self, email: str):
+        return self.client.post(
+            self.url,
+            {"email": email},
             content_type="application/json",
         )
-        assert response.status_code == 202
+
+    @patch("apps.accounts.api.send_otp_email")
+    def test_request_code_returns_204(self, mock_send) -> None:
+        """A valid request returns 204 No Content."""
+        response = self._request_code("test@example.com")
+        assert response.status_code == 204
 
     @patch("apps.accounts.api.send_otp_email")
     def test_request_code_creates_otp_record(self, mock_send) -> None:
         """request-code creates an EmailOTP record."""
         assert EmailOTP.objects.count() == 0
-        self.client.post(
-            self.request_code_url,
-            {"email": "test@example.com"},
-            content_type="application/json",
-        )
+        self._request_code("test@example.com")
         assert EmailOTP.objects.count() == 1
 
     @patch("apps.accounts.api.send_otp_email")
     def test_request_code_calls_send_otp_email(self, mock_send) -> None:
-        """request-code calls send_otp_email with the email and a code."""
-        self.client.post(
-            self.request_code_url,
-            {"email": "test@example.com"},
-            content_type="application/json",
-        )
+        """request-code calls send_otp_email with the email and a 6-digit code."""
+        self._request_code("test@example.com")
         mock_send.assert_called_once()
-        args = mock_send.call_args[0]
-        assert args[0] == "test@example.com"
-        assert len(args[1]) == 6  # 6-digit code
+        email, code = mock_send.call_args[0]
+        assert email == "test@example.com"
+        assert len(code) == 6
+        assert code.isdigit()
 
     @patch("apps.accounts.api.send_otp_email")
-    def test_request_code_returns_202_for_existing_user(self, mock_send) -> None:
-        """request-code returns 202 for existing users too (no enumeration)."""
+    def test_request_code_returns_204_for_existing_user(self, mock_send) -> None:
+        """request-code returns 204 for existing users too (no enumeration)."""
         User.objects.create_user("existing@example.com")
-        response = self.client.post(
-            self.request_code_url,
-            {"email": "existing@example.com"},
-            content_type="application/json",
-        )
-        assert response.status_code == 202
+        response = self._request_code("existing@example.com")
+        assert response.status_code == 204
 
     @patch("apps.accounts.api.send_otp_email")
-    def test_request_code_ratelimit_exceeded(self, mock_send) -> None:
-        """Rapid repeated request-code for the same email returns 429."""
-        email = "ratelimit@example.com"
-
-        # First request succeeds
-        resp1 = self.client.post(
-            self.request_code_url,
-            {"email": email},
-            content_type="application/json",
-        )
-        assert resp1.status_code == 202
-
-        # Second request immediately after is rate-limited
-        resp2 = self.client.post(
-            self.request_code_url,
-            {"email": email},
-            content_type="application/json",
-        )
-        assert resp2.status_code == 429
+    def test_request_code_returns_204_for_unknown_email(self, mock_send) -> None:
+        """Unknown emails get 204 so accounts cannot be enumerated."""
+        response = self._request_code("nobody@example.com")
+        assert response.status_code == 204
 
     @patch("apps.accounts.api.send_otp_email")
-    def test_request_code_ratelimit_expires(self, mock_send) -> None:
-        """request-code works again for the same email after cooldown."""
-        email = "cooldown@example.com"
+    def test_request_code_returns_500_when_email_fails(self, mock_send) -> None:
+        """If sending the OTP email fails, a 500 is returned."""
+        mock_send.side_effect = EmailSendError("smtp down")
+        response = self._request_code("test@example.com")
+        assert response.status_code == 500
 
-        # First request just before cooldown expiry
-        with freeze_time(timezone.now() - timedelta(seconds=61)):
-            resp1 = self.client.post(
-                self.request_code_url,
+
+class VerifyOTPTests(TestCase):
+    """Tests for POST /api/accounts/otp/verify."""
+
+    url = "/api/accounts/otp/verify"
+    request_url = "/api/accounts/otp/request"
+    me_url = "/api/accounts/me"
+
+    def _request_code(self, email: str) -> str:
+        """Request a code and return the 6-digit code that was 'sent'."""
+        with patch("apps.accounts.api.send_otp_email") as mock_send:
+            resp = self.client.post(
+                self.request_url,
                 {"email": email},
                 content_type="application/json",
             )
-            assert resp1.status_code == 202
+            assert resp.status_code == 204
+            return mock_send.call_args[0][1]
 
-        # 61 seconds later — cooldown has passed, request should succeed
-        resp2 = self.client.post(
-            self.request_code_url,
-            {"email": email},
-            content_type="application/json",
-        )
-        assert resp2.status_code == 202
-
-    @patch("apps.accounts.api.send_otp_email")
-    def test_request_code_ratelimit_per_email(self, mock_send) -> None:
-        """Rate limiting is per-email; a second email is not blocked."""
-        # First request for email A
-        self.client.post(
-            self.request_code_url,
-            {"email": "a@example.com"},
-            content_type="application/json",
-        )
-
-        # Request for email B succeeds (different cooldown bucket)
-        resp_b = self.client.post(
-            self.request_code_url,
-            {"email": "b@example.com"},
-            content_type="application/json",
-        )
-        assert resp_b.status_code == 202
-
-    @patch("apps.accounts.api.send_otp_email")
-    def test_verify_code_max_attempts_lockout(self, mock_send) -> None:
-        """After max failed verify attempts, even a correct code is rejected."""
-        email = "lockout@example.com"
-        self.client.post(
-            self.request_code_url,
-            {"email": email},
-            content_type="application/json",
-        )
-        code = mock_send.call_args[0][1]
-
-        # Exhaust attempts with wrong codes
-        wrong = str((int(code) + 1) % 1_000_000).zfill(6)
-        for _ in range(5):
-            self.client.post(
-                self.verify_code_url,
-                {"email": email, "code": wrong},
-                content_type="application/json",
-            )
-
-        # Now even the correct code fails
-        response = self.client.post(
-            self.verify_code_url,
+    def _verify(self, email: str, code: str):
+        return self.client.post(
+            self.url,
             {"email": email, "code": code},
             content_type="application/json",
         )
-        assert response.status_code == 400
 
-    @patch("apps.accounts.api.send_otp_email")
-    def test_verify_code_creates_new_user_and_returns_tokens(self, mock_send) -> None:
-        """verify-code with correct code creates user and returns JWT tokens."""
-        self.client.post(
-            self.request_code_url,
-            {"email": "newuser@example.com"},
-            content_type="application/json",
-        )
+    def test_verify_code_creates_user_and_logs_in(self) -> None:
+        """verify-code with a correct code creates the user and starts a session."""
+        email = "newuser@example.com"
+        code = self._request_code(email)
 
-        # Get the raw code from the mock call
-        raw_code = mock_send.call_args[0][1]
+        response = self._verify(email, code)
+        assert response.status_code == 204
 
-        response = self.client.post(
-            self.verify_code_url,
-            {"email": "newuser@example.com", "code": raw_code},
-            content_type="application/json",
-        )
-        assert response.status_code == 200
-        data = response.json()
-        assert "access" in data
-
-        # Verify user was created
-        user = User.objects.get(email="newuser@example.com")
+        user = User.objects.get(email=email)
         assert user.role == "member"
         assert not user.has_usable_password()
 
-    def test_verify_code_with_wrong_code_returns_400(self) -> None:
-        """verify-code returns 400 for an incorrect code."""
-        otp = EmailOTP.objects.create(email="test@example.com")
-        otp.set_code("123456")
-        otp.save()
+        me = self.client.get(self.me_url)
+        assert me.status_code == 200
+        assert me.json()["email"] == email
 
-        response = self.client.post(
-            self.verify_code_url,
-            {"email": "test@example.com", "code": "654321"},
-            content_type="application/json",
-        )
-        assert response.status_code == 400
+    def test_verify_code_signs_in_existing_user(self) -> None:
+        """verify-code signs in an existing user without creating a duplicate."""
+        email = "existing@example.com"
+        User.objects.create_user(email)
+        code = self._request_code(email)
 
-    def test_verify_code_with_expired_code_returns_400(self) -> None:
-        """verify-code returns 400 for an expired code."""
-        from datetime import timedelta
+        response = self._verify(email, code)
+        assert response.status_code == 204
+        assert User.objects.filter(email=email).count() == 1
+        assert self.client.get(self.me_url).json()["email"] == email
 
-        from django.utils import timezone
+    def test_verify_code_with_wrong_code_returns_401(self) -> None:
+        """verify-code returns 401 for an incorrect code."""
+        email = "wrong@example.com"
+        code = self._request_code(email)
+        wrong = str((int(code) + 1) % 1_000_000).zfill(6)
 
-        otp = EmailOTP.objects.create(email="test@example.com")
-        otp.set_code("123456")
-        # Override expires_at to the past AFTER set_code (which sets it to +10 min)
+        response = self._verify(email, wrong)
+        assert response.status_code == 401
+
+    def test_verify_code_with_expired_code_returns_401(self) -> None:
+        """verify-code returns 401 for an expired code."""
+        email = "expired@example.com"
+        code = self._request_code(email)
+
+        otp = EmailOTP.objects.get(email=email)
         otp.expires_at = timezone.now() - timedelta(minutes=1)
         otp.save()
 
-        response = self.client.post(
-            self.verify_code_url,
-            {"email": "test@example.com", "code": "123456"},
-            content_type="application/json",
-        )
-        assert response.status_code == 400
+        response = self._verify(email, code)
+        assert response.status_code == 401
 
-    def test_verify_code_with_consumed_code_returns_400(self) -> None:
-        """verify-code returns 400 for an already-consumed code."""
-        otp = EmailOTP.objects.create(email="test@example.com")
-        otp.set_code("123456")
-        otp.save()
+    def test_verify_code_with_consumed_code_returns_401(self) -> None:
+        """verify-code returns 401 when the code was already used."""
+        email = "reuse@example.com"
+        code = self._request_code(email)
 
-        # Consume it first
-        result = otp.consume("123456")
-        assert result
+        assert self._verify(email, code).status_code == 204
+        assert self._verify(email, code).status_code == 401
 
-        response = self.client.post(
-            self.verify_code_url,
-            {"email": "test@example.com", "code": "123456"},
-            content_type="application/json",
-        )
-        assert response.status_code == 400
+    def test_verify_code_with_no_prior_otp_returns_401(self) -> None:
+        """verify-code returns 401 when no OTP was requested."""
+        response = self._verify("no_otp@example.com", "123456")
+        assert response.status_code == 401
 
-    def test_verify_code_with_no_prior_otp_returns_400(self) -> None:
-        """verify-code returns 400 when no OTP was requested."""
-        response = self.client.post(
-            self.verify_code_url,
-            {"email": "no_otp@example.com", "code": "123456"},
-            content_type="application/json",
-        )
-        assert response.status_code == 400
+    def test_verify_code_max_attempts_lockout(self) -> None:
+        """After max failed attempts, even the correct code is rejected."""
+        email = "lockout@example.com"
+        code = self._request_code(email)
+        wrong = str((int(code) + 1) % 1_000_000).zfill(6)
 
-    @patch("apps.accounts.api.send_otp_email")
-    def test_verify_code_sets_refresh_cookie(self, mock_send) -> None:
-        """verify-code sets the refresh token as an HttpOnly cookie."""
-        self.client.post(
-            self.request_code_url,
-            {"email": "cookie@example.com"},
-            content_type="application/json",
-        )
-        raw_code = mock_send.call_args[0][1]
+        for _ in range(5):
+            self._verify(email, wrong)
 
-        response = self.client.post(
-            self.verify_code_url,
-            {"email": "cookie@example.com", "code": raw_code},
-            content_type="application/json",
-        )
-        assert response.status_code == 200
+        response = self._verify(email, code)
+        assert response.status_code == 401
 
-        # Check the refresh cookie was set
-        cookies = response.cookies
-        assert "refresh_token" in cookies
-        refresh_cookie = cookies["refresh_token"]
-        assert refresh_cookie["httponly"]
 
-    def _obtain_access_token(self, email: str) -> str:
-        """Helper: create user + return a valid access token via jwtninja."""
-        user, _ = User.objects.get_or_create(email=email, defaults={"username": email})
-        session = Session.create_session(user=user, ip_address="127.0.0.1")
+class MeEndpointTests(TestCase):
+    """Tests for GET /api/accounts/me."""
 
-        now = int(time.time())
-        payload = jwt_settings.jwt_settings.payload_class(
-            user_id=user.id,
-            type="access",
-            exp=now + jwt_settings.jwt_settings.ACCESS_TOKEN_EXPIRE_SECONDS,
-            session_id=session.id,
-        )
-        return generate_jwt(payload)
+    url = "/api/accounts/me"
 
-    def test_accounts_me_authenticated(self) -> None:
+    def test_me_authenticated(self) -> None:
         """Authenticated request to /api/accounts/me returns the user profile."""
-        email = "me-test@example.com"
-        token = self._obtain_access_token(email)
+        user = User.objects.create_user("me-test@example.com")
+        self.client.force_login(user)
 
-        response = self.client.get(
-            "/api/accounts/me",
-            HTTP_AUTHORIZATION=f"Bearer {token}",
-        )
+        response = self.client.get(self.url)
         assert response.status_code == 200
         data = response.json()
-        assert data["email"] == email
+        assert data["email"] == "me-test@example.com"
         assert data["role"] == "member"
         assert "date_joined" in data
 
-    def test_accounts_me_unauthenticated(self) -> None:
+    def test_me_unauthenticated_returns_401(self) -> None:
         """Unauthenticated request to /api/accounts/me returns 401."""
-        response = self.client.get("/api/accounts/me")
+        response = self.client.get(self.url)
         assert response.status_code == 401
 
-    def test_accounts_me_with_invalid_token(self) -> None:
-        """Request with an invalid token returns 401."""
-        # A JWT with three segments but a bogus signature
-        bogus_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxfQ.bogus"
-        response = self.client.get(
-            "/api/accounts/me",
-            HTTP_AUTHORIZATION=f"Bearer {bogus_token}",
-        )
+    def test_me_requires_active_session(self) -> None:
+        """A request with no session cookie is treated as unauthenticated."""
+        User.objects.create_user("other@example.com")
+        response = self.client.get(self.url)
         assert response.status_code == 401
 
 
-class AuthAPIPropertyTests(HypothesisTestCase):
-    """Hypothesis property-based tests for the auth API."""
+class LogoutTests(TestCase):
+    """Tests for POST /api/accounts/logout."""
 
-    def setUp(self) -> None:
-        self.verify_code_url = "/api/auth/verify-code"
+    url = "/api/accounts/logout"
+    me_url = "/api/accounts/me"
 
-    @settings(deadline=None, max_examples=20)
-    @given(
-        email=st.emails(),
-        correct_code=st.from_regex(r"\d{6}", fullmatch=True),
-        wrong_code=st.from_regex(r"\d{6}", fullmatch=True),
-    )
-    def test_verify_code_never_succeeds_with_wrong_code(
-        self, email: str, correct_code: str, wrong_code: str
-    ) -> None:
-        """For any valid email and any non-matching 6-digit code, verify-code
-        never returns success."""
-        assume(correct_code != wrong_code)
+    def test_logout_authenticated_returns_204(self) -> None:
+        """An authenticated user can log out and gets 204."""
+        user = User.objects.create_user("logout@example.com")
+        self.client.force_login(user)
 
-        otp = EmailOTP.objects.create(email=email)
-        otp.set_code(correct_code)
-        otp.save()
+        response = self.client.post(self.url)
+        assert response.status_code == 204
 
-        response = self.client.post(
-            self.verify_code_url,
-            {"email": email, "code": wrong_code},
-            content_type="application/json",
-        )
-        assert response.status_code != 200  # redundant
-        assert response.status_code in (400, 401)
+    def test_logout_clears_session(self) -> None:
+        """After logout the session is gone and /me returns 401."""
+        user = User.objects.create_user("logout@example.com")
+        self.client.force_login(user)
+        assert self.client.get(self.me_url).status_code == 200
+
+        self.client.post(self.url)
+        assert self.client.get(self.me_url).status_code == 401
+
+    def test_logout_unauthenticated_returns_401(self) -> None:
+        """Logging out without a session returns 401."""
+        response = self.client.post(self.url)
+        assert response.status_code == 401

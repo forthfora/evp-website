@@ -32,8 +32,8 @@ router = Router(tags=["Accounts"])
     response={204: None, 500: None},
     summary="Sends a new OTP to the provided email.",
 )
-def request_otp(request, payload: RequestOTPIn) -> HttpResponse:
-    otp = EmailOTP(email=payload.email)
+def request_otp(request, payload: RequestOTPIn):
+    otp = EmailOTP.objects.create(email=payload.email)
 
     try:
         send_otp_email(payload.email, otp.code)
@@ -54,7 +54,7 @@ def request_otp(request, payload: RequestOTPIn) -> HttpResponse:
     response={204: None, 401: None},
     summary="Verifies the provided OTP code.",
 )
-def verify_otp(request, payload: VerifyOTPIn) -> HttpResponse:
+def verify_otp(request, payload: VerifyOTPIn):
     otp = (
         EmailOTP.objects.filter(email=payload.email, consumed=False)
         .order_by("-created_at")
@@ -70,6 +70,7 @@ def verify_otp(request, payload: VerifyOTPIn) -> HttpResponse:
         raise HttpError(401, "Invalid or expired OTP.")
 
     user, _ = User.objects.get_or_create(email=payload.email)
+
     login(request, user)
 
     return HttpResponse(status=204)
@@ -81,7 +82,7 @@ def verify_otp(request, payload: VerifyOTPIn) -> HttpResponse:
     response={204: None, 401: None},
     summary="Logs the authenticated user out.",
 )
-def logout_view(request) -> HttpResponse:
+def logout_view(request):
     logout(request)
     return HttpResponse(status=204)
 

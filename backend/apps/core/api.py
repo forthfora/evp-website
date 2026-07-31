@@ -20,7 +20,7 @@ def get_csrf(request):
 
 
 @router.post("/contact", auth=None, response={204: None, 500: None})
-def send_contact_email(request, data: ContactIn) -> HttpResponse:
+def send_contact_email(request, data: ContactIn):
     email_subject = f"EVP Contact: {data.name}"
     email_body = f"Name: {data.name}\nEmail: {data.email}\n\nMessage:\n{data.message}"
 

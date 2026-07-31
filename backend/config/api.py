@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.http import Http404, HttpRequest, HttpResponse
+from django.http import Http404, HttpRequest
 from ninja import NinjaAPI
 from ninja.errors import AuthorizationError, HttpError, ValidationError
 
@@ -15,9 +15,7 @@ api = NinjaAPI(
 
 # pydantic validation error handler (request-schema mismatch)
 @api.exception_handler(ValidationError)
-def validation_error_handler(
-    request: HttpRequest, exc: ValidationError
-) -> HttpResponse:
+def validation_error_handler(request: HttpRequest, exc: ValidationError):
     errors: dict[str, list[str]] = {}
 
     for error in exc.errors:
@@ -44,7 +42,7 @@ def _resource_from_path(path: str) -> str:
 
 
 @api.exception_handler(Http404)
-def not_found_handler(request: HttpRequest, exc: Http404) -> HttpResponse:
+def not_found_handler(request: HttpRequest, exc: Http404):
     resource = (
         exc.resource
         if isinstance(exc, ResourceNotFound)
@@ -56,9 +54,7 @@ def not_found_handler(request: HttpRequest, exc: Http404) -> HttpResponse:
 
 
 @api.exception_handler(AuthorizationError)
-def authorization_error_handler(
-    request: HttpRequest, exc: AuthorizationError
-) -> HttpResponse:
+def authorization_error_handler(request: HttpRequest, exc: AuthorizationError):
     return api.create_response(
         request,
         {"errors": {_resource_from_path(request.path): ["forbidden"]}},
@@ -67,7 +63,7 @@ def authorization_error_handler(
 
 
 @api.exception_handler(HttpError)
-def http_error_handler(request: HttpRequest, exc: HttpError) -> HttpResponse:
+def http_error_handler(request: HttpRequest, exc: HttpError):
     if exc.status_code == 401:
         return api.create_response(
             request, {"errors": {"token": ["is missing"]}}, status=401

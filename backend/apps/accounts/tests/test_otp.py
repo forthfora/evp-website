@@ -22,66 +22,62 @@ class EmailOTPModelTests(HypothesisTestCase):
         self, email: str, code: str
     ) -> None:
         """A fresh, unconsumed, non-expired OTP is valid."""
-        otp = EmailOTP.objects.create(email=email)
-        otp.set_code(code)
+        otp = EmailOTP.objects.create(email=email, code=code)
         assert otp.is_valid
 
     @given(email=st.emails(), code=valid_code)
     def test_is_valid_false_after_consume(self, email: str, code: str) -> None:
-        """After consume() succeeds, is_valid is False."""
-        otp = EmailOTP.objects.create(email=email)
-        otp.set_code(code)
-        otp.consume(code)
+        """After a successful try_consume(), is_valid is False."""
+        otp = EmailOTP.objects.create(email=email, code=code)
+        assert otp.try_consume(code) is True
         assert not otp.is_valid
 
     @given(email=st.emails(), code=valid_code)
     def test_is_valid_false_after_expiry(self, email: str, code: str) -> None:
         """An expired OTP is not valid, even if unconsumed."""
         with freeze_time(timezone.now() - timedelta(minutes=30)):
-            otp = EmailOTP.objects.create(email=email)
-            otp.set_code(code)
+            otp = EmailOTP.objects.create(email=email, code=code)
 
         # now we're back to "present" — the OTP was created 30 min ago
         assert not otp.is_valid
 
     @given(email=st.emails(), code=valid_code)
-    def test_consume_with_wrong_code_returns_false(self, email: str, code: str) -> None:
-        """consume() with a wrong code returns False and increments attempts."""
-        otp = EmailOTP.objects.create(email=email)
-        otp.set_code(code)
+    def test_try_consume_with_wrong_code_returns_false(
+        self, email: str, code: str
+    ) -> None:
+        """try_consume() with a wrong code returns False and increments attempts."""
+        otp = EmailOTP.objects.create(email=email, code=code)
         wrong_code = str((int(code) + 1) % 1_000_000).zfill(6)
 
-        result = otp.consume(wrong_code)
+        result = otp.try_consume(wrong_code)
         assert not result
         assert otp.attempts == 1
 
     @given(email=st.emails(), code=valid_code)
     def test_max_attempts_lockout(self, email: str, code: str) -> None:
-        """After max_attempts wrong tries, consume() always returns False
+        """After max_attempts wrong tries, try_consume() always returns False
         even with the correct code."""
-        otp = EmailOTP.objects.create(email=email)
-        otp.set_code(code)
+        otp = EmailOTP.objects.create(email=email, code=code)
 
         # Exhaust attempts with wrong codes
         wrong_code = str((int(code) + 1) % 1_000_000).zfill(6)
         for _ in range(otp.max_attempts):
-            otp.consume(wrong_code)
+            otp.try_consume(wrong_code)
 
         assert otp.attempts >= otp.max_attempts
 
         # Now even the correct code fails
-        result = otp.consume(code)
+        result = otp.try_consume(code)
         assert not result
 
     @given(email=st.emails(), code=valid_code)
-    def test_consume_success_marks_consumed_at(self, email: str, code: str) -> None:
-        """A successful consume() sets consumed_at and returns True."""
-        otp = EmailOTP.objects.create(email=email)
-        otp.set_code(code)
+    def test_try_consume_success_marks_consumed(self, email: str, code: str) -> None:
+        """A successful try_consume() marks the OTP consumed and returns True."""
+        otp = EmailOTP.objects.create(email=email, code=code)
 
-        result = otp.consume(code)
-        assert result
-        assert otp.consumed_at is not None
+        result = otp.try_consume(code)
+        assert result is True
+        assert otp.consumed is True
 
     def test_default_ttl_is_10_minutes(self) -> None:
         """An OTP defaults to a 10-minute expiry from creation."""
@@ -93,8 +89,16 @@ class EmailOTPModelTests(HypothesisTestCase):
                 expected.timestamp(), abs=1
             )
 
-    def test_generate_code_returns_six_digits(self) -> None:
-        """generate_code() returns a 6-digit numeric string."""
-        code = EmailOTP.generate_code()
-        assert len(code) == 6
-        assert code.isdigit()
+    def test_default_code_is_six_digits(self) -> None:
+        """A freshly created OTP gets a 6-digit numeric code."""
+        otp = EmailOTP.objects.create(email="test@example.com")
+        assert len(otp.code) == 6
+        assert otp.code.isdigit()
+
+    def test_codes_are_random_per_instance(self) -> None:
+        """Each OTP instance gets a distinct code (the default is per-instance)."""
+        codes = {
+            EmailOTP.objects.create(email=f"user{i}@example.com").code
+            for i in range(20)
+        }
+        assert len(codes) == 20

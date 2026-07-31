@@ -1,19 +1,21 @@
 from __future__ import annotations
 
+from unittest.mock import Mock
+
 import hypothesis.strategies as st
 import pytest
 from django.test import TestCase
 from hypothesis import given, settings
 from hypothesis.extra.django import TestCase as HypothesisTestCase
-from jwt_ninja.errors import APIError
+from ninja.errors import HttpError
 
 from apps.accounts.models import Role, User
-from apps.core.permissions import can_manage_entry, can_send_notifications, require_role
+from apps.core.permissions import RoleAuth, can_manage_entry
 from apps.startupdb.models import StartupEntry
 
 
-class RequireRoleTests(HypothesisTestCase):
-    """Property-based tests for the role-based auth helper."""
+class RoleAuthTests(HypothesisTestCase):
+    """Property-based tests for the RoleAuth auth class."""
 
     @settings(deadline=None, max_examples=30)
     @given(
@@ -25,85 +27,44 @@ class RequireRoleTests(HypothesisTestCase):
             unique=True,
         ),
     )
-    def test_require_role_allows_access_if_role_in_allowed(
+    def test_role_auth_allows_access_if_role_in_allowed(
         self, role: str, allowed: list[str]
     ) -> None:
-        """require_role allows access iff the user's role is in the allowed set."""
-        user = User.objects.create_user(f"{role}@test.com")
-        user.role = role
-        user.save()
-
-        auth = require_role(*allowed)
-        # Simulate: if we got to the role check, authentication already passed.
-        # require_role.authenticate returns None if role is not allowed.
-        from jwt_ninja.auth_classes import AuthDetails
-        from jwt_ninja.models import Session
-
-        session = Session.create_session(user=user, ip_address="127.0.0.1")
-        details = AuthDetails(user=user, session=session)
-
-        # We can't call authenticate directly without a real token, so we test
-        # the check_roles helper instead.
-        result = auth.check_roles(details)
-        if role in allowed:
-            assert result is True
-        else:
-            assert result is False
-
-    def test_require_role_denies_unauthenticated(self) -> None:
-        """require_role denies access when no auth is present."""
-        auth = require_role("scout", "committee")
-        from unittest.mock import Mock
-
+        """RoleAuth returns the user iff their role is in the allowed set."""
+        user = User.objects.create_user(f"{role}@test.com", role=role)
         request = Mock()
-        with pytest.raises(APIError):
-            auth.authenticate(request, "bad-token")
+        request.user = user
 
-    def test_require_role_empty_allowed_denies_all(self) -> None:
-        """require_role with no roles denies everyone."""
-        auth = require_role()
-        user = User.objects.create_user("anyone@test.com")
-        from jwt_ninja.auth_classes import AuthDetails
-        from jwt_ninja.models import Session
+        auth = RoleAuth(*allowed)
+        if role in allowed:
+            assert auth(request) is user
+        else:
+            with pytest.raises(HttpError) as exc_info:
+                auth(request)
+            assert exc_info.value.status_code == 403
 
-        session = Session.create_session(user=user, ip_address="127.0.0.1")
-        details = AuthDetails(user=user, session=session)
-        assert auth.check_roles(details) is False
+    def test_role_auth_returns_none_for_unauthenticated(self) -> None:
+        """RoleAuth returns None (→ 401) when no user is authenticated."""
+        request = Mock()
+        request.user.is_authenticated = False
+        assert RoleAuth("scout", "committee")(request) is None
 
-    def test_require_role_allows_committee(self) -> None:
-        """committee role passes require_role('committee')."""
-        user = User.objects.create_user("comm@test.com")
-        user.role = Role.COMMITTEE
-        user.save()
-        auth = require_role("committee")
-        from jwt_ninja.auth_classes import AuthDetails
-        from jwt_ninja.models import Session
+    def test_role_auth_empty_allowed_denies_all(self) -> None:
+        """RoleAuth with no roles denies everyone, even admins."""
+        user = User.objects.create_user("anyone@test.com", role=Role.ADMIN)
+        request = Mock()
+        request.user = user
 
-        session = Session.create_session(user=user, ip_address="127.0.0.1")
-        details = AuthDetails(user=user, session=session)
-        assert auth.check_roles(details) is True
-
-    def test_require_role_allows_admin(self) -> None:
-        """committee role passes require_role('admin')."""
-        user = User.objects.create_user("admin@test.com")
-        user.role = Role.ADMIN
-        user.save()
-        auth = require_role("admin")
-        from jwt_ninja.auth_classes import AuthDetails
-        from jwt_ninja.models import Session
-
-        session = Session.create_session(user=user, ip_address="127.0.0.1")
-        details = AuthDetails(user=user, session=session)
-        assert auth.check_roles(details) is True
+        with pytest.raises(HttpError) as exc_info:
+            RoleAuth()(request)
+        assert exc_info.value.status_code == 403
 
 
-class IsOwnerOrCommitteeTests(TestCase):
-    """Tests for the ownership helper."""
+class CanManageEntryConcreteTests(TestCase):
+    """Concrete tests for the ownership helper can_manage_entry."""
 
     def setUp(self) -> None:
-        self.scout = User.objects.create_user("scout@test.com")
-        self.scout.role = Role.SCOUT
-        self.scout.save()
+        self.scout = User.objects.create_user("scout@test.com", role=Role.SCOUT)
         self.member = User.objects.create_user("member@test.com")
         self.other = User.objects.create_user("other@test.com")
 
@@ -118,13 +79,12 @@ class IsOwnerOrCommitteeTests(TestCase):
         obj = StartupEntry(created_by=self.member)
         assert can_manage_entry(self.member, obj) is False
 
-    def test_committee_is_always_owner(self) -> None:
-        """An admin member is always considered an owner regardless of
-        who created the object."""
-        self.member.role = Role.ADMIN
-        self.member.save()
+    def test_admin_is_always_owner(self) -> None:
+        """An admin is always considered an owner regardless of who
+        created the object."""
+        admin = User.objects.create_user("admin@test.com", role=Role.ADMIN)
         obj = StartupEntry(created_by=self.other)
-        assert can_manage_entry(self.member, obj) is True
+        assert can_manage_entry(admin, obj) is True
 
     def test_stranger_is_not_owner(self) -> None:
         """A non-owner, non-admin user is not an owner."""
@@ -133,27 +93,28 @@ class IsOwnerOrCommitteeTests(TestCase):
 
     def test_scout_is_not_owner_of_others(self) -> None:
         """A scout is not an owner of another scout's entry."""
-        other_scout = User.objects.create_user("other_scout@test.com")
-        other_scout.role = Role.SCOUT
-        other_scout.save()
+        other_scout = User.objects.create_user("other_scout@test.com", role=Role.SCOUT)
         obj = StartupEntry(created_by=other_scout)
         assert can_manage_entry(self.scout, obj) is False
 
 
-class CanSendNotificationsPropertyTests(HypothesisTestCase):
-    """Hypothesis property test over the role matrix for
-    ``can_send_notifications``."""
+class CanManageEntryPropertyTests(HypothesisTestCase):
+    """Hypothesis property test over (role, is_owner) for can_manage_entry."""
 
     @settings(deadline=None, max_examples=30)
     @given(
         role=st.sampled_from([r.value for r in Role]),
+        is_owner=st.booleans(),
     )
-    def test_can_send_notifications_matrix(self, role: str) -> None:
-        user = User.objects.create_user(f"{role}@test.com")
-        user.role = role
-        user.save()
-        result = can_send_notifications(user)
-        if role == Role.ADMIN:
-            assert result is True
-        else:
-            assert result is False
+    def test_can_manage_entry_matrix(self, role: str, is_owner: bool) -> None:
+        user = User.objects.create_user(f"{role}@test.com", role=role)
+        obj = StartupEntry(
+            created_by=user if is_owner else User.objects.create_user("other@test.com")
+        )
+
+        result = can_manage_entry(user, obj)
+
+        expected = role == Role.ADMIN or (
+            role in (Role.COMMITTEE, Role.SCOUT) and is_owner
+        )
+        assert result is expected

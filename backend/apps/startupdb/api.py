@@ -10,12 +10,12 @@ from ninja.errors import HttpError
 from apps.core.permissions import RoleAuth, can_manage_entry
 from apps.startupdb.models import Founder, StartupEntry
 from apps.startupdb.schemas import (
-    EntryIn,
-    EntryOut,
-    EntryPatchIn,
     FounderIn,
     FounderOut,
     FounderPatchIn,
+    StartupIn,
+    StartupOut,
+    StartupPatchIn,
 )
 
 if TYPE_CHECKING:
@@ -33,7 +33,7 @@ router = Router(tags=["StartupDB"], auth=RoleAuth("admin", "committee", "scout")
     },
     summary="List all founders.",
 )
-def list_founders(request: HttpRequest) -> list[Founder]:
+def list_founders(request: HttpRequest):
     return list(Founder.objects.all())
 
 
@@ -42,9 +42,9 @@ def list_founders(request: HttpRequest) -> list[Founder]:
     response={201: FounderOut, 401: None, 403: None},
     summary="Create a founder.",
 )
-def create_founder(request: HttpRequest, payload: FounderIn) -> Founder:
+def create_founder(request: HttpRequest, payload: FounderIn):
     user = request.user
-    return Founder.objects.create(
+    founder = Founder.objects.create(
         first_name=payload.first_name,
         last_name=payload.last_name,
         location=payload.location,
@@ -54,6 +54,7 @@ def create_founder(request: HttpRequest, payload: FounderIn) -> Founder:
         notes=payload.notes,
         created_by=user,
     )
+    return 201, founder
 
 
 @router.patch(
@@ -65,7 +66,7 @@ def update_founder(
     request: HttpRequest,
     founder_id: int,
     payload: FounderPatchIn,
-) -> Founder:
+):
     founder = get_object_or_404(Founder, id=founder_id)
     user: User = request.user  # type: ignore
 
@@ -87,7 +88,7 @@ def update_founder(
 def delete_founder(
     request: HttpRequest,
     founder_id: int,
-) -> HttpResponse:
+):
     founder = get_object_or_404(Founder, id=founder_id)
     user: User = request.user  # type: ignore
 
@@ -100,19 +101,19 @@ def delete_founder(
 
 @router.get(
     "/",
-    response={200: list[EntryOut], 401: None, 403: None},
+    response={200: list[StartupOut], 401: None, 403: None},
     summary="List all startup entries.",
 )
-def list_entries(request: HttpRequest) -> list[StartupEntry]:
+def list_entries(request: HttpRequest):
     return list(StartupEntry.objects.all())
 
 
 @router.post(
     "/",
-    response={201: EntryOut, 401: None, 403: None},
+    response={201: StartupOut, 401: None, 403: None},
     summary="Create a new startup entry.",
 )
-def create_entry(request: HttpRequest, payload: EntryIn) -> StartupEntry:
+def create_entry(request: HttpRequest, payload: StartupIn):
     user: User = request.user  # type: ignore
     data = payload.model_dump(exclude={"founder_ids"})
     entry = StartupEntry.objects.create(created_by=user, **data)
@@ -120,19 +121,19 @@ def create_entry(request: HttpRequest, payload: EntryIn) -> StartupEntry:
     if payload.founder_ids:
         entry.founders.set(Founder.objects.filter(id__in=payload.founder_ids))
 
-    return entry
+    return 201, entry
 
 
 @router.patch(
     "/{entry_id}",
-    response={200: EntryOut, 401: None, 403: None, 404: None},
+    response={200: StartupOut, 401: None, 403: None, 404: None},
     summary="Update a startup entry. (owner or admin)",
 )
 def update_entry(
     request: HttpRequest,
     entry_id: int,
-    payload: EntryPatchIn,
-) -> StartupEntry:
+    payload: StartupPatchIn,
+):
     entry = get_object_or_404(StartupEntry, id=entry_id)
     user: User = request.user  # type: ignore
 
@@ -160,7 +161,7 @@ def update_entry(
 def delete_entry(
     request: HttpRequest,
     entry_id: int,
-) -> HttpResponse:
+):
     entry = get_object_or_404(StartupEntry, id=entry_id)
     user: User = request.user  # type: ignore
 

@@ -13,24 +13,23 @@ def get_otp_expiry():
     return timezone.now() + timedelta(minutes=10)
 
 
+def generate_otp_code() -> str:
+    """Generate a random 6-digit numeric OTP code."""
+    return f"{secrets.randbelow(1_000_000):06d}"
+
+
 class UserManager[T](BaseUserManager):
     def create_user(
         self,
         email: str,
         username: str | None = None,
-        password: str | None = None,
         **other_fields,
     ) -> User:
         if username is None:
             username = email
 
         user = User(email=email, username=username, **other_fields)
-
-        if password:
-            user.set_password(password)
-        else:
-            user.set_unusable_password()  # passwordless account (auth or invite-only)
-
+        user.set_unusable_password()  # passwordless account (auth or invite-only)
         user.save()
         return user
 
@@ -66,13 +65,6 @@ class Role(models.TextChoices):
 
 class User(AbstractUser):
     id: int
-
-    # remove default fields
-    first_name = None
-    last_name = None
-
-    email = models.EmailField("Email Address", unique=True)
-    username = models.CharField(max_length=254, unique=True)
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.MEMBER)
 
     receives_update_emails = models.BooleanField(
@@ -98,9 +90,12 @@ class User(AbstractUser):
 class EmailOTP(models.Model):
     email = models.EmailField()
     code = models.CharField(
-        default=f"{secrets.randbelow(1_000_000):06d}", max_length=6, editable=False
+        default=generate_otp_code,
+        max_length=6,
+        editable=False,
     )
 
+    created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField(default=get_otp_expiry)
     consumed = models.BooleanField(default=False)
 

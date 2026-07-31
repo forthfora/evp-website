@@ -1,29 +1,14 @@
 from __future__ import annotations
 
-import time
+from unittest.mock import patch
 
 import hypothesis.strategies as st
 from django.test import TestCase
 from hypothesis import given, settings
 from hypothesis.extra.django import TestCase as HypothesisTestCase
-from jwt_ninja import settings as jwt_settings
-from jwt_ninja.cryptography import generate_jwt
-from jwt_ninja.models import Session
 
 from apps.accounts.models import Role, User
-
-
-def _token_for_user(user: User) -> str:
-    """Return a valid JWT access token for *user*."""
-    session = Session.create_session(user=user, ip_address="127.0.0.1")
-    now = int(time.time())
-    payload = jwt_settings.jwt_settings.payload_class(
-        user_id=user.id,
-        type="access",
-        exp=now + jwt_settings.jwt_settings.ACCESS_TOKEN_EXPIRE_SECONDS,
-        session_id=session.id,
-    )
-    return generate_jwt(payload)
+from apps.core.email import EmailSendError
 
 
 class MembersAPITests(TestCase):
@@ -32,52 +17,46 @@ class MembersAPITests(TestCase):
     def setUp(self) -> None:
         self.url = "/api/accounts/members"
 
-        self.member = User.objects.create_user("member@test.com")
-        self.member.role = Role.MEMBER
-        self.member.save()
-
-        self.scout = User.objects.create_user("scout@test.com")
-        self.scout.role = Role.SCOUT
-        self.scout.save()
-
-        self.committee = User.objects.create_user("committee@test.com")
-        self.committee.role = Role.COMMITTEE
-        self.committee.save()
-
-        self.admin = User.objects.create_user("admin@test.com")
-        self.admin.role = Role.ADMIN
-        self.admin.save()
+        self.member = User.objects.create_user("member@test.com", role=Role.MEMBER)
+        self.scout = User.objects.create_user("scout@test.com", role=Role.SCOUT)
+        self.committee = User.objects.create_user(
+            "committee@test.com", role=Role.COMMITTEE
+        )
+        self.admin = User.objects.create_user("admin@test.com", role=Role.ADMIN)
 
         # Create some additional users to verify the full list is returned
-        self.extra_member = User.objects.create_user("extra-member@test.com")
-        self.extra_member.role = Role.MEMBER
-        self.extra_member.save()
+        self.extra_member = User.objects.create_user(
+            "extra-member@test.com", role=Role.MEMBER
+        )
+        self.extra_scout = User.objects.create_user(
+            "extra-scout@test.com", role=Role.SCOUT
+        )
 
-        self.extra_scout = User.objects.create_user("extra-scout@test.com")
-        self.extra_scout.role = Role.SCOUT
-        self.extra_scout.save()
-
-    def _auth(self, user: User) -> dict:
-        return {"HTTP_AUTHORIZATION": f"Bearer {_token_for_user(user)}"}
+    def _login(self, user: User) -> None:
+        self.client.force_login(user)
 
     def test_list_allowed_for_committee(self) -> None:
         """Committee can list all members."""
-        resp = self.client.get(self.url, **self._auth(self.committee))
+        self._login(self.committee)
+        resp = self.client.get(self.url)
         assert resp.status_code == 200
 
     def test_list_allowed_for_admin(self) -> None:
         """Admin can list all members."""
-        resp = self.client.get(self.url, **self._auth(self.admin))
+        self._login(self.admin)
+        resp = self.client.get(self.url)
         assert resp.status_code == 200
 
     def test_list_denied_for_member(self) -> None:
         """Plain member cannot list members."""
-        resp = self.client.get(self.url, **self._auth(self.member))
+        self._login(self.member)
+        resp = self.client.get(self.url)
         assert resp.status_code == 403
 
     def test_list_denied_for_scout(self) -> None:
         """Scout cannot list members."""
-        resp = self.client.get(self.url, **self._auth(self.scout))
+        self._login(self.scout)
+        resp = self.client.get(self.url)
         assert resp.status_code == 403
 
     def test_list_requires_auth(self) -> None:
@@ -87,25 +66,21 @@ class MembersAPITests(TestCase):
 
     def test_list_returns_all_users(self) -> None:
         """The member list contains all users (not just a subset)."""
-        resp = self.client.get(self.url, **self._auth(self.admin))
+        self._login(self.admin)
+        resp = self.client.get(self.url)
         assert resp.status_code == 200
-        data = resp.json()
         # We created 6 users in setUp
-        assert len(data) == 6
+        assert len(resp.json()) == 6
 
     def test_list_returns_expected_fields(self) -> None:
-        """Each member entry has id, email, role, image, date_joined,
+        """Each member entry has id, email, role, date_joined and
         receives_update_emails."""
-        resp = self.client.get(self.url, **self._auth(self.admin))
+        self._login(self.admin)
+        resp = self.client.get(self.url)
         assert resp.status_code == 200
-        data = resp.json()
-        entry = data[0]
-        assert "id" in entry
-        assert "email" in entry
-        assert "role" in entry
-        assert "image" in entry
-        assert "date_joined" in entry
-        assert "receives_update_emails" in entry
+        entry = resp.json()[0]
+        for field in ("id", "email", "role", "date_joined", "receives_update_emails"):
+            assert field in entry
 
 
 class MembersPermissionPropertyTests(HypothesisTestCase):
@@ -117,29 +92,79 @@ class MembersPermissionPropertyTests(HypothesisTestCase):
     )
     def test_members_access_matrix(self, role: str) -> None:
         """Access is granted only for committee and admin roles."""
-        user = User.objects.create_user(f"{role}@test.com")
-        user.role = role
-        user.save()
-
-        session = Session.create_session(user=user, ip_address="127.0.0.1")
-        now = int(time.time())
-        payload = jwt_settings.jwt_settings.payload_class(
-            user_id=user.id,
-            type="access",
-            exp=now + jwt_settings.jwt_settings.ACCESS_TOKEN_EXPIRE_SECONDS,
-            session_id=session.id,
-        )
-        token = generate_jwt(payload)
-
-        from django.test import Client
-
-        client = Client()
-        resp = client.get(
-            "/api/accounts/members",
-            HTTP_AUTHORIZATION=f"Bearer {token}",
-        )
+        user = User.objects.create_user(f"{role}@test.com", role=role)
+        self.client.force_login(user)
+        resp = self.client.get("/api/accounts/members")
 
         if role in (Role.COMMITTEE, Role.ADMIN):
             assert resp.status_code == 200
         else:
             assert resp.status_code == 403
+
+
+class SendAllEmailsTests(TestCase):
+    """Tests for the admin-only /api/accounts/sendall endpoint."""
+
+    def setUp(self) -> None:
+        self.url = "/api/accounts/sendall"
+
+        self.admin = User.objects.create_user("admin@test.com", role=Role.ADMIN)
+        self.committee = User.objects.create_user(
+            "committee@test.com", role=Role.COMMITTEE
+        )
+        self.opted_in = User.objects.create_user("opt-in@test.com", role=Role.MEMBER)
+        self.opted_out = User.objects.create_user("opt-out@test.com", role=Role.MEMBER)
+        self.opted_out.receives_update_emails = False
+        self.opted_out.save()
+
+    def _post(self):
+        return self.client.post(
+            self.url,
+            {"subject": "Hi", "body": "Body"},
+            content_type="application/json",
+        )
+
+    def test_sendall_allowed_for_admin(self) -> None:
+        """Only admins can send to all members."""
+        self.client.force_login(self.admin)
+        assert self._post().status_code == 200
+
+    def test_sendall_denied_for_committee(self) -> None:
+        """Committee is not allowed to use sendall."""
+        self.client.force_login(self.committee)
+        assert self._post().status_code == 403
+
+    def test_sendall_requires_auth(self) -> None:
+        """Unauthenticated request returns 401."""
+        assert self._post().status_code == 401
+
+    @patch("apps.accounts.api.send_email")
+    def test_sendall_sends_to_opted_in_only(self, mock_send) -> None:
+        """Emails go to opted-in users only; opted-out users are skipped."""
+        self.client.force_login(self.admin)
+        resp = self._post()
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["sent"] == 3
+        assert data["skipped"] == 1
+        assert data["failed"] == 0
+
+        sent_to = {call.kwargs["to"] for call in mock_send.call_args_list}
+        assert sent_to == {
+            "admin@test.com",
+            "committee@test.com",
+            "opt-in@test.com",
+        }
+
+    @patch("apps.accounts.api.send_email")
+    def test_sendall_counts_failures(self, mock_send) -> None:
+        """Failures are counted rather than aborting the whole send."""
+        self.client.force_login(self.admin)
+        mock_send.side_effect = EmailSendError("smtp down")
+
+        resp = self._post()
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["sent"] == 0
+        assert data["skipped"] == 1
+        assert data["failed"] == 3
