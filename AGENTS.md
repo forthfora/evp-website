@@ -47,7 +47,7 @@ evp-website/
 - **Gunicorn** (WSGI server in prod), **uv** for dependency management
 - **Ruff** (linter, configured in `backend/pyproject.toml`)
 - DB: MySQL/PyMySQL in prod (psycopg also available); SQLite (`db.sqlite3`) locally
-- Custom `User` model in `apps/accounts/models.py` — email is `USERNAME_FIELD`; no first/last name. Four roles (`member` default, `scout`, `committee`, `admin`), elevated manually via the Django admin; passwordless OTP auth (see `docs/adr/0001-passwordless-auth.md`)
+- Custom `User` model in `apps/accounts/models.py` — email is `USERNAME_FIELD`; no first/last name. Four roles (`member` default, `scout`, `committee`, `admin`), elevated manually via the Django admin; passwordless **session-based** OTP auth: `POST /api/accounts/otp/request` + `/otp/verify` set a Django session cookie (no JWT), `POST /api/accounts/logout`, profile at `GET /api/accounts/me`, CSRF bootstrap at `GET /api/csrf`
 - Startup database in `apps/startupdb/` — two record types (see `docs/adr/0002-roles-startupdb-and-admin-comms.md`):
   - `Founder`: composite natural key `(first_name, last_name)`, `occupation` choices (`bachelors`/`masters`/`phd`/`graduated`), plus `location`, `linkedin`, `email`, `notes`
   - `StartupEntry`: unique `name`, `founders` M2M → `Founder`, `founding_date`, `description`, `website`, `linkedin`, `email`, `location`, `notes`
@@ -110,6 +110,8 @@ npm run format     # Prettier
 - **Backend code style**: modern typing (`from __future__ import annotations`, PEP 695 generics e.g. `class UserManager[T]`), type hints everywhere. Linted with **Ruff** — run `uv run ruff check` before committing.
 - **Run backend commands with `uv run`**: always prefix Python commands with `uv run` (e.g. `uv run python manage.py migrate`, `uv run pytest`, `uv run ruff check`). Never invoke `python` or `.venv\Scripts\python.exe` directly — `uv run` resolves the correct venv automatically.
 - **API**: register routers in `backend/config/api.py`; URL prefix `/api/`. Schemas live next to apps (e.g. `apps/core/schemas.py`).
+- **API errors**: two shapes — `{"errors": {field: [msgs]}}` (401/403/404/422 from the `config/api.py` handlers) and `{"detail": "..."}` (`HttpError`, e.g. invalid OTP or email-server 500s). The frontend normalises both into `ApiRequestError` (`frontend/src/shared/lib/errors.ts`).
+- **Frontend API layer**: all fetches go through `apiFetch` (`frontend/src/shared/lib/api.ts`), which sends `credentials: 'include'` and attaches `X-CSRFToken` (fetched from `GET /api/csrf`) to mutating requests, retrying once on CSRF rejection. Typed clients live in `frontend/src/shared/lib/{auth,contact,startupdb}/api.ts`; the session auth provider is `frontend/src/shared/lib/auth/auth-context.tsx`.
 - **Frontend pages**: each page lives in `src/pages/<name>/<Name>Page.tsx`; add routes in `src/app/browser-router.tsx` wrapped by `AppLayout`; unknown paths throw a 404 `Response`.
 - **Styling**: Tailwind utility classes preferred; merge classes with `clsx` + `tailwind-merge`.
 - **Lint/format before committing**: `npm run lint` and `npm run format` must pass.

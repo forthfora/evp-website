@@ -14,12 +14,22 @@ logger = logging.getLogger(__name__)
 router = Router(tags=["Core"])
 
 
-@router.get("/csrf", auth=None, response={200: CSRFOut})
+@router.get(
+    "/csrf",
+    auth=None,
+    response={200: CSRFOut},
+    summary="Returns CSRF token.",
+)
 def get_csrf(request):
     return {"csrftoken": get_token(request)}
 
 
-@router.post("/contact", auth=None, response={204: None, 500: None})
+@router.post(
+    "/contact",
+    auth=None,
+    response={204: None, 500: None},
+    summary="Sends a contact email to EVP.",
+)
 def send_contact_email(request, data: ContactIn):
     email_subject = f"EVP Contact: {data.name}"
     email_body = f"Name: {data.name}\nEmail: {data.email}\n\nMessage:\n{data.message}"

@@ -11,6 +11,7 @@ class VerifyOTPIn(Schema):
 
 
 class MeOut(Schema):
+    id: int
     email: str
     role: str
     date_joined: str

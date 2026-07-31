@@ -1,146 +1,105 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { AuthProvider } from './auth-context.tsx';
-import { useAuth } from './use-auth';
+import { AuthProvider, useAuth } from './auth-context';
 
-function createWrapper() {
-	const queryClient = new QueryClient({
-		defaultOptions: { queries: { retry: false } },
-	});
-	return function Wrapper({ children }: { children: React.ReactNode }) {
-		return (
-			<QueryClientProvider client={queryClient}>
-				<AuthProvider>{children}</AuthProvider>
-			</QueryClientProvider>
-		);
-	};
-}
+const { mockFetchMe, mockLogout } = vi.hoisted(() => ({
+	mockFetchMe: vi.fn(),
+	mockLogout: vi.fn(),
+}));
 
-/** A test component that reads AuthContext and renders its state. */
-function TestConsumer() {
-	const auth = useAuth();
+vi.mock('./api', () => ({
+	fetchMe: mockFetchMe,
+	logout: mockLogout,
+}));
+
+const memberProfile = {
+	id: 1,
+	email: 'member@test.com',
+	role: 'member' as const,
+	date_joined: '2026-01-01T00:00:00',
+};
+
+function Probe() {
+	const { user, isAuthenticated, isLoading, login, logout } = useAuth();
+
 	return (
 		<div>
-			<p data-testid="authenticated">{auth.isAuthenticated ? 'true' : 'false'}</p>
-			<p data-testid="email">{auth.user?.email ?? 'null'}</p>
-			<p data-testid="role">{auth.user?.role ?? 'null'}</p>
-			<p data-testid="loading">{auth.isLoading ? 'true' : 'false'}</p>
-			<button
-				data-testid="login-btn"
-				onClick={() =>
-					auth.login('test-access-token', {
-						email: 'a@b.com',
-						role: 'member',
-						date_joined: '2026-01-01',
-					})
-				}
-			>
-				Login
+			<span data-testid="email">{user?.email ?? 'none'}</span>
+			<span data-testid="auth">{String(isAuthenticated)}</span>
+			<span data-testid="loading">{String(isLoading)}</span>
+			<button type="button" onClick={() => void login()}>
+				login
 			</button>
-			<button data-testid="logout-btn" onClick={() => auth.logout()}>
-				Logout
+			<button type="button" onClick={() => void logout()}>
+				logout
 			</button>
 		</div>
 	);
 }
 
-describe('AuthContext', () => {
+function renderAuth() {
+	return render(
+		<AuthProvider>
+			<Probe />
+		</AuthProvider>,
+	);
+}
+
+describe('AuthProvider', () => {
 	beforeEach(() => {
-		// Reset fetch mock between tests
-		vi.restoreAllMocks();
+		vi.clearAllMocks();
 	});
 
-	it('starts unauthenticated', async () => {
-		render(<TestConsumer />, { wrapper: createWrapper() });
+	it('hydrates the user from fetchMe on mount when a session exists', async () => {
+		mockFetchMe.mockResolvedValue(memberProfile);
 
-		await waitFor(() => {
-			expect(screen.getByTestId('loading').textContent).toBe('false');
-		});
+		renderAuth();
 
-		expect(screen.getByTestId('authenticated').textContent).toBe('false');
-		expect(screen.getByTestId('email').textContent).toBe('null');
-		expect(screen.getByTestId('role').textContent).toBe('null');
+		// Loading while the session hydrate runs
+		expect(screen.getByTestId('loading')).toHaveTextContent('true');
+
+		await waitFor(() => expect(screen.getByTestId('email')).toHaveTextContent('member@test.com'));
+		expect(screen.getByTestId('auth')).toHaveTextContent('true');
+		expect(screen.getByTestId('loading')).toHaveTextContent('false');
 	});
 
-	it('becomes authenticated after login', async () => {
-		render(<TestConsumer />, { wrapper: createWrapper() });
+	it('stays unauthenticated when there is no active session', async () => {
+		mockFetchMe.mockRejectedValue(new Error('401'));
 
-		await userEvent.click(screen.getByTestId('login-btn'));
+		renderAuth();
 
-		expect(screen.getByTestId('authenticated').textContent).toBe('true');
-		expect(screen.getByTestId('email').textContent).toBe('a@b.com');
-		expect(screen.getByTestId('role').textContent).toBe('member');
+		await waitFor(() => expect(screen.getByTestId('loading')).toHaveTextContent('false'));
+		expect(screen.getByTestId('auth')).toHaveTextContent('false');
+		expect(screen.getByTestId('email')).toHaveTextContent('none');
 	});
 
-	it('clears state after logout', async () => {
-		render(<TestConsumer />, { wrapper: createWrapper() });
+	it('login() re-fetches the profile and authenticates', async () => {
+		mockFetchMe.mockRejectedValue(new Error('401'));
 
-		await userEvent.click(screen.getByTestId('login-btn'));
-		expect(screen.getByTestId('authenticated').textContent).toBe('true');
+		renderAuth();
+		await waitFor(() => expect(screen.getByTestId('loading')).toHaveTextContent('false'));
 
-		await userEvent.click(screen.getByTestId('logout-btn'));
+		mockFetchMe.mockResolvedValue(memberProfile);
 
-		expect(screen.getByTestId('authenticated').textContent).toBe('false');
-		expect(screen.getByTestId('email').textContent).toBe('null');
-		expect(screen.getByTestId('role').textContent).toBe('null');
+		await userEvent.click(screen.getByRole('button', { name: 'login' }));
+
+		await waitFor(() => expect(screen.getByTestId('auth')).toHaveTextContent('true'));
+		expect(screen.getByTestId('email')).toHaveTextContent('member@test.com');
 	});
 
-	it('attempts silent refresh on mount when cookie is present', async () => {
-		// Mock a successful refresh response
-		const fetchMock = vi.spyOn(globalThis, 'fetch');
-		fetchMock.mockImplementation(async (url) => {
-			if (url.toString().includes('/api/auth/refresh/')) {
-				return new Response(JSON.stringify({ access: 'refreshed-token' }), {
-					status: 200,
-					headers: { 'Content-Type': 'application/json' },
-				});
-			}
-			if (url.toString().includes('/api/accounts/me')) {
-				return new Response(
-					JSON.stringify({
-						email: 'silent@refresh.com',
-						role: 'scout',
-						date_joined: '2026-01-01',
-					}),
-					{ status: 200, headers: { 'Content-Type': 'application/json' } },
-				);
-			}
-			return new Response('Not Found', { status: 404 });
-		});
+	it('logout() calls the backend then clears the user', async () => {
+		mockFetchMe.mockResolvedValue(memberProfile);
+		mockLogout.mockResolvedValue(undefined);
 
-		render(<TestConsumer />, { wrapper: createWrapper() });
+		renderAuth();
+		await waitFor(() => expect(screen.getByTestId('email')).toHaveTextContent('member@test.com'));
 
-		// Should eventually become authenticated via silent refresh
-		await waitFor(() => {
-			expect(screen.getByTestId('authenticated').textContent).toBe('true');
-		});
-		expect(screen.getByTestId('email').textContent).toBe('silent@refresh.com');
-		expect(screen.getByTestId('role').textContent).toBe('scout');
-	});
+		await userEvent.click(screen.getByRole('button', { name: 'logout' }));
 
-	it('stays unauthenticated when silent refresh fails', async () => {
-		const fetchMock = vi.spyOn(globalThis, 'fetch');
-		fetchMock.mockImplementation(async (url) => {
-			if (url.toString().includes('/api/auth/refresh/')) {
-				return new Response(JSON.stringify({ detail: 'no cookie' }), {
-					status: 401,
-					headers: { 'Content-Type': 'application/json' },
-				});
-			}
-			return new Response('Not Found', { status: 404 });
-		});
-
-		render(<TestConsumer />, { wrapper: createWrapper() });
-
-		// Wait for loading to finish
-		await waitFor(() => {
-			expect(screen.getByTestId('loading').textContent).toBe('false');
-		});
-
-		expect(screen.getByTestId('authenticated').textContent).toBe('false');
-		expect(screen.getByTestId('email').textContent).toBe('null');
+		await waitFor(() => expect(screen.getByTestId('email')).toHaveTextContent('none'));
+		expect(mockLogout).toHaveBeenCalledTimes(1);
+		expect(screen.getByTestId('auth')).toHaveTextContent('false');
 	});
 });

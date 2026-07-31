@@ -9,41 +9,51 @@ export const Role = {
 
 export type Role = (typeof Role)[keyof typeof Role];
 
-/**
- * Structured error returned by the backend on 422, 401, 403.
- * Field-level errors: `{ errors: { field: [msg, ...] } }`
- * General errors:     `{ detail: "message" }`
- */
-export const apiErrorSchema = z.object({
-	errors: z.record(z.string(), z.array(z.string())).optional(),
-	detail: z.string().optional(),
+export const RoleSchema = z.enum(['member', 'scout', 'committee', 'admin']);
+
+export const RequestOTPInputSchema = z.object({
+	email: z.string().email(),
 });
 
-export type ApiError = z.infer<typeof apiErrorSchema>;
-
-export const requestCodeInputSchema = z.object({
-	email: z.email('Please enter a valid email address.'),
+export const VerifyOTPInputSchema = z.object({
+	email: z.string().email(),
+	code: z.string().regex(/^\d{6}$/, 'Code must be 6 digits.'),
 });
 
-export type RequestCodeInput = z.infer<typeof requestCodeInputSchema>;
-
-export const verifyCodeInputSchema = z.object({
-	email: z.email(),
-	code: z.string().length(6, 'Code must be exactly 6 digits.'),
-});
-
-export type VerifyCodeInput = z.infer<typeof verifyCodeInputSchema>;
-
-export const authResponseSchema = z.object({
-	access: z.string(),
-});
-
-export type AuthResponse = z.infer<typeof authResponseSchema>;
-
-export const meResponseSchema = z.object({
+/** `GET /api/accounts/me` */
+export const MeResponseSchema = z.object({
+	id: z.number(),
 	email: z.string(),
-	role: z.string(),
+	role: RoleSchema,
 	date_joined: z.string(),
 });
 
-export type MeResponse = z.infer<typeof meResponseSchema>;
+/** `GET /api/accounts/members` item */
+export const MemberOutSchema = z.object({
+	id: z.number(),
+	email: z.string(),
+	role: RoleSchema,
+	date_joined: z.string(),
+	receives_update_emails: z.boolean(),
+});
+
+/** `POST /api/accounts/sendall` */
+export const SendAllEmailInputSchema = z.object({
+	subject: z.string().min(1),
+	body: z.string().min(1),
+});
+
+export const SendAllEmailOutSchema = z.object({
+	subject: z.string(),
+	body: z.string(),
+	sent: z.number(),
+	skipped: z.number(),
+	failed: z.number(),
+});
+
+export type RequestOTPInput = z.infer<typeof RequestOTPInputSchema>;
+export type VerifyOTPInput = z.infer<typeof VerifyOTPInputSchema>;
+export type MeResponse = z.infer<typeof MeResponseSchema>;
+export type MemberOut = z.infer<typeof MemberOutSchema>;
+export type SendAllEmailInput = z.infer<typeof SendAllEmailInputSchema>;
+export type SendAllEmailOut = z.infer<typeof SendAllEmailOutSchema>;

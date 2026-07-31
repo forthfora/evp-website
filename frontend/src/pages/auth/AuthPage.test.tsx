@@ -6,15 +6,12 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { AuthPage } from './AuthPage';
 
-const { mockLogin, mockNavigate, mockRequestCode, mockVerifyCode, mockFetchMe } = vi.hoisted(
-	() => ({
-		mockLogin: vi.fn(),
-		mockNavigate: vi.fn(),
-		mockRequestCode: vi.fn(),
-		mockVerifyCode: vi.fn(),
-		mockFetchMe: vi.fn(),
-	}),
-);
+const { mockLogin, mockNavigate, mockRequestCode, mockVerifyCode } = vi.hoisted(() => ({
+	mockLogin: vi.fn(),
+	mockNavigate: vi.fn(),
+	mockRequestCode: vi.fn(),
+	mockVerifyCode: vi.fn(),
+}));
 
 vi.mock('react-router', async () => {
 	const actual = await vi.importActual('react-router');
@@ -32,15 +29,14 @@ vi.mock('@/shared/lib/auth/use-auth', () => ({
 }));
 
 vi.mock('@/shared/lib/auth/api', () => ({
-	useRequestCode: () => ({
+	useRequestOtp: () => ({
 		mutateAsync: mockRequestCode,
 		isPending: false,
 	}),
-	useVerifyCode: () => ({
+	useVerifyOtp: () => ({
 		mutateAsync: mockVerifyCode,
 		isPending: false,
 	}),
-	fetchMe: mockFetchMe,
 	ApiRequestError: class extends Error {
 		status: number;
 		constructor(status: number, message: string) {
@@ -132,12 +128,7 @@ describe('AuthPage', () => {
 
 	it('calls login and navigates on successful verify', async () => {
 		mockRequestCode.mockResolvedValue(undefined);
-		mockVerifyCode.mockResolvedValue({ access: 'test-access-token' });
-		mockFetchMe.mockResolvedValue({
-			email: 'test@example.com',
-			role: 'member',
-			date_joined: '2026-01-01T00:00:00',
-		});
+		mockVerifyCode.mockResolvedValue(undefined);
 
 		render(<AuthPage />, { wrapper: createWrapper() });
 
@@ -159,15 +150,14 @@ describe('AuthPage', () => {
 		await userEvent.click(screen.getByRole('button', { name: /verify|sign in/i }));
 
 		await waitFor(() => {
-			expect(mockVerifyCode).toHaveBeenCalled();
+			expect(mockVerifyCode).toHaveBeenCalledWith({
+				email: 'test@example.com',
+				code: '123456',
+			});
 		});
 
-		// login should have been called with the token
-		expect(mockLogin).toHaveBeenCalledWith('test-access-token', {
-			email: 'test@example.com',
-			role: 'member',
-			date_joined: expect.any(String),
-		});
+		// login should have been called (the session cookie is the credential)
+		expect(mockLogin).toHaveBeenCalledTimes(1);
 
 		// Should navigate to the member area
 		expect(mockNavigate).toHaveBeenCalledWith('/member');

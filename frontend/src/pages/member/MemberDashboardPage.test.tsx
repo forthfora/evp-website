@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
@@ -15,6 +16,19 @@ function heading(name: string | RegExp) {
 	return screen.getByRole('heading', { name });
 }
 
+function createWrapper() {
+	const queryClient = new QueryClient({
+		defaultOptions: { queries: { retry: false } },
+	});
+	return function Wrapper({ children }: { children: React.ReactNode }) {
+		return (
+			<QueryClientProvider client={queryClient}>
+				<MemoryRouter>{children}</MemoryRouter>
+			</QueryClientProvider>
+		);
+	};
+}
+
 describe('MemberDashboardPage', () => {
 	it('renders only member-eligible widgets for member role', async () => {
 		mockUseAuth.mockReturnValue({
@@ -24,11 +38,7 @@ describe('MemberDashboardPage', () => {
 
 		const { MemberDashboardPage } = await import('./MemberDashboardPage');
 
-		render(
-			<MemoryRouter>
-				<MemberDashboardPage />
-			</MemoryRouter>,
-		);
+		render(<MemberDashboardPage />, { wrapper: createWrapper() });
 
 		expect(heading(/welcome/i)).toBeInTheDocument();
 
@@ -46,11 +56,7 @@ describe('MemberDashboardPage', () => {
 
 		const { MemberDashboardPage } = await import('./MemberDashboardPage');
 
-		render(
-			<MemoryRouter>
-				<MemberDashboardPage />
-			</MemoryRouter>,
-		);
+		render(<MemberDashboardPage />, { wrapper: createWrapper() });
 
 		expect(heading(/welcome/i)).toBeInTheDocument();
 		expect(heading(/startup database/i)).toBeInTheDocument();
@@ -68,11 +74,7 @@ describe('MemberDashboardPage', () => {
 
 		const { MemberDashboardPage } = await import('./MemberDashboardPage');
 
-		render(
-			<MemoryRouter>
-				<MemberDashboardPage />
-			</MemoryRouter>,
-		);
+		render(<MemberDashboardPage />, { wrapper: createWrapper() });
 
 		expect(heading(/welcome/i)).toBeInTheDocument();
 		expect(heading(/startup database/i)).toBeInTheDocument();
@@ -90,11 +92,7 @@ describe('MemberDashboardPage', () => {
 
 		const { MemberDashboardPage } = await import('./MemberDashboardPage');
 
-		render(
-			<MemoryRouter>
-				<MemberDashboardPage />
-			</MemoryRouter>,
-		);
+		render(<MemberDashboardPage />, { wrapper: createWrapper() });
 
 		expect(heading(/welcome/i)).toBeInTheDocument();
 		expect(heading(/startup database/i)).toBeInTheDocument();

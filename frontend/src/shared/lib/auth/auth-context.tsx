@@ -1,94 +1,76 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+/* eslint-disable react-refresh/only-export-components -- the useAuth hook must live with the provider */
+import { createContext, type ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 
-import { AuthContext, type AuthState } from './auth-context';
-import { setAuthFetchToken } from './fetch';
+import { setUnauthorizedHandler } from '@/shared/lib/api';
+
+import { fetchMe, logout as logoutRequest } from './api';
 import type { MeResponse } from './schemas';
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-	const [accessToken, setAccessToken] = useState<string | null>(null);
-	const [user, setUser] = useState<{ email: string; role: string } | null>(null);
+interface AuthContextValue {
+	/** The authenticated user's profile, or `null` when signed out. */
+	user: MeResponse | null;
+	isAuthenticated: boolean;
+	/** True while the initial session hydrate (`GET /api/accounts/me`) runs. */
+	isLoading: boolean;
+	/** Re-fetch the profile after login (the session cookie is the credential). */
+	login: () => Promise<void>;
+	/** Call the backend logout endpoint, then clear local state. */
+	logout: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+	const [user, setUser] = useState<MeResponse | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 
-	// Silent refresh on mount: try to use the HttpOnly refresh cookie
 	useEffect(() => {
 		let cancelled = false;
 
-		async function trySilentRefresh() {
+		setUnauthorizedHandler(() => setUser(null));
+
+		(async () => {
 			try {
-				const refreshResp = await fetch('/api/auth/refresh/', {
-					method: 'POST',
-				});
-
-				if (!refreshResp.ok) {
-					// No valid refresh cookie — stay unauthenticated
-					return;
-				}
-
-				const { access } = (await refreshResp.json()) as {
-					access: string;
-				};
-
-				if (cancelled) return;
-				setAccessToken(access);
-
-				// Now hydrate the user profile
-				const meResp = await fetch('/api/accounts/me', {
-					headers: { Authorization: `Bearer ${access}` },
-				});
-
-				if (!meResp.ok) {
-					// Token is invalid — clear it
-					setAccessToken(null);
-					return;
-				}
-
-				const meData = (await meResp.json()) as MeResponse;
-				if (cancelled) return;
-				setUser({ email: meData.email, role: meData.role });
+				const me = await fetchMe();
+				if (!cancelled) setUser(me);
 			} catch {
-				// Network error — stay unauthenticated
+				// No active session (or expired), stay logged out.
 			} finally {
 				if (!cancelled) setIsLoading(false);
 			}
-		}
-
-		void trySilentRefresh();
+		})();
 
 		return () => {
 			cancelled = true;
+			setUnauthorizedHandler(null);
 		};
 	}, []);
 
-	// Keep the authFetch token in sync with the access token
-	useEffect(() => {
-		setAuthFetchToken(accessToken);
-	}, [accessToken]);
-
-	const login = useCallback((token: string, userData: MeResponse) => {
-		setAccessToken(token);
-		setUser({ email: userData.email, role: userData.role });
-	}, []);
-
-	const logout = useCallback(() => {
-		// Notify backend to revoke the refresh token
-		fetch('/api/auth/logout', { method: 'POST' }).catch(() => {
-			// Best-effort — clear local state regardless
-		});
-		setAccessToken(null);
-		setUser(null);
-	}, []);
-
-	const value = useMemo<AuthState>(
+	const value = useMemo<AuthContextValue>(
 		() => ({
-			accessToken,
 			user,
+			isAuthenticated: user !== null,
 			isLoading,
-			isAuthenticated: accessToken !== null && user !== null,
-			login,
-			logout,
+			login: async () => {
+				const me = await fetchMe();
+				setUser(me);
+			},
+			logout: async () => {
+				try {
+					await logoutRequest();
+				} finally {
+					setUser(null);
+				}
+			},
 		}),
-		[accessToken, user, isLoading, login, logout],
+		[user, isLoading],
 	);
 
 	return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+export function useAuth() {
+	const ctx = useContext(AuthContext);
+	if (!ctx) throw new Error('useAuth must be used within an AuthProvider');
+	return ctx;
 }

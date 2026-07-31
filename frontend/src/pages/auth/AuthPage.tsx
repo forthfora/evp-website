@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 
-import { ApiRequestError, fetchMe, useRequestCode, useVerifyCode } from '@/shared/lib/auth/api';
+import { ApiRequestError, useRequestOtp, useVerifyOtp } from '@/shared/lib/auth/api';
 import { useAuth } from '@/shared/lib/auth/use-auth';
 
 type Step = 'email' | 'code';
@@ -15,18 +15,16 @@ export function AuthPage() {
 	const [email, setEmail] = useState('');
 	const [codeDigits, setCodeDigits] = useState<string[]>(Array(6).fill(''));
 	const [error, setError] = useState<string | null>(null);
-	const [cooldown, setCooldown] = useState(false);
 
 	const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-	const requestCodeMut = useRequestCode();
-	const verifyCodeMut = useVerifyCode();
+	const requestCodeMut = useRequestOtp();
+	const verifyCodeMut = useVerifyOtp();
 
 	const handleSendCode = async () => {
 		if (!email.trim()) return;
 
 		setError(null);
-		setCooldown(false);
 
 		try {
 			await requestCodeMut.mutateAsync({ email: email.trim() });
@@ -34,9 +32,8 @@ export function AuthPage() {
 			// Focus the first digit input after step transition
 			setTimeout(() => inputRefs.current[0]?.focus(), 100);
 		} catch (err) {
-			if (err instanceof ApiRequestError && err.status === 429) {
-				setCooldown(true);
-				setError('Too many requests. Please wait 60 seconds before trying again.');
+			if (err instanceof ApiRequestError) {
+				setError(err.message);
 			} else {
 				setError('Something went wrong. Please try again.');
 			}
@@ -80,14 +77,13 @@ export function AuthPage() {
 		setError(null);
 
 		try {
-			const { access } = await verifyCodeMut.mutateAsync({
+			await verifyCodeMut.mutateAsync({
 				email: email.trim(),
 				code,
 			});
 
-			// Hydrate the user profile from the access token
-			const me = await fetchMe(access);
-			login(access, me);
+			// The session cookie is set by verify — hydrate the profile.
+			await login();
 			navigate('/member');
 		} catch (err) {
 			if (err instanceof ApiRequestError) {
@@ -155,7 +151,7 @@ export function AuthPage() {
 							disabled={requestCodeMut.isPending || !email.trim()}
 							className="bg-accent hover:bg-accent/80 mt-2 w-full cursor-pointer rounded-lg px-6 py-3 text-base font-bold tracking-widest text-white uppercase transition-all duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
 						>
-							{requestCodeMut.isPending ? 'sending...' : cooldown ? 'wait...' : 'send code'}
+							{requestCodeMut.isPending ? 'sending...' : 'send code'}
 						</button>
 					</div>
 				)}

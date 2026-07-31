@@ -1,28 +1,27 @@
 import { useMutation } from '@tanstack/react-query';
+import { z } from 'zod';
 
-import { ApiRequestError } from '../auth/api';
-import type { ContactInput } from './schemas';
+import { requestJson } from '@/shared/lib/api';
 
-async function sendContact(body: ContactInput): Promise<{ success: string }> {
-	const response = await fetch('/api/contact', {
+/** `POST /api/contact` — public contact form (still requires a CSRF header). */
+export const ContactInputSchema = z.object({
+	name: z.string().trim().min(1, 'Name is required.').max(200),
+	email: z.email('Enter a valid email address.'),
+	message: z.string().trim().min(1, 'Message is required.').max(5000),
+});
+
+export type ContactInput = z.infer<typeof ContactInputSchema>;
+
+export async function sendContact(input: ContactInput): Promise<void> {
+	const parsed = ContactInputSchema.parse(input);
+	await requestJson('/api/contact', z.undefined(), {
 		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify(body),
+		body: JSON.stringify(parsed),
 	});
-
-	const data = await response.json().catch(() => ({}));
-
-	if (!response.ok) {
-		throw new ApiRequestError(response.status, data);
-	}
-
-	return data as { success: string };
 }
 
-export function useContact() {
+export function useSendContact() {
 	return useMutation({
-		mutationFn: (body: ContactInput) => sendContact(body),
+		mutationFn: sendContact,
 	});
 }
-
-export { sendContact };

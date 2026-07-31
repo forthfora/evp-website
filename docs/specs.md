@@ -50,8 +50,11 @@ society communications.
 ### 4.2 Backend Capabilities
 
 - **Accounts**: custom email-based user model, **passwordless authentication**
-  (one-time email code → JWT; see `docs/adr/0001-passwordless-auth.md`),
-  admin management.
+  (one-time email code → Django **session** cookie, CSRF-protected — no JWT).
+  Endpoints: `POST /api/accounts/otp/request`, `POST /api/accounts/otp/verify`,
+  `POST /api/accounts/logout`, `GET /api/accounts/me`, CSRF bootstrap at
+  `GET /api/csrf`; admin update emails at `POST /api/accounts/sendall`.
+  Admin management.
 - **Roles**: every account has one of four roles — `member` (default),
   `scout`, `committee`, `admin` — elevated manually via the Django admin.
   See §4.3 for the capability matrix and `docs/adr/0002-roles-startupdb-and-admin-comms.md`
@@ -99,8 +102,9 @@ change; the rule lives in a single backend permission function.
 2. Unknown routes shall display a styled 404 error page.
 3. The backend shall expose a REST API under `/api/` with OpenAPI docs (DEBUG only).
 4. Authentication shall be passwordless: users request a one-time code by email and
-   verify it to receive JWT tokens (access token in the response body, refresh token
-   in an HttpOnly cookie).
+   verify it to establish a Django **session** (set via `login()` on the backend).
+   No JWT is issued; mutating requests must send the CSRF token obtained from
+   `GET /api/csrf`.
 5. Every account shall have a role (`member`, `scout`, `committee`, `admin`),
    changeable only by staff through the Django admin.
 6. The startup database shall store startups and founders as separate record
@@ -117,7 +121,7 @@ change; the rule lives in a single backend permission function.
 - **Performance**: static assets served via Nginx; frontend built and minified by Vite.
 - **SEO**: `robots.txt` and `sitemap.xml` served from `frontend/public/`.
 - **Reliability**: fully containerized (Docker Compose); production deploys automated via GitHub Actions (CI test job → matrix build → GHCR → SSH rolling update); images tagged with both `latest` and commit SHA for rollback capability.
-- **Security**: environment-based secrets (`backend/.env`), CORS restricted, JWT auth, no committed credentials.
+- **Security**: environment-based secrets (`backend/.env`), CORS restricted, session + CSRF auth, no committed credentials.
 - **Maintainability**: TypeScript + ESLint/Prettier on the frontend; type-hinted Python + Pydantic schemas on the backend.
 
 ## 7. Technical Architecture

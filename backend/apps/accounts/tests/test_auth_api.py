@@ -180,6 +180,7 @@ class MeEndpointTests(TestCase):
         data = response.json()
         assert data["email"] == "me-test@example.com"
         assert data["role"] == "member"
+        assert data["id"] == user.id
         assert "date_joined" in data
 
     def test_me_unauthenticated_returns_401(self) -> None:

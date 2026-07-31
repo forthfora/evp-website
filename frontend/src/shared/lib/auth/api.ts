@@ -1,108 +1,102 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { z } from 'zod';
 
-import {
-	apiErrorSchema,
-	type AuthResponse,
-	type MeResponse,
-	type RequestCodeInput,
-	type VerifyCodeInput,
+import { requestJson, resetCsrfToken } from '@/shared/lib/api';
+import { ApiRequestError } from '@/shared/lib/errors';
+
+import type {
+	MemberOut,
+	MeResponse,
+	RequestOTPInput,
+	SendAllEmailInput,
+	SendAllEmailOut,
+	VerifyOTPInput,
 } from './schemas';
+import { MemberOutSchema, MeResponseSchema, SendAllEmailOutSchema } from './schemas';
 
-class ApiRequestError extends Error {
-	status: number;
-	body: unknown;
+export { ApiRequestError };
 
-	constructor(status: number, body: unknown) {
-		const parsed = apiErrorSchema.safeParse(body);
-		const message = parsed.success
-			? (parsed.data.detail ??
-				Object.values(parsed.data.errors ?? {})
-					.flat()
-					.join('; '))
-			: `Request failed with status ${status}`;
-		super(message);
-		this.name = 'ApiRequestError';
-		this.status = status;
-		this.body = body;
-	}
-}
+/**
+ * Typed API client for the session-auth accounts endpoints.
+ * See `docs/todo.md` for the authoritative endpoint reference.
+ */
 
-async function apiFetch<T>(url: string, options: RequestInit = {}): Promise<T> {
-	const response = await fetch(url, {
-		headers: {
-			'Content-Type': 'application/json',
-			...options.headers,
-		},
-		...options,
-	});
-
-	if (!response.ok) {
-		let body: unknown;
-		try {
-			body = await response.json();
-		} catch {
-			body = { detail: response.statusText };
-		}
-		throw new ApiRequestError(response.status, body);
-	}
-
-	// 202 Accepted / 204 No Content — nothing to parse
-	if (response.status === 202 || response.status === 204) {
-		return undefined as T;
-	}
-
-	return response.json() as Promise<T>;
-}
-
-export function requestCode(body: RequestCodeInput): Promise<void> {
-	return apiFetch<void>('/api/auth/request-code', {
+export async function requestOtp(email: string): Promise<void> {
+	await requestJson('/api/accounts/otp/request', z.undefined(), {
 		method: 'POST',
-		body: JSON.stringify(body),
+		body: JSON.stringify({ email }),
 	});
 }
 
-export function verifyCode(body: VerifyCodeInput): Promise<AuthResponse> {
-	return apiFetch<AuthResponse>('/api/auth/verify-code', {
+export async function verifyOtp(email: string, code: string): Promise<void> {
+	await requestJson('/api/accounts/otp/verify', z.undefined(), {
 		method: 'POST',
-		body: JSON.stringify(body),
+		body: JSON.stringify({ email, code }),
+	});
+	// Django rotates the CSRF secret on login — drop our cached token so the
+	// next mutating request fetches a fresh one.
+	resetCsrfToken();
+}
+
+export async function logout(): Promise<void> {
+	await requestJson('/api/accounts/logout', z.undefined(), { method: 'POST' });
+	resetCsrfToken();
+}
+
+export async function fetchMe(): Promise<MeResponse> {
+	return requestJson('/api/accounts/me', MeResponseSchema);
+}
+
+export async function fetchMembers(): Promise<MemberOut[]> {
+	return requestJson('/api/accounts/members', z.array(MemberOutSchema));
+}
+
+export async function sendAllEmail(subject: string, body: string): Promise<SendAllEmailOut> {
+	return requestJson('/api/accounts/sendall', SendAllEmailOutSchema, {
+		method: 'POST',
+		body: JSON.stringify({ subject, body }),
 	});
 }
 
-export function fetchMe(token: string): Promise<MeResponse> {
-	return apiFetch<MeResponse>('/api/accounts/me', {
-		headers: {
-			Authorization: `Bearer ${token}`,
-		},
-	});
-}
-
-export function useRequestCode() {
+export function useRequestOtp() {
 	return useMutation({
-		mutationFn: (body: RequestCodeInput) => requestCode(body),
+		mutationFn: (input: RequestOTPInput) => requestOtp(input.email),
 	});
 }
 
-export function useVerifyCode() {
+export function useVerifyOtp() {
+	return useMutation({
+		mutationFn: (input: VerifyOTPInput) => verifyOtp(input.email, input.code),
+	});
+}
+
+export function useLogout() {
 	const queryClient = useQueryClient();
-
 	return useMutation({
-		mutationFn: (body: VerifyCodeInput) => verifyCode(body),
+		mutationFn: () => logout(),
 		onSuccess: () => {
-			// Invalidate any cached queries that depend on auth state
-			void queryClient.invalidateQueries({ queryKey: ['me'] });
+			queryClient.clear();
 		},
 	});
 }
 
-export function useMe(token: string | null) {
+export function useMe() {
 	return useQuery({
 		queryKey: ['me'],
-		queryFn: () => fetchMe(token!),
-		enabled: token !== null,
+		queryFn: fetchMe,
 		retry: false,
-		staleTime: 5 * 60 * 1000, // 5 minutes
 	});
 }
 
-// Re-export the error class so consumers can catch and inspect it
-export { ApiRequestError };
+export function useMembers() {
+	return useQuery({
+		queryKey: ['members'],
+		queryFn: fetchMembers,
+	});
+}
+
+export function useSendAllEmail() {
+	return useMutation({
+		mutationFn: (input: SendAllEmailInput) => sendAllEmail(input.subject, input.body),
+	});
+}

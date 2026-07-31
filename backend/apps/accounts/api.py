@@ -100,6 +100,7 @@ def logout_view(request):
 def accounts_me(request: HttpRequest):
     user: User = request.user  # type: ignore
     return MeOut(
+        id=user.id,
         email=user.email,
         role=user.role,
         date_joined=user.date_joined.isoformat(),
