@@ -85,7 +85,7 @@ else:
 # Application definition
 INSTALLED_APPS = [
     "jazzmin",  # Must stay before admin
-    "apps.accounts.admin_config.AccountsAdminConfig",
+    "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",

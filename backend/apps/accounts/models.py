@@ -29,8 +29,6 @@ class UserManager(BaseUserManager):
         email: str,
         first_name: str = "",
         last_name: str = "",
-        username: str | None = None,
-        password: str | None = None,
         **other_fields,
     ) -> User:
         if not email:
@@ -42,15 +40,9 @@ class UserManager(BaseUserManager):
             "last_name": last_name,
             **other_fields,
         }
-        if username is not None:
-            fields["username"] = username
 
         user = self.model(**fields)
-        if password is None:
-            # Member accounts are passwordless — they log in with an email OTP.
-            user.set_unusable_password()
-        else:
-            user.set_password(password)
+        user.set_unusable_password()
         user.save()
         return user
 
@@ -59,12 +51,12 @@ class UserManager(BaseUserManager):
         email: str,
         first_name: str = "",
         last_name: str = "",
-        password: str | None = None,
         **other_fields,
     ) -> User:
         other_fields.setdefault("is_staff", True)
         other_fields.setdefault("is_superuser", True)
         other_fields.setdefault("is_active", True)
+        other_fields.setdefault("role", "admin")
 
         if other_fields.get("is_staff") is not True:
             raise ValueError("Superuser must be assigned to is_staff=True.")
@@ -72,9 +64,7 @@ class UserManager(BaseUserManager):
         if other_fields.get("is_superuser") is not True:
             raise ValueError("Superuser must be assigned to is_superuser=True.")
 
-        return self.create_user(
-            email, first_name, last_name, password=password, **other_fields
-        )
+        return self.create_user(email, first_name, last_name, **other_fields)
 
 
 class Role(models.TextChoices):

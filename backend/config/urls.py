@@ -19,14 +19,14 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
-from django.views.generic.base import RedirectView
+from django.views.generic import RedirectView
 
 # see api.py for NinjaAPI declaration, exception handlers, etc.
 from config.api import api
 
 urlpatterns = [
-    path("admin", RedirectView.as_view(url="/admin/", permanent=True)),
-    path("admin/", admin.site.urls),
+    path("evp-dev/login/", RedirectView.as_view(pattern_name="/", permanent=False)),
+    path("evp-dev/", admin.site.urls),
     path("api/", api.urls),
 ]
 

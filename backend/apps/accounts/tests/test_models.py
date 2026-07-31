@@ -43,23 +43,13 @@ class UserModelTests(HypothesisTestCase):
         assert user.username == username
 
     def test_create_superuser_is_still_member_by_default(self) -> None:
-        """Superusers also get role='member' unless explicitly set otherwise."""
+        """Superusers automatically get the admin role."""
         user = User.objects.create_superuser(
             "admin@example.com", "admin@example.com", "testpass123"
         )
-        assert user.role == "member"
+        assert user.role == "admin"
 
-    def test_superuser_can_have_a_password(self) -> None:
-        """Superusers can have a real (usable) password for the admin panel."""
-        user = User.objects.create_superuser(
-            "boss@example.com", "Boss", "Admin", password="s3cret!"
-        )
-        assert user.is_staff is True
-        assert user.is_superuser is True
-        assert user.has_usable_password() is True
-        assert user.check_password("s3cret!") is True
-
-    def test_regular_user_is_passwordless(self) -> None:
-        """Member accounts stay passwordless (OTP login)."""
+    def test_user_is_passwordless(self) -> None:
+        """Member accounts are passwordless (OTP login)."""
         user = User.objects.create_user("member@example.com")
         assert not user.has_usable_password()
