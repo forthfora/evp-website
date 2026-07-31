@@ -25,7 +25,7 @@ from django.views.generic import RedirectView
 from config.api import api
 
 urlpatterns = [
-    path("evp-dev/login/", RedirectView.as_view(pattern_name="/", permanent=False)),
+    path("evp-dev/login/", RedirectView.as_view(url="/", permanent=False)),
     path("evp-dev/", admin.site.urls),
     path("api/", api.urls),
 ]

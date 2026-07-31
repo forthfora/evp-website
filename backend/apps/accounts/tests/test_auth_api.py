@@ -68,6 +68,53 @@ class RequestOTPTests(TestCase):
         response = self._request_code("test@example.com")
         assert response.status_code == 500
 
+    def _age_otps(self, seconds: int) -> None:
+        """Backdate all OTP rows so the throttling window elapses."""
+        EmailOTP.objects.update(created_at=timezone.now() - timedelta(seconds=seconds))
+
+    @patch("apps.accounts.api.send_otp_email")
+    def test_immediate_second_request_is_throttled(self, mock_send) -> None:
+        """A second request within the 15s leniency is rejected with 429."""
+        assert self._request_code("throttle@example.com").status_code == 200
+        resp = self._request_code("throttle@example.com")
+        assert resp.status_code == 429
+        assert "seconds" in resp.json()["detail"]
+
+    @patch("apps.accounts.api.send_otp_email")
+    def test_request_allowed_after_wait(self, mock_send) -> None:
+        """After the leniency window passes, the next request is allowed."""
+        assert self._request_code("throttle@example.com").status_code == 200
+        self._age_otps(16)
+        assert self._request_code("throttle@example.com").status_code == 200
+
+    @patch("apps.accounts.api.send_otp_email")
+    def test_cooldown_escalates_after_three_requests(self, mock_send) -> None:
+        """The 4th request within a burst is throttled harder (60s tier)."""
+        for _ in range(3):
+            assert self._request_code("throttle@example.com").status_code == 200
+            self._age_otps(16)
+        resp = self._request_code("throttle@example.com")
+        assert resp.status_code == 429
+        # 16s of the 60s tier have elapsed -> 44s remain.
+        assert "44 seconds" in resp.json()["detail"]
+        self._age_otps(61)
+        assert self._request_code("throttle@example.com").status_code == 200
+
+    @patch("apps.accounts.api.send_otp_email")
+    def test_successful_login_resets_throttle(self, mock_send) -> None:
+        """Logging in clears the request throttle for that email."""
+        email = "reset@example.com"
+        assert self._request_code(email).status_code == 200
+        assert self._request_code(email).status_code == 429
+        code = EmailOTP.objects.get(email=email).code
+        resp = self.client.post(
+            "/api/accounts/otp/verify",
+            {"email": email, "code": code},
+            content_type="application/json",
+        )
+        assert resp.status_code == 200
+        assert self._request_code(email).status_code == 200
+
 
 class VerifyOTPTests(TestCase):
     """Tests for POST /api/accounts/otp/verify."""
@@ -233,6 +280,25 @@ class LogoutTests(TestCase):
         """Logging out without a session returns 401."""
         response = self.client.post(self.url)
         assert response.status_code == 401
+
+    def _request_code(self, email: str):
+        with patch("apps.accounts.api.send_otp_email"):
+            return self.client.post(
+                "/api/accounts/otp/request",
+                {"email": email},
+                content_type="application/json",
+            )
+
+    def test_logout_resets_otp_throttle(self) -> None:
+        """Logging out clears the request throttle for the user's email."""
+        user = User.objects.create_user("logout@example.com")
+        self.client.force_login(user)
+        assert self._request_code("logout@example.com").status_code == 200
+        assert self._request_code("logout@example.com").status_code == 429
+
+        resp = self.client.post(self.url)
+        assert resp.status_code == 204
+        assert self._request_code("logout@example.com").status_code == 200
 
 
 class UpdateMeTests(TestCase):

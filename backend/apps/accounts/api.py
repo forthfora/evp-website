@@ -33,15 +33,24 @@ router = Router(tags=["Accounts"])
 @router.post(
     "/otp/request",
     auth=None,
-    response={200: RequestOTPOut, 500: None},
+    response={200: RequestOTPOut, 429: None, 500: None},
     summary="Sends an OTP and reports whether an account exists.",
 )
 def request_otp(request, payload: RequestOTPIn):
-    exists = User.objects.filter(email=payload.email).exists()
-    otp = EmailOTP.objects.create(email=payload.email)
+    email = payload.email
+    wait = EmailOTP.remaining_cooldown(email)
+    if wait > 0:
+        raise HttpError(
+            429,
+            f"Please wait {wait} second{'s' if wait != 1 else ''} "
+            "before requesting another code.",
+        )
+
+    exists = User.objects.filter(email=email).exists()
+    otp = EmailOTP.objects.create(email=email)
 
     try:
-        send_otp_email(payload.email, otp.code)
+        send_otp_email(email, otp.code)
 
     except EmailSendError as err:
         logger.exception("Failed to send OTP email")
@@ -83,6 +92,10 @@ def verify_otp(request, payload: VerifyOTPIn):
         user.save(update_fields=["password"])
     login(request, user)
 
+    # A successful login means the code was delivered — reset the request
+    # throttle so legitimate users aren't penalised.
+    EmailOTP.reset_throttle(payload.email)
+
     return VerifyOTPOut(created=created)
 
 
@@ -93,6 +106,8 @@ def verify_otp(request, payload: VerifyOTPIn):
     summary="Logs the authenticated user out.",
 )
 def logout_view(request):
+    user: User = request.user  # type: ignore
+    EmailOTP.reset_throttle(user.email)
     logout(request)
     return HttpResponse(status=204)
 

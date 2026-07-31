@@ -1,5 +1,6 @@
 from __future__ import annotations  # make type hints lazy
 
+import math
 import secrets
 import uuid
 from datetime import timedelta
@@ -147,10 +148,46 @@ class EmailOTP(models.Model):
         """Maximum number of failed verification attempts before lockout."""
         return 5
 
-    @property
-    def cooldown_seconds(self) -> int:
-        """Minimum seconds between request-code calls for the same email."""
-        return 1  # HACK
+    # --- Request throttling ------------------------------------------------
+    # Graduated cooldown (seconds) that must elapse before the *next* request,
+    # indexed by how many OTPs already exist for the email within
+    # THROTTLE_WINDOW: the first 3 requests are 15s apart, the 4th waits 60s,
+    # the 5th 5 minutes, and later requests escalate (doubling, capped at
+    # THROTTLE_MAX_WAIT). This exists only to stop abuse: it decays once the
+    # requests age out of the window, and is cleared entirely on successful
+    # login or logout.
+    THROTTLE_WINDOW = timedelta(minutes=10)
+    THROTTLE_TIERS = (15, 15, 15, 60, 300)
+    THROTTLE_MAX_WAIT = 3600
+
+    @classmethod
+    def throttle_wait_seconds(cls, email: str) -> int:
+        """Seconds the next request for `email` must wait, based on recent ones."""
+        since = timezone.now() - cls.THROTTLE_WINDOW
+        count = cls.objects.filter(email=email, created_at__gte=since).count()
+        if count < len(cls.THROTTLE_TIERS):
+            return cls.THROTTLE_TIERS[count]
+        wait = 600
+        for _ in range(count - len(cls.THROTTLE_TIERS)):
+            wait *= 2
+        return min(wait, cls.THROTTLE_MAX_WAIT)
+
+    @classmethod
+    def remaining_cooldown(cls, email: str) -> int:
+        """Seconds until the next request for `email` is allowed (0 = allowed)."""
+        last = cls.objects.filter(email=email).order_by("-created_at").first()
+        if last is None:
+            return 0
+        wait = cls.throttle_wait_seconds(email)
+        elapsed = (timezone.now() - last.created_at).total_seconds()
+        if elapsed >= wait:
+            return 0
+        return math.ceil(wait - elapsed)
+
+    @classmethod
+    def reset_throttle(cls, email: str) -> None:
+        """Clear the request throttle for `email` (after login/logout)."""
+        cls.objects.filter(email=email).delete()
 
     def try_consume(self, code: str) -> bool:
         self.attempts += 1
