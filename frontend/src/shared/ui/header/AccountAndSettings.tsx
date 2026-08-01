@@ -57,10 +57,10 @@ export function AccountAndSettings() {
 					<button
 						onClick={logout}
 						className="button-underline flex cursor-pointer items-center gap-1 px-2 py-1.5 text-sm"
-						aria-label="Log out"
+						aria-label="log out"
 					>
-						<LogOut size={16} />
-						<span className="hidden md:inline">Log out</span>
+						<LogOut size={20} />
+						<span className="hidden md:inline">log out</span>
 					</button>
 				</>
 			) : (

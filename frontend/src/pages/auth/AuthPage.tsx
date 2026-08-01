@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
+import { useEffect, useRef } from 'react';
 
 import { stepVariants } from './styles';
 import { CodeStep } from './steps/CodeStep';
@@ -9,6 +10,12 @@ import { PageMeta } from '@/shared/ui/common';
 
 export function AuthPage() {
 	const flow = useAuthFlow();
+	const playIntroRef = useRef(true);
+	const playIntro = playIntroRef.current;
+
+	useEffect(() => {
+		playIntroRef.current = false;
+	}, []);
 
 	return (
 		<div className="flex w-full items-center justify-center overflow-hidden px-4 pt-35">
@@ -16,12 +23,12 @@ export function AuthPage() {
 				title="Join EVP"
 				description="Become a member of EVP, the premier VC society at the University of Edinburgh."
 			/>
-			<AnimatePresence mode="wait" custom={flow.direction} initial={false}>
+			<AnimatePresence mode="wait" custom={flow.direction}>
 				<motion.div
 					key={flow.step}
 					custom={flow.direction}
 					variants={stepVariants}
-					initial="enter"
+					initial={playIntro ? false : 'enter'}
 					animate="center"
 					exit="exit"
 					transition={{ duration: 0.35, ease: 'easeInOut' }}
@@ -34,6 +41,7 @@ export function AuthPage() {
 							onSubmit={flow.handleSendCode}
 							isSubmitting={flow.isSendingCode}
 							error={flow.error}
+							playIntro={playIntro}
 						/>
 					)}
 

@@ -36,13 +36,13 @@ export function CodeStep({
 		<div className="mx-auto w-full max-w-md">
 			<div className="glass-box rounded-2xl p-8 shadow-xl md:p-12">
 				<h1 className="mb-2 text-center text-3xl font-bold">Check your email</h1>
-				<p className="text-foreground/60 mb-8 text-center text-sm">
+				<p className="text-foreground/60 mb-2 text-center text-sm">
 					We sent a 6-digit code to {email}
 				</p>
 
-				{error && <ErrorBanner message={error} />}
+				<ErrorBanner message={error ?? ''} />
 
-				<div className="flex flex-col gap-4">
+				<div className="flex flex-col gap-4 pt-2">
 					<div className="flex justify-center gap-2" onPaste={onDigitPaste}>
 						{codeDigits.map((digit, i) => (
 							<input

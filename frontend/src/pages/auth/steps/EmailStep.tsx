@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 
 import { ErrorBanner } from '../ErrorBanner';
 import { inputClass, primaryBtnClass } from '../styles';
-import { useEffect, useState } from 'react';
 import { SectionDivider } from '@/shared/ui/common';
 
 type EmailStepProps = {
@@ -12,26 +11,32 @@ type EmailStepProps = {
 	onSubmit: () => void;
 	isSubmitting: boolean;
 	error: string | null;
+	playIntro: boolean;
 };
 
-export function EmailStep({ email, onEmailChange, onSubmit, isSubmitting, error }: EmailStepProps) {
-	const mounted = useMounted();
-
+export function EmailStep({
+	email,
+	onEmailChange,
+	onSubmit,
+	isSubmitting,
+	error,
+	playIntro,
+}: EmailStepProps) {
 	return (
 		<div className="mx-auto flex w-full max-w-5xl items-center justify-center gap-14">
 			<motion.img
 				src={joinImage}
 				alt="Auth page banner."
-				initial={{ opacity: 0, x: -40 }}
-				animate={mounted ? { opacity: 1, x: 0 } : { opacity: 0, x: -40 }}
+				initial={playIntro ? { opacity: 0, x: -40 } : false}
+				animate={{ opacity: 1, x: 0 }}
 				transition={{ duration: 0.6, delay: 0.2, ease: 'easeOut' }}
 				className="hidden h-140 w-1/2 max-w-lg rounded-2xl object-cover shadow-2xl lg:block"
 			/>
 
 			<div className="w-full max-w-md">
 				<motion.p
-					initial={{ opacity: 0, x: -1000 }}
-					animate={mounted ? { opacity: 1, x: 0 } : { opacity: 0, x: 40 }}
+					initial={playIntro ? { opacity: 0, x: 40 } : false}
+					animate={{ opacity: 1, x: 0 }}
 					transition={{ duration: 0.6, delay: 0.3, ease: 'easeOut' }}
 					className="text-foreground mb-6 text-center text-3xl italic"
 				>
@@ -44,8 +49,8 @@ export function EmailStep({ email, onEmailChange, onSubmit, isSubmitting, error 
 
 				<motion.div
 					className="glass-box rounded-2xl p-8 shadow-xl md:p-10"
-					initial={{ opacity: 0, x: -40 }}
-					animate={mounted ? { opacity: 1, x: 0 } : { opacity: 0, x: 40 }}
+					initial={playIntro ? { opacity: 0, x: 40 } : false}
+					animate={{ opacity: 1, x: 0 }}
 					transition={{ duration: 0.6, delay: 0.5, ease: 'easeOut' }}
 				>
 					<p className="text-foreground mb-8 text-center text-3xl">Just enter your email below.</p>
@@ -86,14 +91,4 @@ export function EmailStep({ email, onEmailChange, onSubmit, isSubmitting, error 
 			</div>
 		</div>
 	);
-}
-
-export function useMounted() {
-	const [mounted, setMounted] = useState(false);
-
-	useEffect(() => {
-		setMounted(true);
-	}, []);
-
-	return mounted;
 }
