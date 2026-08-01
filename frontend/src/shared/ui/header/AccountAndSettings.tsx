@@ -2,14 +2,14 @@ import '@/shared/styles/button-underline.css';
 import '@/shared/styles/button-spin.css';
 
 import { InteractiveLinkButton } from '@common';
+import { AnimatePresence, motion } from 'framer-motion';
 import { LogOut, Moon, Sun } from 'lucide-react';
+import { Link } from 'react-router';
 
 import { Role } from '@/shared/lib/auth/schemas';
 import { useAuth } from '@/shared/lib/auth/use-auth';
 import { cn } from '@/shared/lib/utils';
 import { useTheme } from '@/shared/ui/theme/ThemeContext.data';
-import { Link } from 'react-router';
-import { AnimatePresence, motion } from 'framer-motion';
 
 const roleBadge: Record<string, string> = {
 	[Role.MEMBER]: 'bg-foreground/15 text-foreground',

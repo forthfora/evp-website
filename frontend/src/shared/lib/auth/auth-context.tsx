@@ -1,11 +1,11 @@
 /* eslint-disable react-refresh/only-export-components -- the useAuth hook must live with the provider */
 import { createContext, type ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 
+import { browserRouter } from '@/app/browser-router';
 import { setUnauthorizedHandler } from '@/shared/lib/api';
 
 import { fetchMe, logout as logoutRequest } from './api';
 import type { MeResponse } from './schemas';
-import { browserRouter } from '@/app/browser-router';
 
 interface AuthContextValue {
 	/** The authenticated user's profile, or `null` when signed out. */

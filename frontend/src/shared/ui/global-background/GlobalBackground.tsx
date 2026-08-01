@@ -4,9 +4,12 @@ import { useTheme } from '../theme/ThemeContext.data';
 
 const ColorBends = lazy(() => import('./ColorBends'));
 
+const DARK_COLORS = ['292852', '0d0c2b'];
+const LIGHT_COLORS = ['6262a1', '7676a3'];
+
 export function GlobalBackground() {
 	const { theme } = useTheme();
-	const colors = theme === 'dark' ? ['292852', '0d0c2b'] : ['6262a1', '7676a3'];
+	const colors = theme === 'dark' ? DARK_COLORS : LIGHT_COLORS;
 
 	const fallbackBgClass = theme === 'dark' ? 'bg-[#0d0c2b]' : 'bg-[#7676a3]';
 
@@ -30,6 +33,7 @@ export function GlobalBackground() {
 					bandWidth={6}
 					transparent={true}
 					autoRotate={1}
+					maxPixelRatio={1}
 				/>
 			</Suspense>
 		</div>

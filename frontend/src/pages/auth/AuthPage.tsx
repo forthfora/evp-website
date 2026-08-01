@@ -1,12 +1,13 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef } from 'react';
 
-import { stepVariants } from './styles';
+import { PageMeta } from '@/shared/ui/common';
+
 import { CodeStep } from './steps/CodeStep';
 import { EmailStep } from './steps/EmailStep';
 import { NamesStep } from './steps/NamesStep';
+import { stepVariants } from './styles';
 import { useAuthFlow } from './useAuthFlow';
-import { PageMeta } from '@/shared/ui/common';
 
 export function AuthPage() {
 	const flow = useAuthFlow();

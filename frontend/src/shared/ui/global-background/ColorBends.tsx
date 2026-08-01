@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
 	Mesh,
 	OrthographicCamera,
@@ -29,9 +29,19 @@ type ColorBendsProps = {
 	iterations?: number;
 	intensity?: number;
 	bandWidth?: number;
+	maxPixelRatio?: number;
 };
 
 const MAX_COLORS = 8 as const;
+
+const toVec3 = (hex: string) => {
+	const h = hex.replace('#', '').trim();
+	const v =
+		h.length === 3
+			? [parseInt(h[0] + h[0], 16), parseInt(h[1] + h[1], 16), parseInt(h[2] + h[2], 16)]
+			: [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+	return new Vector3(v[0] / 255, v[1] / 255, v[2] / 255);
+};
 
 const frag = `
 #define MAX_COLORS ${MAX_COLORS}
@@ -153,6 +163,7 @@ export default function ColorBends({
 	iterations = 1,
 	intensity = 1.5,
 	bandWidth = 6,
+	maxPixelRatio = 2,
 }: ColorBendsProps) {
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const rendererRef = useRef<WebGLRenderer | null>(null);
@@ -161,17 +172,7 @@ export default function ColorBends({
 	const resizeObserverRef = useRef<ResizeObserver | null>(null);
 	const rotationRef = useRef<number>(rotation);
 	const autoRotateRef = useRef<number>(autoRotate);
-	const pointerTargetRef = useRef<Vector2>(new Vector2(0, 0));
-	const pointerCurrentRef = useRef<Vector2>(new Vector2(0, 0));
-	const pointerSmoothRef = useRef<number>(8);
-
-	// Ready flag ensures we hide initialization context creation flashes
-	const [isReady, setIsReady] = useState(false);
-
-	const setIsReadyRef = useRef(setIsReady);
-	useEffect(() => {
-		setIsReadyRef.current = setIsReady;
-	}, [setIsReady]);
+	const readyRef = useRef(false);
 
 	useEffect(() => {
 		const container = containerRef.current!;
@@ -219,7 +220,7 @@ export default function ColorBends({
 
 		renderer.outputColorSpace = SRGBColorSpace;
 
-		renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+		renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, maxPixelRatio));
 		renderer.setClearColor(0x000000, transparent ? 0 : 1);
 		renderer.domElement.style.width = '100%';
 		renderer.domElement.style.height = '100%';
@@ -249,7 +250,6 @@ export default function ColorBends({
 		const loop = () => {
 			timer.update();
 
-			const dt = timer.getDelta();
 			const elapsed = timer.getElapsed() + timeOffset;
 			material.uniforms.uTime.value = elapsed;
 
@@ -259,15 +259,14 @@ export default function ColorBends({
 			const s = Math.sin(rad);
 			(material.uniforms.uRot.value as Vector2).set(c, s);
 
-			const cur = pointerCurrentRef.current;
-			const tgt = pointerTargetRef.current;
-			const amt = Math.min(1, dt * pointerSmoothRef.current);
-			cur.lerp(tgt, amt);
-			(material.uniforms.uPointer.value as Vector2).copy(cur);
 			renderer.render(scene, camera);
 
-			// Fade canvas element in safely on the frame immediately following canvas paint
-			setIsReadyRef.current(true);
+			// Fade in via DOM attribute (no re-render — a re-render would
+			// reconcile the container div and remove the imperatively added canvas)
+			if (!readyRef.current) {
+				readyRef.current = true;
+				container.dataset.ready = 'true';
+			}
 
 			rafRef.current = requestAnimationFrame(loop);
 		};
@@ -306,15 +305,6 @@ export default function ColorBends({
 		material.uniforms.uIntensity.value = intensity;
 		material.uniforms.uBandWidth.value = bandWidth;
 
-		const toVec3 = (hex: string) => {
-			const h = hex.replace('#', '').trim();
-			const v =
-				h.length === 3
-					? [parseInt(h[0] + h[0], 16), parseInt(h[1] + h[1], 16), parseInt(h[2] + h[2], 16)]
-					: [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
-			return new Vector3(v[0] / 255, v[1] / 255, v[2] / 255);
-		};
-
 		const arr = (colors || []).filter(Boolean).slice(0, MAX_COLORS).map(toVec3);
 		for (let i = 0; i < MAX_COLORS; i++) {
 			const vec = (material.uniforms.uColors.value as Vector3[])[i];
@@ -342,30 +332,10 @@ export default function ColorBends({
 		transparent,
 	]);
 
-	useEffect(() => {
-		const material = materialRef.current;
-		const container = containerRef.current;
-		if (!material || !container) return;
-
-		const handlePointerMove = (e: PointerEvent) => {
-			const rect = container.getBoundingClientRect();
-			const x = ((e.clientX - rect.left) / (rect.width || 1)) * 2 - 1;
-			const y = -(((e.clientY - rect.top) / (rect.height || 1)) * 2 - 1);
-			pointerTargetRef.current.set(x, y);
-		};
-
-		container.addEventListener('pointermove', handlePointerMove);
-		return () => {
-			container.removeEventListener('pointermove', handlePointerMove);
-		};
-	}, []);
-
 	return (
 		<div
 			ref={containerRef}
-			className={`relative h-full w-full overflow-hidden transition-opacity duration-500 ${
-				isReady ? 'opacity-100' : 'opacity-0'
-			} ${className}`}
+			className={`relative h-full w-full overflow-hidden opacity-0 transition-opacity duration-500 data-[ready=true]:opacity-100 ${className ?? ''}`}
 			style={style}
 		/>
 	);

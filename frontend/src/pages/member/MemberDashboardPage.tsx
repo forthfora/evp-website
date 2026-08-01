@@ -1,5 +1,6 @@
 import type { Role } from '@/shared/lib/auth/schemas';
 import { useAuth } from '@/shared/lib/auth/use-auth';
+import { PageMeta } from '@/shared/ui/common';
 
 import { widgetRegistry } from './widgets';
 
@@ -11,6 +12,8 @@ export function MemberDashboardPage() {
 
 	return (
 		<div className="flex w-full flex-col gap-8 px-4 py-30 md:px-8">
+			<PageMeta title="Member Dashboard" description="Manage your VenturePoint account." />
+
 			<h1 className="text-4xl font-bold">Member Dashboard</h1>
 
 			<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">

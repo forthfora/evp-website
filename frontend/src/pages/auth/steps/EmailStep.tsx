@@ -1,9 +1,10 @@
 import joinImage from '@assets/homepage/promo-bar.webp';
 import { motion } from 'framer-motion';
 
+import { SectionDivider } from '@/shared/ui/common';
+
 import { ErrorBanner } from '../ErrorBanner';
 import { inputClass, primaryBtnClass } from '../styles';
-import { SectionDivider } from '@/shared/ui/common';
 
 type EmailStepProps = {
 	email: string;
