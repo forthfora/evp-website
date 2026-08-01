@@ -66,9 +66,10 @@ export function AccountAndSettings() {
 			) : (
 				<Link
 					to="/join"
-					className="button-underline text-md cursor-pointer px-3 py-1.5 font-medium no-underline"
+					className="bg-accent hover:bg-accent/80 shadow-accent/25 hover:shadow-accent/40 rounded-full px-6 py-2 text-sm font-bold tracking-widest text-white uppercase shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl active:scale-95"
+					viewTransition
 				>
-					Join
+					Join EVP
 				</Link>
 			)}
 		</div>

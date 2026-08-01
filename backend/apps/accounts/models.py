@@ -148,16 +148,8 @@ class EmailOTP(models.Model):
         """Maximum number of failed verification attempts before lockout."""
         return 5
 
-    # --- Request throttling ------------------------------------------------
-    # Graduated cooldown (seconds) that must elapse before the *next* request,
-    # indexed by how many OTPs already exist for the email within
-    # THROTTLE_WINDOW: the first 3 requests are 15s apart, the 4th waits 60s,
-    # the 5th 5 minutes, and later requests escalate (doubling, capped at
-    # THROTTLE_MAX_WAIT). This exists only to stop abuse: it decays once the
-    # requests age out of the window, and is cleared entirely on successful
-    # login or logout.
     THROTTLE_WINDOW = timedelta(minutes=10)
-    THROTTLE_TIERS = (15, 15, 15, 60, 300)
+    THROTTLE_TIERS = (5, 15, 30, 60, 300)
     THROTTLE_MAX_WAIT = 3600
 
     @classmethod

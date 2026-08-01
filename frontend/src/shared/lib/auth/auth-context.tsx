@@ -5,6 +5,7 @@ import { setUnauthorizedHandler } from '@/shared/lib/api';
 
 import { fetchMe, logout as logoutRequest } from './api';
 import type { MeResponse } from './schemas';
+import { browserRouter } from '@/app/browser-router';
 
 interface AuthContextValue {
 	/** The authenticated user's profile, or `null` when signed out. */
@@ -60,6 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 					await logoutRequest();
 				} finally {
 					setUser(null);
+					browserRouter.navigate('/', { viewTransition: true });
 				}
 			},
 		}),
