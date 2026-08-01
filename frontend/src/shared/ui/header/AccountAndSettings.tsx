@@ -1,8 +1,8 @@
 import '@/shared/styles/button-underline.css';
 import '@/shared/styles/button-spin.css';
 
+import { InteractiveLinkButton } from '@common';
 import { LogOut, Moon, Sun } from 'lucide-react';
-import { Link } from 'react-router';
 
 import { Role } from '@/shared/lib/auth/schemas';
 import { useAuth } from '@/shared/lib/auth/use-auth';
@@ -64,13 +64,13 @@ export function AccountAndSettings() {
 					</button>
 				</>
 			) : (
-				<Link
+				<InteractiveLinkButton
 					to="/join"
-					className="bg-accent hover:bg-accent/80 shadow-accent/25 hover:shadow-accent/40 rounded-full px-6 py-2 text-sm font-bold tracking-widest text-white uppercase shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl active:scale-95"
-					viewTransition
+					className="px-6 py-2 text-sm tracking-widest uppercase"
+					ariaLabel="Join EVP"
 				>
 					Join EVP
-				</Link>
+				</InteractiveLinkButton>
 			)}
 		</div>
 	);

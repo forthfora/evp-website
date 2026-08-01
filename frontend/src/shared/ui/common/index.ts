@@ -1,6 +1,7 @@
 export * from './contact/ContactSection';
 export * from './contact/InteractiveContactButton';
 export * from './EventsBanner';
+export * from './InteractiveLinkButton';
 export * from './PageMeta';
 export * from './RadialGlowOverlay';
 export * from './ScrollingImageBanner';

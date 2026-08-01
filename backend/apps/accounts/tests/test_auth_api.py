@@ -90,13 +90,16 @@ class RequestOTPTests(TestCase):
     @patch("apps.accounts.api.send_otp_email")
     def test_cooldown_escalates_after_three_requests(self, mock_send) -> None:
         """The 4th request within a burst is throttled harder (60s tier)."""
-        for _ in range(3):
-            assert self._request_code("throttle@example.com").status_code == 200
-            self._age_otps(16)
+        assert self._request_code("throttle@example.com").status_code == 200
+        self._age_otps(16)
+        assert self._request_code("throttle@example.com").status_code == 200
+        self._age_otps(31)
+        assert self._request_code("throttle@example.com").status_code == 200
+        # The 4th request now sits in the 60s tier -> throttled immediately.
         resp = self._request_code("throttle@example.com")
         assert resp.status_code == 429
-        # 16s of the 60s tier have elapsed -> 44s remain.
-        assert "44 seconds" in resp.json()["detail"]
+        assert "60 seconds" in resp.json()["detail"]
+        # After the 60s tier elapses, the next request is allowed again.
         self._age_otps(61)
         assert self._request_code("throttle@example.com").status_code == 200
 

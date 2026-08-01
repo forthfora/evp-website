@@ -50,8 +50,7 @@ def send_email(
     *,
     from_email: str | None = None,
 ):
-    """Send an email via Resend, or log it in DEBUG mode.
-
+    """Send an email via Resend, or log it when sending is disabled.
     Args:
         to: Recipient email address(es). A single string or a list of strings.
         subject: Email subject line.
@@ -64,31 +63,32 @@ def send_email(
     sender = from_email or settings.FROM_EMAIL
     recipients = [to] if isinstance(to, str) else to
 
-    if settings.DEBUG:
+    if not settings.RESEND_ENABLED:
         logger.info(
-            "[DEBUG EMAIL] To: %s | Subject: %s | Body:\n%s",
+            "[LOG-ONLY EMAIL] To: %s | Subject: %s | Body:\n%s",
             ", ".join(recipients),
             subject,
             body,
         )
+        return
 
-    else:
-        try:
-            if resend is None:
-                raise ValueError("Resend API is missing.")
+    print("Sending email via Resend.")
+    try:
+        if resend is None:
+            raise ValueError("Resend API is missing.")
 
-            resend.Emails.send(
-                params={
-                    "from": sender,
-                    "to": recipients,
-                    "subject": subject,
-                    "html": body,
-                }
-            )
+        resend.Emails.send(
+            params={
+                "from": sender,
+                "to": recipients,
+                "subject": subject,
+                "html": body,
+            }
+        )
 
-        except Exception as err:
-            logger.error("Failed to send email via Resend: %s", err)
-            raise EmailSendError(err) from err
+    except Exception as err:
+        logger.error("Failed to send email via Resend: %s", err)
+        raise EmailSendError(err) from err
 
 
 def send_otp_email(email: str, code: str):

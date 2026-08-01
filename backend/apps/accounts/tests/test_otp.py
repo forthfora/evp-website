@@ -89,13 +89,13 @@ class EmailOTPModelTests(HypothesisTestCase):
                 expected.timestamp(), abs=1
             )
 
-    def test_throttle_first_three_requests_wait_15_seconds(self) -> None:
-        """The first three requests are throttled to 15s apart."""
-        assert EmailOTP.throttle_wait_seconds("throttle@example.com") == 15
+    def test_throttle_starts_low_and_escalates(self) -> None:
+        """The wait starts at the first tier and escalates per request."""
+        assert EmailOTP.throttle_wait_seconds("throttle@example.com") == 5
         EmailOTP.objects.create(email="throttle@example.com")
         assert EmailOTP.throttle_wait_seconds("throttle@example.com") == 15
         EmailOTP.objects.create(email="throttle@example.com")
-        assert EmailOTP.throttle_wait_seconds("throttle@example.com") == 15
+        assert EmailOTP.throttle_wait_seconds("throttle@example.com") == 30
 
     def test_throttle_escalates_after_three_requests(self) -> None:
         """The 4th request waits 60s, the 5th 5 minutes, then it escalates."""
@@ -140,7 +140,7 @@ class EmailOTPModelTests(HypothesisTestCase):
         ):
             for _ in range(6):
                 EmailOTP.objects.create(email="throttle@example.com")
-        assert EmailOTP.throttle_wait_seconds("throttle@example.com") == 15
+        assert EmailOTP.throttle_wait_seconds("throttle@example.com") == 5
 
     def test_reset_throttle_clears_requests(self) -> None:
         """reset_throttle removes the request history for an email."""

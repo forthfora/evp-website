@@ -271,17 +271,6 @@ function ContactFormSection() {
 						Fill in the form below and we'll get back to you as soon as possible.
 					</p>
 
-					{/* TODO */}
-					{/* <p className="text-foreground-muted md:text-md text-sm">
-						Alternatively, email us directly at:{' '}
-						<a
-							href="mailto:edinburghventurepoint@gmail.com"
-							className="button-underline transition-colors"
-						>
-							edinburghventurepoint@gmail.com
-						</a>
-					</p> */}
-
 					<div className="flex w-full flex-col gap-4">
 						{/* Name */}
 						<div className="flex flex-col gap-1.5">

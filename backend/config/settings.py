@@ -67,8 +67,12 @@ TO_EMAILS = config(
     default="",
     cast=lambda v: [s.strip() for s in v.split(",") if s.strip()],
 )
-FROM_EMAIL = "website-contact@mail.edinburghventurepoint.com"
+FROM_EMAIL = "noreply@mail.edinburghventurepoint.com"
 RESEND_API_KEY = config("RESEND_API_KEY", default=None)
+
+RESEND_ENABLED = config("RESEND_ENABLED", default=not DEBUG, cast=bool)
+if "test" in sys.argv:
+    RESEND_ENABLED = False
 
 if DEBUG:
     # output 'email' to console
