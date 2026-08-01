@@ -42,6 +42,8 @@ class EmailChangeIn(Schema):
 class MemberOut(Schema):
     username: str
     email: str
+    first_name: str
+    last_name: str
     role: str
     date_joined: str
     receives_update_emails: bool

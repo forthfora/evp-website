@@ -187,6 +187,8 @@ def list_members(request: HttpRequest):
         MemberOut(
             username=u.username,
             email=u.email,
+            first_name=u.first_name,
+            last_name=u.last_name,
             role=u.role,
             date_joined=u.date_joined.isoformat(),
             receives_update_emails=u.receives_update_emails,

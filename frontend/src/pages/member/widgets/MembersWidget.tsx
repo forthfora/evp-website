@@ -1,15 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { fetchMembers } from '@/shared/lib/auth/api';
-import { Role } from '@/shared/lib/auth/schemas';
+import { RoleColors } from '@/shared/lib/auth/schemas';
 import { cn } from '@/shared/lib/utils';
-
-const roleBadge: Record<string, string> = {
-	[Role.MEMBER]: 'bg-gray-500/20 text-gray-400',
-	[Role.SCOUT]: 'bg-blue-500/20 text-blue-400',
-	[Role.COMMITTEE]: 'bg-purple-500/20 text-purple-400',
-	[Role.ADMIN]: 'bg-amber-500/20 text-amber-400',
-};
 
 function formatDate(iso: string): string {
 	const d = new Date(iso);
@@ -29,8 +22,10 @@ export function MembersWidget() {
 
 	return (
 		<div className="glass-box rounded-2xl p-8">
-			<h2 className="text-2xl font-bold">Members</h2>
-			<p className="text-foreground/60 mt-1 text-sm">View all society members.</p>
+			<h2 className="text-2xl font-bold">member list</h2>
+			<p className="text-foreground/60 mt-1 text-sm">
+				All members of EVP registered to the site. Only visible to committee members.
+			</p>
 
 			<div className="mt-5">
 				{isLoading && <p className="text-foreground/60 text-sm">Loading members…</p>}
@@ -46,16 +41,18 @@ export function MembersWidget() {
 						<thead>
 							<tr className="text-foreground/50 border-accent/20 border-b text-xs tracking-widest uppercase">
 								<th className="pb-2 font-semibold">email</th>
+								<th className="pb-2 font-semibold">first name</th>
+								<th className="pb-2 font-semibold">last name</th>
 								<th className="pb-2 font-semibold">role</th>
 								<th className="pb-2 font-semibold">joined</th>
-								<th className="pb-2 font-semibold">updates</th>
+								<th className="pb-2 font-semibold">email updates</th>
 							</tr>
 						</thead>
 						<tbody>
 							{members.length === 0 && (
 								<tr>
 									<td colSpan={4} className="text-foreground/60 py-4">
-										No members yet.
+										No members found.
 									</td>
 								</tr>
 							)}
@@ -66,11 +63,13 @@ export function MembersWidget() {
 											{member.email}
 										</span>
 									</td>
+									<td className="text-foreground/60 py-2">{member.first_name}</td>
+									<td className="text-foreground/60 mx-auto py-2">{member.last_name}</td>
 									<td className="py-2 pr-2">
 										<span
 											className={cn(
-												'rounded-full px-2 py-0.5 text-xs font-medium capitalize',
-												roleBadge[member.role] ?? 'bg-gray-500/20 text-gray-400',
+												'rounded-full px-2 py-0.5 text-xs font-medium',
+												RoleColors[member.role] ?? 'bg-gray-500/20 text-gray-400',
 											)}
 										>
 											{member.role}

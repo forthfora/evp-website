@@ -6,17 +6,10 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { LogOut, Moon, Sun } from 'lucide-react';
 import { Link } from 'react-router';
 
-import { Role } from '@/shared/lib/auth/schemas';
+import { RoleColors } from '@/shared/lib/auth/schemas';
 import { useAuth } from '@/shared/lib/auth/use-auth';
 import { cn } from '@/shared/lib/utils';
 import { useTheme } from '@/shared/ui/theme/ThemeContext.data';
-
-const roleBadge: Record<string, string> = {
-	[Role.MEMBER]: 'bg-foreground/15 text-foreground',
-	[Role.SCOUT]: 'bg-blue-400/60 text-foreground',
-	[Role.COMMITTEE]: 'bg-amber-400/60 text-foreground',
-	[Role.ADMIN]: 'bg-red-500/20 text-red-500',
-};
 
 export function AccountAndSettings() {
 	const { theme, toggleTheme } = useTheme();
@@ -77,8 +70,8 @@ export function AccountAndSettings() {
 						</p>
 						<span
 							className={cn(
-								'rounded-full px-2 py-0.5 text-xs font-medium capitalize',
-								roleBadge[user.role] ?? 'bg-gray-500/20 text-gray-400',
+								'rounded-full px-2 py-0.5 text-xs font-medium',
+								RoleColors[user.role] ?? 'bg-gray-500/20 text-gray-400',
 							)}
 						>
 							{user.role}

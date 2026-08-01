@@ -32,9 +32,9 @@ export function AdminUpdatesWidget() {
 
 	return (
 		<div className="glass-box rounded-2xl p-8">
-			<h2 className="text-2xl font-bold">Send Update</h2>
+			<h2 className="text-2xl font-bold">send email to all members</h2>
 			<p className="text-foreground/60 mt-1 text-sm">
-				Send an email update to all members who haven&apos;t opted out.
+				Send an email update to all members of EVP (who haven't opted out).
 			</p>
 
 			<form className="mt-5 flex flex-col gap-3" onSubmit={handleSubmit}>
@@ -48,7 +48,7 @@ export function AdminUpdatesWidget() {
 						className={inputClass}
 						value={subject}
 						onChange={(e) => setSubject(e.target.value)}
-						placeholder="EVP update: …"
+						placeholder="Subject line"
 						required
 					/>
 				</div>

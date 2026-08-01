@@ -7,6 +7,13 @@ export const Role = {
 	ADMIN: 'admin',
 } as const;
 
+export const RoleColors: Record<string, string> = {
+	[Role.MEMBER]: 'bg-foreground/15 text-foreground',
+	[Role.SCOUT]: 'bg-accent/60 text-foreground',
+	[Role.COMMITTEE]: 'bg-amber-400/50 text-foreground',
+	[Role.ADMIN]: 'bg-red-700/50 text-foreground',
+};
+
 export type Role = (typeof Role)[keyof typeof Role];
 
 export const RoleSchema = z.enum(['member', 'scout', 'committee', 'admin']);
@@ -58,6 +65,8 @@ export const ChangeEmailInputSchema = z.object({
 /** `GET /api/accounts/members` item */
 export const MemberOutSchema = z.object({
 	username: z.string(),
+	first_name: z.string(),
+	last_name: z.string(),
 	email: z.string(),
 	role: RoleSchema,
 	date_joined: z.string(),
