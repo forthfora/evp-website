@@ -176,13 +176,20 @@ class VerifyOTPTests(TestCase):
         assert self.client.get(self.me_url).json()["email"] == email
 
     def test_verify_code_with_wrong_code_returns_401(self) -> None:
-        """verify-code returns 401 for an incorrect code."""
+        """verify-code returns 401 with the OTP detail for an incorrect code."""
         email = "delivered+wrong@resend.dev"
         code = self._request_code(email)
         wrong = str((int(code) + 1) % 1_000_000).zfill(6)
 
         response = self._verify(email, wrong)
         assert response.status_code == 401
+        # The real HttpError detail must reach the client (not a generic body).
+        assert response.json() == {
+            "detail": (
+                "We're sorry, looks like that code is either invalid or expired. "
+                "Try requesting a new one."
+            )
+        }
 
     def test_verify_code_with_expired_code_returns_401(self) -> None:
         """verify-code returns 401 for an expired code."""

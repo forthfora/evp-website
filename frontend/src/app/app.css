@@ -12,6 +12,12 @@ body,
 	@apply scrollbar-thumb-foreground scrollbar-thin scrollbar-track-transparent;
 }
 
+* {
+	transition-property: background-color, border-color, color, fill, stroke;
+	transition-duration: 500ms;
+	transition-timing-function: ease-in-out;
+}
+
 @theme inline {
 	--color-background: var(--background);
 	--color-background-muted: var(--background-muted);

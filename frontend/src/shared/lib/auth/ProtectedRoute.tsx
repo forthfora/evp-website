@@ -35,7 +35,11 @@ export function RoleRoute({ roles, children }: { roles: Role[]; children: ReactN
 		return (
 			<div className="flex w-full flex-col items-center justify-center gap-4 px-4 py-60 text-center">
 				<h1 className="text-3xl font-bold">Forbidden</h1>
-				<p className="text-foreground/60">You don&apos;t have permission to view this page.</p>
+				<p className="text-foreground/60">
+					We're sorry, you don't have permission to view this page.
+					<br />
+					If you think this is a mistake, please contact the site admins.
+				</p>
 			</div>
 		);
 	}

@@ -1,4 +1,4 @@
-import type { MutableRefObject } from 'react';
+import type { RefObject } from 'react';
 
 import { ErrorBanner } from '../ErrorBanner';
 import { digitInputClass, linkBtnClass, primaryBtnClass } from '../styles';
@@ -6,7 +6,7 @@ import { digitInputClass, linkBtnClass, primaryBtnClass } from '../styles';
 type CodeStepProps = {
 	email: string;
 	codeDigits: string[];
-	inputRefs: MutableRefObject<(HTMLInputElement | null)[]>;
+	inputRefs: RefObject<(HTMLInputElement | null)[]>;
 	onDigitChange: (index: number, value: string) => void;
 	onDigitKeyDown: (index: number, key: string) => void;
 	onDigitPaste: (e: React.ClipboardEvent) => void;
@@ -35,9 +35,17 @@ export function CodeStep({
 	return (
 		<div className="mx-auto w-full max-w-md">
 			<div className="glass-box rounded-2xl p-8 shadow-xl md:p-12">
-				<h1 className="mb-2 text-center text-3xl font-bold">Check your email</h1>
-				<p className="text-foreground/60 mb-2 text-center text-sm">
-					We sent a 6-digit code to {email}
+				<h1 className="mb-2 text-center text-4xl font-bold">Check your inbox!</h1>
+				<p className="text-foreground mb-2 text-center text-lg">
+					We've sent a 6-digit code to{' '}
+					<u>
+						<b>{email}</b>
+					</u>
+				</p>
+				<p className="text-foreground-muted mb-2 text-center text-sm">
+					If you don't see the email, try checking spam.
+					<br />
+					The code expires in 10 minutes.
 				</p>
 
 				<ErrorBanner message={error ?? ''} />
@@ -72,11 +80,11 @@ export function CodeStep({
 					</button>
 
 					<button type="button" onClick={onResend} disabled={isResending} className={linkBtnClass}>
-						{isResending ? 'resending...' : 'Resend code'}
+						{isResending ? 'resending...' : "Didn't receive anything? Request a new code."}
 					</button>
 
 					<button type="button" onClick={onBack} disabled={isVerifying} className={linkBtnClass}>
-						Use a different email
+						Use a different email.
 					</button>
 				</div>
 			</div>

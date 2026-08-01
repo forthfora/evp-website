@@ -64,10 +64,6 @@ def authorization_error_handler(request: HttpRequest, exc: AuthorizationError):
 
 @api.exception_handler(HttpError)
 def http_error_handler(request: HttpRequest, exc: HttpError):
-    if exc.status_code == 401:
-        return api.create_response(
-            request, {"errors": {"token": ["is missing"]}}, status=401
-        )
     return api.create_response(request, {"detail": str(exc)}, status=exc.status_code)
 
 

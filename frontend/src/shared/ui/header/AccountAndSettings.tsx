@@ -8,12 +8,13 @@ import { Role } from '@/shared/lib/auth/schemas';
 import { useAuth } from '@/shared/lib/auth/use-auth';
 import { cn } from '@/shared/lib/utils';
 import { useTheme } from '@/shared/ui/theme/ThemeContext.data';
+import { Link } from 'react-router';
 
 const roleBadge: Record<string, string> = {
-	[Role.MEMBER]: 'bg-gray-500/20 text-gray-400',
-	[Role.SCOUT]: 'bg-blue-500/20 text-blue-400',
-	[Role.COMMITTEE]: 'bg-purple-500/20 text-purple-400',
-	[Role.ADMIN]: 'bg-amber-500/20 text-amber-400',
+	[Role.MEMBER]: 'bg-foreground/15 text-foreground',
+	[Role.SCOUT]: 'bg-blue-400/60 text-foreground',
+	[Role.COMMITTEE]: 'bg-amber-400/60 text-foreground',
+	[Role.ADMIN]: 'bg-red-500/20 text-red-500',
 };
 
 export function AccountAndSettings() {
@@ -41,10 +42,19 @@ export function AccountAndSettings() {
 
 			{isAuthenticated && user ? (
 				<>
-					<div className="hidden items-center gap-2 md:flex">
-						<span className="text-foreground/80 max-w-32 truncate text-sm" title={user.email}>
-							{user.email}
-						</span>
+					<Link
+						to="member"
+						className="button-underline hidden items-center gap-2 md:flex"
+						viewTransition
+					>
+						<p
+							className="text-foreground button-underline max-w-32 truncate text-sm"
+							title={user.email}
+						>
+							<b>
+								{user.first_name} {user.last_name[0]}.
+							</b>
+						</p>
 						<span
 							className={cn(
 								'rounded-full px-2 py-0.5 text-xs font-medium capitalize',
@@ -53,7 +63,7 @@ export function AccountAndSettings() {
 						>
 							{user.role}
 						</span>
-					</div>
+					</Link>
 					<button
 						onClick={logout}
 						className="button-underline flex cursor-pointer items-center gap-1 px-2 py-1.5 text-sm"

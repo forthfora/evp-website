@@ -53,7 +53,9 @@ export function EmailStep({
 					animate={{ opacity: 1, x: 0 }}
 					transition={{ duration: 0.6, delay: 0.5, ease: 'easeOut' }}
 				>
-					<p className="text-foreground mb-8 text-center text-3xl">Just enter your email below.</p>
+					<p className="text-foreground mb-8 text-center text-3xl">
+						<b>Just enter your email below.</b>
+					</p>
 					<p className="text-foreground mb-2 text-center text-xl">
 						We'll send you a one-time code to get you setup.
 					</p>
@@ -64,7 +66,7 @@ export function EmailStep({
 
 					{<ErrorBanner message={error ?? ''} />}
 
-					<div className="flex flex-col gap-4">
+					<div className="flex flex-col gap-4 pt-2">
 						<input
 							type="email"
 							value={email}

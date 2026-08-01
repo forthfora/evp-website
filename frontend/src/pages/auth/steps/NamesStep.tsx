@@ -23,9 +23,13 @@ export function NamesStep({
 	return (
 		<div className="mx-auto w-full max-w-md">
 			<div className="glass-box rounded-2xl p-8 shadow-xl md:p-12">
-				<h1 className="mb-2 text-center text-3xl font-bold">Tell us your name</h1>
-				<p className="text-foreground/60 mb-8 text-center text-sm">
-					Your account is ready — add your first and last name.
+				<h1 className="mb-2 text-center text-4xl font-bold">One last step...</h1>
+				<p className="text-foreground mb-4 text-center text-2xl">
+					Your account is almost ready, we'd just like some details.
+				</p>
+
+				<p className="text-foreground-muted mb-8 text-center text-sm">
+					Don't worry - you can always change these later.
 				</p>
 
 				{error && <ErrorBanner message={error} />}

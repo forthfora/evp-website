@@ -65,11 +65,11 @@ def _build_email_html(body_html: str, *, preheader: str = "") -> str:
               </p>
 
               <!-- Image after signature -->
-              <table role="presentation" cellpadding="0" cellspacing="0" style="margin-top:16px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin-top:32px;">
                 <tr>
                   <td>
                     <img
-                      src="https://edinburghventurepoint.com/favicon.svg"
+                      src="https://zachonyejiaka.wordpress.com/wp-content/uploads/2026/03/evp-logo-blue-png.png"
                       alt="Edinburgh VenturePoint"
                       width="160"
                       style="display:block; border:0; outline:none; text-decoration:none;"
