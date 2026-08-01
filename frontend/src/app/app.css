@@ -12,10 +12,12 @@ body,
 	@apply scrollbar-thumb-foreground scrollbar-thin scrollbar-track-transparent;
 }
 
-* {
-	transition-property: background-color, border-color, color, fill, stroke;
-	transition-duration: 500ms;
-	transition-timing-function: ease-in-out;
+@layer base {
+	*:not(svg):not(svg *) {
+		transition-property: background-color, border-color, color, fill, stroke;
+		transition-duration: 500ms;
+		transition-timing-function: ease-in-out;
+	}
 }
 
 @theme inline {

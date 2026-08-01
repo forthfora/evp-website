@@ -1,6 +1,7 @@
 import '@/shared/styles/button-underline.css';
 
 import { Socials } from '@common';
+import { Link } from 'react-router';
 
 export function Footer() {
 	return (
@@ -15,7 +16,7 @@ export function Footer() {
 								href="https://www.ed.ac.uk/"
 								target="_blank"
 								rel="noopener noreferrer"
-								className="button-underline font-bold underline underline-offset-4"
+								className="button-underline hover:text-foreground font-bold underline underline-offset-4"
 							>
 								The University of Edinburgh
 							</a>
@@ -28,7 +29,7 @@ export function Footer() {
 								href="https://comp-soc.com/"
 								target="_blank"
 								rel="noopener noreferrer"
-								className="button-underline font-bold underline underline-offset-3"
+								className="button-underline hover:text-foreground font-bold underline underline-offset-3"
 							>
 								CompSoc
 							</a>
@@ -47,13 +48,14 @@ export function Footer() {
 						</div>
 
 						<div className="mt-2 max-w-xs text-sm sm:text-right">
-							Issues with the website itself? <br className="hidden sm:inline" />
-							<a
-								href="mailto:s2787162@ed.ac.uk"
-								className="button-underline font-bold underline underline-offset-3"
+							Experiencing issues with the website? <br className="hidden sm:inline" />
+							<Link
+								to="contact#email"
+								className="button-underline hover:text-foreground font-bold underline underline-offset-3"
+								viewTransition
 							>
 								Please report them here.
-							</a>
+							</Link>
 						</div>
 					</div>
 				</div>

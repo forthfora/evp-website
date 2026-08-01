@@ -9,6 +9,7 @@ import { useAuth } from '@/shared/lib/auth/use-auth';
 import { cn } from '@/shared/lib/utils';
 import { useTheme } from '@/shared/ui/theme/ThemeContext.data';
 import { Link } from 'react-router';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const roleBadge: Record<string, string> = {
 	[Role.MEMBER]: 'bg-foreground/15 text-foreground',
@@ -23,23 +24,42 @@ export function AccountAndSettings() {
 
 	return (
 		<div className="flex items-center gap-2">
-			{/* Theme toggle */}
 			<button
 				onClick={toggleTheme}
 				className="button-underline flex cursor-pointer items-center justify-center border-none bg-transparent p-2"
 				aria-label="Toggle theme"
 			>
-				{theme === 'dark' ? (
-					<Moon key="moon" className="button-spin h-7 w-7 md:h-5 md:w-5" />
-				) : (
-					<Sun key="sun" className="button-spin h-7 w-7 md:h-5 md:w-5" />
-				)}
+				<span className="relative inline-flex h-7 w-7 items-center justify-center overflow-hidden md:h-5 md:w-5">
+					<AnimatePresence mode="popLayout" initial={false}>
+						{theme === 'dark' ? (
+							<motion.span
+								key="moon"
+								initial={{ y: '120%', opacity: 0 }}
+								animate={{ y: '0%', opacity: 1 }}
+								exit={{ y: '120%', opacity: 0 }}
+								transition={{ duration: 1.0, ease: [0.34, 1.2, 0.4, 1] }}
+								className="absolute"
+							>
+								<Moon className="h-7 w-7 md:h-5 md:w-5" />
+							</motion.span>
+						) : (
+							<motion.span
+								key="sun"
+								initial={{ y: '120%', opacity: 0 }}
+								animate={{ y: '0%', opacity: 1 }}
+								exit={{ y: '120%', opacity: 0 }}
+								transition={{ duration: 1.0, ease: [0.34, 1.2, 0.4, 1] }}
+								className="absolute"
+							>
+								<Sun className="h-7 w-7 md:h-5 md:w-5" />
+							</motion.span>
+						)}
+					</AnimatePresence>
+				</span>
 			</button>
-
 			<span className="text-foreground-muted hidden select-none md:inline" aria-hidden>
 				|
 			</span>
-
 			{isAuthenticated && user ? (
 				<>
 					<Link

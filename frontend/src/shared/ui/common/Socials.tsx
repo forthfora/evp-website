@@ -19,7 +19,7 @@ export function Socials({ className = 'h-8 w-8 md:h-6 md:w-6' }: SocialsProps) {
 					href="https://www.linkedin.com/company/edinburghventurepoint/"
 					target="_blank"
 					rel="noopener noreferrer"
-					className="button-underline hover:text-foreground transition-colors duration-200"
+					className="button-underline hover:text-foreground transition-colors"
 					aria-label="LinkedIn"
 				>
 					<FaLinkedin className={className} />
@@ -29,7 +29,7 @@ export function Socials({ className = 'h-8 w-8 md:h-6 md:w-6' }: SocialsProps) {
 					href="https://www.instagram.com/edinburghventurepoint/"
 					target="_blank"
 					rel="noopener noreferrer"
-					className="button-underline hover:text-foreground transition-colors duration-200"
+					className="button-underline hover:text-foreground transition-colors"
 					aria-label="Instagram"
 				>
 					<FaInstagram className={className} />
@@ -37,7 +37,7 @@ export function Socials({ className = 'h-8 w-8 md:h-6 md:w-6' }: SocialsProps) {
 
 				<Link
 					to="/contact#email"
-					className="button-underline hover:text-foreground transition-colors duration-200"
+					className="button-underline hover:text-foreground transition-colors"
 					aria-label="Email"
 					viewTransition
 				>

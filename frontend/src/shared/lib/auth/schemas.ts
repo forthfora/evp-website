@@ -12,11 +12,11 @@ export type Role = (typeof Role)[keyof typeof Role];
 export const RoleSchema = z.enum(['member', 'scout', 'committee', 'admin']);
 
 export const RequestOTPInputSchema = z.object({
-	email: z.string().email(),
+	email: z.email(),
 });
 
 export const VerifyOTPInputSchema = z.object({
-	email: z.string().email(),
+	email: z.email(),
 	code: z.string().regex(/^\d{6}$/, 'Code must be 6 digits.'),
 });
 
@@ -51,7 +51,7 @@ export const UpdateMeInputSchema = z.object({
 
 /** `POST /api/accounts/email/change` */
 export const ChangeEmailInputSchema = z.object({
-	email: z.string().email(),
+	email: z.email(),
 	code: z.string().regex(/^\d{6}$/, 'Code must be 6 digits.'),
 });
 
