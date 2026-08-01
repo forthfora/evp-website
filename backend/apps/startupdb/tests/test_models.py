@@ -12,7 +12,7 @@ class StartupEntryModelTests(TestCase):
     """Tests for the StartupEntry model."""
 
     def setUp(self) -> None:
-        self.user = User.objects.create_user("entry-owner@test.com")
+        self.user = User.objects.create_user("delivered+entry-owner@resend.dev")
 
     def test_description_defaults_to_blank(self) -> None:
         """description field is blank by default."""
@@ -48,7 +48,7 @@ class StartupEntryModelTests(TestCase):
             description="A description.",
             website="https://www.example.com/",
             linkedin="https://linkedin.com/company/test",
-            email="test@example.com",
+            email="delivered+test@resend.dev",
             location="Edinburgh",
             notes="Some notes",
             founding_date="2024-01-15",
@@ -60,7 +60,7 @@ class StartupEntryModelTests(TestCase):
         assert entry.description == "A description."
         assert entry.website == "https://www.example.com/"
         assert entry.linkedin == "https://linkedin.com/company/test"
-        assert entry.email == "test@example.com"
+        assert entry.email == "delivered+test@resend.dev"
         assert entry.location == "Edinburgh"
         assert entry.notes == "Some notes"
         assert str(entry.founding_date) == "2024-01-15"
@@ -104,7 +104,7 @@ class FounderModelTests(TestCase):
     """Tests for the Founder model."""
 
     def setUp(self) -> None:
-        self.user = User.objects.create_user("founder-creator@test.com")
+        self.user = User.objects.create_user("delivered+founder-creator@resend.dev")
 
     def test_str_returns_full_name(self) -> None:
         """__str__ returns 'First Last'."""

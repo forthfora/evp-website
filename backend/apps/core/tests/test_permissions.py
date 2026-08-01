@@ -31,7 +31,7 @@ class RoleAuthTests(HypothesisTestCase):
         self, role: str, allowed: list[str]
     ) -> None:
         """RoleAuth returns the user iff their role is in the allowed set."""
-        user = User.objects.create_user(f"{role}@test.com", role=role)
+        user = User.objects.create_user(f"delivered+{role}@resend.dev", role=role)
         request = Mock()
         request.user = user
 
@@ -51,7 +51,7 @@ class RoleAuthTests(HypothesisTestCase):
 
     def test_role_auth_empty_allowed_denies_all(self) -> None:
         """RoleAuth with no roles denies everyone, even admins."""
-        user = User.objects.create_user("anyone@test.com", role=Role.ADMIN)
+        user = User.objects.create_user("delivered+anyone@resend.dev", role=Role.ADMIN)
         request = Mock()
         request.user = user
 
@@ -64,9 +64,11 @@ class CanManageEntryConcreteTests(TestCase):
     """Concrete tests for the ownership helper can_manage_entry."""
 
     def setUp(self) -> None:
-        self.scout = User.objects.create_user("scout@test.com", role=Role.SCOUT)
-        self.member = User.objects.create_user("member@test.com")
-        self.other = User.objects.create_user("other@test.com")
+        self.scout = User.objects.create_user(
+            "delivered+scout@resend.dev", role=Role.SCOUT
+        )
+        self.member = User.objects.create_user("delivered+member@resend.dev")
+        self.other = User.objects.create_user("delivered+other@resend.dev")
 
     def test_scout_owns_own_entry(self) -> None:
         """A scout who created an entry is its owner."""
@@ -82,7 +84,7 @@ class CanManageEntryConcreteTests(TestCase):
     def test_admin_is_always_owner(self) -> None:
         """An admin is always considered an owner regardless of who
         created the object."""
-        admin = User.objects.create_user("admin@test.com", role=Role.ADMIN)
+        admin = User.objects.create_user("delivered+admin@resend.dev", role=Role.ADMIN)
         obj = StartupEntry(created_by=self.other)
         assert can_manage_entry(admin, obj) is True
 
@@ -93,7 +95,9 @@ class CanManageEntryConcreteTests(TestCase):
 
     def test_scout_is_not_owner_of_others(self) -> None:
         """A scout is not an owner of another scout's entry."""
-        other_scout = User.objects.create_user("other_scout@test.com", role=Role.SCOUT)
+        other_scout = User.objects.create_user(
+            "delivered+other_scout@resend.dev", role=Role.SCOUT
+        )
         obj = StartupEntry(created_by=other_scout)
         assert can_manage_entry(self.scout, obj) is False
 
@@ -107,9 +111,11 @@ class CanManageEntryPropertyTests(HypothesisTestCase):
         is_owner=st.booleans(),
     )
     def test_can_manage_entry_matrix(self, role: str, is_owner: bool) -> None:
-        user = User.objects.create_user(f"{role}@test.com", role=role)
+        user = User.objects.create_user(f"delivered+{role}@resend.dev", role=role)
         obj = StartupEntry(
-            created_by=user if is_owner else User.objects.create_user("other@test.com")
+            created_by=user
+            if is_owner
+            else User.objects.create_user("delivered+other@resend.dev")
         )
 
         result = can_manage_entry(user, obj)

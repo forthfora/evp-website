@@ -82,7 +82,7 @@ class EmailOTPModelTests(HypothesisTestCase):
     def test_default_ttl_is_10_minutes(self) -> None:
         """An OTP defaults to a 10-minute expiry from creation."""
         with freeze_time(timezone.now()):
-            otp = EmailOTP.objects.create(email="test@example.com")
+            otp = EmailOTP.objects.create(email="delivered+test@resend.dev")
             expected = timezone.now() + timedelta(minutes=10)
             # Allow 1s tolerance for execution time
             assert otp.expires_at.timestamp() == pytest.approx(
@@ -91,47 +91,47 @@ class EmailOTPModelTests(HypothesisTestCase):
 
     def test_throttle_starts_low_and_escalates(self) -> None:
         """The wait starts at the first tier and escalates per request."""
-        assert EmailOTP.throttle_wait_seconds("throttle@example.com") == 5
-        EmailOTP.objects.create(email="throttle@example.com")
-        assert EmailOTP.throttle_wait_seconds("throttle@example.com") == 15
-        EmailOTP.objects.create(email="throttle@example.com")
-        assert EmailOTP.throttle_wait_seconds("throttle@example.com") == 30
+        assert EmailOTP.throttle_wait_seconds("delivered+throttle@resend.dev") == 5
+        EmailOTP.objects.create(email="delivered+throttle@resend.dev")
+        assert EmailOTP.throttle_wait_seconds("delivered+throttle@resend.dev") == 15
+        EmailOTP.objects.create(email="delivered+throttle@resend.dev")
+        assert EmailOTP.throttle_wait_seconds("delivered+throttle@resend.dev") == 30
 
     def test_throttle_escalates_after_three_requests(self) -> None:
         """The 4th request waits 60s, the 5th 5 minutes, then it escalates."""
         for _ in range(3):
-            EmailOTP.objects.create(email="throttle@example.com")
-        assert EmailOTP.throttle_wait_seconds("throttle@example.com") == 60
-        EmailOTP.objects.create(email="throttle@example.com")
-        assert EmailOTP.throttle_wait_seconds("throttle@example.com") == 300
-        EmailOTP.objects.create(email="throttle@example.com")
-        assert EmailOTP.throttle_wait_seconds("throttle@example.com") == 600
-        EmailOTP.objects.create(email="throttle@example.com")
-        assert EmailOTP.throttle_wait_seconds("throttle@example.com") == 1200
+            EmailOTP.objects.create(email="delivered+throttle@resend.dev")
+        assert EmailOTP.throttle_wait_seconds("delivered+throttle@resend.dev") == 60
+        EmailOTP.objects.create(email="delivered+throttle@resend.dev")
+        assert EmailOTP.throttle_wait_seconds("delivered+throttle@resend.dev") == 300
+        EmailOTP.objects.create(email="delivered+throttle@resend.dev")
+        assert EmailOTP.throttle_wait_seconds("delivered+throttle@resend.dev") == 600
+        EmailOTP.objects.create(email="delivered+throttle@resend.dev")
+        assert EmailOTP.throttle_wait_seconds("delivered+throttle@resend.dev") == 1200
 
     def test_throttle_is_capped(self) -> None:
         """The wait never exceeds the configured maximum."""
         for _ in range(12):
-            EmailOTP.objects.create(email="throttle@example.com")
-        assert EmailOTP.throttle_wait_seconds("throttle@example.com") == (
+            EmailOTP.objects.create(email="delivered+throttle@resend.dev")
+        assert EmailOTP.throttle_wait_seconds("delivered+throttle@resend.dev") == (
             EmailOTP.THROTTLE_MAX_WAIT
         )
 
     def test_remaining_cooldown_zero_without_requests(self) -> None:
         """No prior requests means no cooldown."""
-        assert EmailOTP.remaining_cooldown("throttle@example.com") == 0
+        assert EmailOTP.remaining_cooldown("delivered+throttle@resend.dev") == 0
 
     def test_remaining_cooldown_positive_after_request(self) -> None:
         """A fresh request is throttled for the tier's wait."""
-        EmailOTP.objects.create(email="throttle@example.com")
-        assert EmailOTP.remaining_cooldown("throttle@example.com") > 0
+        EmailOTP.objects.create(email="delivered+throttle@resend.dev")
+        assert EmailOTP.remaining_cooldown("delivered+throttle@resend.dev") > 0
 
     def test_remaining_cooldown_clears_after_wait(self) -> None:
         """Once the tier's wait elapses, the next request is allowed."""
         with freeze_time(timezone.now()):
-            EmailOTP.objects.create(email="throttle@example.com")
+            EmailOTP.objects.create(email="delivered+throttle@resend.dev")
         with freeze_time(timezone.now() + timedelta(seconds=16)):
-            assert EmailOTP.remaining_cooldown("throttle@example.com") == 0
+            assert EmailOTP.remaining_cooldown("delivered+throttle@resend.dev") == 0
 
     def test_throttle_window_decays_old_requests(self) -> None:
         """Requests older than the window stop counting (reset after some time)."""
@@ -139,26 +139,28 @@ class EmailOTPModelTests(HypothesisTestCase):
             timezone.now() - EmailOTP.THROTTLE_WINDOW - timedelta(minutes=1)
         ):
             for _ in range(6):
-                EmailOTP.objects.create(email="throttle@example.com")
-        assert EmailOTP.throttle_wait_seconds("throttle@example.com") == 5
+                EmailOTP.objects.create(email="delivered+throttle@resend.dev")
+        assert EmailOTP.throttle_wait_seconds("delivered+throttle@resend.dev") == 5
 
     def test_reset_throttle_clears_requests(self) -> None:
         """reset_throttle removes the request history for an email."""
-        EmailOTP.objects.create(email="throttle@example.com")
-        EmailOTP.reset_throttle("throttle@example.com")
-        assert EmailOTP.objects.filter(email="throttle@example.com").count() == 0
-        assert EmailOTP.remaining_cooldown("throttle@example.com") == 0
+        EmailOTP.objects.create(email="delivered+throttle@resend.dev")
+        EmailOTP.reset_throttle("delivered+throttle@resend.dev")
+        assert (
+            EmailOTP.objects.filter(email="delivered+throttle@resend.dev").count() == 0
+        )
+        assert EmailOTP.remaining_cooldown("delivered+throttle@resend.dev") == 0
 
     def test_default_code_is_six_digits(self) -> None:
         """A freshly created OTP gets a 6-digit numeric code."""
-        otp = EmailOTP.objects.create(email="test@example.com")
+        otp = EmailOTP.objects.create(email="delivered+test@resend.dev")
         assert len(otp.code) == 6
         assert otp.code.isdigit()
 
     def test_codes_are_random_per_instance(self) -> None:
         """Each OTP instance gets a distinct code (the default is per-instance)."""
         codes = {
-            EmailOTP.objects.create(email=f"user{i}@example.com").code
+            EmailOTP.objects.create(email=f"delivered+user{i}@resend.dev").code
             for i in range(20)
         }
         assert len(codes) == 20

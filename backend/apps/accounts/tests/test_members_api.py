@@ -17,19 +17,25 @@ class MembersAPITests(TestCase):
     def setUp(self) -> None:
         self.url = "/api/accounts/members"
 
-        self.member = User.objects.create_user("member@test.com", role=Role.MEMBER)
-        self.scout = User.objects.create_user("scout@test.com", role=Role.SCOUT)
-        self.committee = User.objects.create_user(
-            "committee@test.com", role=Role.COMMITTEE
+        self.member = User.objects.create_user(
+            "delivered+member@resend.dev", role=Role.MEMBER
         )
-        self.admin = User.objects.create_user("admin@test.com", role=Role.ADMIN)
+        self.scout = User.objects.create_user(
+            "delivered+scout@resend.dev", role=Role.SCOUT
+        )
+        self.committee = User.objects.create_user(
+            "delivered+committee@resend.dev", role=Role.COMMITTEE
+        )
+        self.admin = User.objects.create_user(
+            "delivered+admin@resend.dev", role=Role.ADMIN
+        )
 
         # Create some additional users to verify the full list is returned
         self.extra_member = User.objects.create_user(
-            "extra-member@test.com", role=Role.MEMBER
+            "delivered+extra-member@resend.dev", role=Role.MEMBER
         )
         self.extra_scout = User.objects.create_user(
-            "extra-scout@test.com", role=Role.SCOUT
+            "delivered+extra-scout@resend.dev", role=Role.SCOUT
         )
 
     def _login(self, user: User) -> None:
@@ -99,7 +105,7 @@ class MembersPermissionPropertyTests(HypothesisTestCase):
     )
     def test_members_access_matrix(self, role: str) -> None:
         """Access is granted only for committee and admin roles."""
-        user = User.objects.create_user(f"{role}@test.com", role=role)
+        user = User.objects.create_user(f"delivered+{role}@resend.dev", role=role)
         self.client.force_login(user)
         resp = self.client.get("/api/accounts/members")
 
@@ -115,19 +121,28 @@ class SendAllEmailsTests(TestCase):
     def setUp(self) -> None:
         self.url = "/api/accounts/sendall"
 
-        self.admin = User.objects.create_user("admin@test.com", role=Role.ADMIN)
-        self.committee = User.objects.create_user(
-            "committee@test.com", role=Role.COMMITTEE
+        self.admin = User.objects.create_user(
+            "delivered+admin@resend.dev", role=Role.ADMIN
         )
-        self.opted_in = User.objects.create_user("opt-in@test.com", role=Role.MEMBER)
-        self.opted_out = User.objects.create_user("opt-out@test.com", role=Role.MEMBER)
+        self.committee = User.objects.create_user(
+            "delivered+committee@resend.dev", role=Role.COMMITTEE
+        )
+        self.opted_in = User.objects.create_user(
+            "delivered+opt-in@resend.dev", role=Role.MEMBER
+        )
+        self.opted_out = User.objects.create_user(
+            "delivered+opt-out@resend.dev", role=Role.MEMBER
+        )
         self.opted_out.receives_update_emails = False
         self.opted_out.save()
 
     def _post(self):
         return self.client.post(
             self.url,
-            {"subject": "Hi", "body": "Body"},
+            {
+                "subject": "evp-website SendAllEmails Test",
+                "body": "This is a test of evp-website's SendAll functionality.",
+            },
             content_type="application/json",
         )
 
@@ -158,9 +173,9 @@ class SendAllEmailsTests(TestCase):
 
         sent_to = {call.kwargs["to"] for call in mock_send.call_args_list}
         assert sent_to == {
-            "admin@test.com",
-            "committee@test.com",
-            "opt-in@test.com",
+            "delivered+admin@resend.dev",
+            "delivered+committee@resend.dev",
+            "delivered+opt-in@resend.dev",
         }
 
     @patch("apps.accounts.api.send_email")

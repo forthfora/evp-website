@@ -24,20 +24,91 @@ def _build_otp_html(code: str) -> str:
     return f"""
 <!DOCTYPE html>
 <html>
-<head><meta charset="utf-8"></head>
-<body style="font-family: sans-serif; padding: 2rem;">
-    <h1>Hello!</h1>
-    <p>We're sending you this as you requested a verification code for your Edinburgh VenturePoint account.</p>
-    <h2>Here's your code:</h2>
-    <p style="font-size: 1.5rem; font-weight: bold; letter-spacing: 0.25em;">
-        {code}
-    </p>
-    <p><b>Do not forward or share this code with anyone else as it may allow people to access your account.</b><p>
-    <p>This code expires in 10 minutes.</p>
-    <p>If you didn't request this, you can safely ignore and delete this email.</p>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Verification Code</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f4f4f7; font-family: Arial, Helvetica, sans-serif;">
 
+  <!-- Preheader text (hidden, shows in inbox preview) -->
+  <div style="display:none; max-height:0; overflow:hidden;">
+    Your Edinburgh VenturePoint verification code is inside.
+  </div>
 
-    <p>Kind regards,<br>The Edinburgh VenturePoint team</p>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f4f7; padding:24px 0;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="background-color:#ffffff; border-radius:8px; overflow:hidden;">
+          <!-- Body -->
+          <tr>
+            <td style="padding:50px;">
+              <p style="margin:0 0 16px; font-size:30px; color:#333333; line-height:1.5;">
+                <b>Hello from EVP.</b>
+              </p>
+              <p style="margin:0 0 16px; font-size:15px; color:#333333; line-height:1.5;">
+                We're sending you this because you requested a verification code for your Edinburgh VenturePoint account.
+              </p>
+              <hr>
+
+              <p style="margin:24px 0 8px; font-size:14px; color:#333333;">
+                Here's your code:
+              </p>
+              <p style="margin:0 0 24px; font-size:28px; font-weight:bold; letter-spacing:0.25em; color:#0b2545; text-align:center; background-color:#f4f4f7; padding:16px; border-radius:6px;">
+                {code}
+              </p>
+
+              <p style="margin:0 0 16px; font-size:14px; color:#333333; line-height:1.5;">
+                <strong>Do not forward or share this code with anyone.</strong> It may allow others to access your account.
+              </p>
+              <p style="margin:0 0 24px; font-size:14px; color:#333333; line-height:1.5;">
+                This code expires in 10 minutes. If you didn't request it, you can safely ignore and delete this email.
+              </p>
+
+              <hr>
+
+              <p style="margin:0; font-size:15px; color:#333333;">
+                <b>
+                Kind Regards,<br>
+                The Edinburgh VenturePoint team
+                </b>
+              </p>
+
+              <!-- Image after signature -->
+              <table role="presentation" cellpadding="0" cellspacing="0"">
+                <tr>
+                  <td>
+                    <img
+                      src="https://edinburghventurepoint.com/favicon.svg"
+                      alt="Edinburgh VenturePoint"
+                      width="160"
+                      style="display:block; border:0; outline:none; text-decoration:none;"
+                    >
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color:#f4f4f7; padding:16px 32px; text-align:center;">
+              <p style="margin:0; font-size:11px; color:#999999;">
+                Edinburgh VenturePoint is an entrepreneurship and venture capital society at The University of Edinburgh.
+              </p>
+              <br>
+              <p style="margin:0; font-size:11px; color:#999999;">
+                &copy; 2026 Edinburgh VenturePoint. All rights reserved.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+
 </body>
 </html>
 """  # noqa: E501
@@ -72,7 +143,6 @@ def send_email(
         )
         return
 
-    print("Sending email via Resend.")
     try:
         if resend is None:
             raise ValueError("Resend API is missing.")

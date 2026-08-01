@@ -29,15 +29,15 @@ class UserModelTests(HypothesisTestCase):
 
     def test_usernames_are_unique_across_users(self) -> None:
         """Each account gets a distinct globally-unique username."""
-        user1 = User.objects.create_user("one@example.com")
-        user2 = User.objects.create_user("two@example.com")
+        user1 = User.objects.create_user("delivered+one@resend.dev")
+        user2 = User.objects.create_user("delivered+two@resend.dev")
         assert user1.username != user2.username
 
     def test_username_stable_across_email_change(self) -> None:
         """The username ID never changes, even when the email changes."""
-        user = User.objects.create_user("before@example.com")
+        user = User.objects.create_user("delivered+before@resend.dev")
         username = user.username
-        user.email = "after@example.com"
+        user.email = "delivered+after@resend.dev"
         user.save()
         user.refresh_from_db()
         assert user.username == username
@@ -45,11 +45,11 @@ class UserModelTests(HypothesisTestCase):
     def test_create_superuser_is_still_member_by_default(self) -> None:
         """Superusers automatically get the admin role."""
         user = User.objects.create_superuser(
-            "admin@example.com", "admin@example.com", "testpass123"
+            "delivered+admin@resend.dev", "delivered+admin@resend.dev", "testpass123"
         )
         assert user.role == "admin"
 
     def test_user_is_passwordless(self) -> None:
         """Member accounts are passwordless (OTP login)."""
-        user = User.objects.create_user("member@example.com")
+        user = User.objects.create_user("delivered+member@resend.dev")
         assert not user.has_usable_password()

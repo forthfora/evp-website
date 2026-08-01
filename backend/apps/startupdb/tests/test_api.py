@@ -17,14 +17,20 @@ class StartupAPITests(TestCase):
         self.list_url = "/api/startupdb/"
         self.founders_url = "/api/startupdb/founders"
 
-        self.member = User.objects.create_user("member@test.com")
+        self.member = User.objects.create_user("delivered+member@resend.dev")
 
-        self.scout1 = User.objects.create_user("scout1@test.com", role=Role.SCOUT)
-        self.scout2 = User.objects.create_user("scout2@test.com", role=Role.SCOUT)
-        self.committee = User.objects.create_user(
-            "committee@test.com", role=Role.COMMITTEE
+        self.scout1 = User.objects.create_user(
+            "delivered+scout1@resend.dev", role=Role.SCOUT
         )
-        self.admin = User.objects.create_user("admin@test.com", role=Role.ADMIN)
+        self.scout2 = User.objects.create_user(
+            "delivered+scout2@resend.dev", role=Role.SCOUT
+        )
+        self.committee = User.objects.create_user(
+            "delivered+committee@resend.dev", role=Role.COMMITTEE
+        )
+        self.admin = User.objects.create_user(
+            "delivered+admin@resend.dev", role=Role.ADMIN
+        )
 
         self.scout1_entry = StartupEntry.objects.create(
             name="Scout 1 Entry", created_by=self.scout1
@@ -188,7 +194,7 @@ class StartupAPITests(TestCase):
                 "description": "A desc",
                 "website": "https://example.com",
                 "linkedin": "https://linkedin.com/company/test",
-                "email": "test@example.com",
+                "email": "delivered+test@resend.dev",
                 "location": "Edinburgh",
                 "notes": "Some notes",
                 "founding_date": "2024-01-15",
@@ -200,7 +206,7 @@ class StartupAPITests(TestCase):
         assert data["name"] == "Full Entry"
         assert data["website"] == "https://example.com"
         assert data["linkedin"] == "https://linkedin.com/company/test"
-        assert data["email"] == "test@example.com"
+        assert data["email"] == "delivered+test@resend.dev"
         assert data["location"] == "Edinburgh"
         assert data["notes"] == "Some notes"
         assert data["founding_date"] == "2024-01-15"
@@ -212,14 +218,20 @@ class FounderAPITests(TestCase):
     def setUp(self) -> None:
         self.founders_url = "/api/startupdb/founders"
 
-        self.member = User.objects.create_user("member@test.com")
+        self.member = User.objects.create_user("delivered+member@resend.dev")
 
-        self.scout1 = User.objects.create_user("scout1@test.com", role=Role.SCOUT)
-        self.scout2 = User.objects.create_user("scout2@test.com", role=Role.SCOUT)
-        self.committee = User.objects.create_user(
-            "committee@test.com", role=Role.COMMITTEE
+        self.scout1 = User.objects.create_user(
+            "delivered+scout1@resend.dev", role=Role.SCOUT
         )
-        self.admin = User.objects.create_user("admin@test.com", role=Role.ADMIN)
+        self.scout2 = User.objects.create_user(
+            "delivered+scout2@resend.dev", role=Role.SCOUT
+        )
+        self.committee = User.objects.create_user(
+            "delivered+committee@resend.dev", role=Role.COMMITTEE
+        )
+        self.admin = User.objects.create_user(
+            "delivered+admin@resend.dev", role=Role.ADMIN
+        )
 
         self.scout1_founder = Founder.objects.create(
             first_name="Jane",
@@ -411,11 +423,11 @@ class FounderPermissionsPropertyTests(HypothesisTestCase):
         is_owner=st.booleans(),
     )
     def test_can_manage_entry_matrix(self, role: str, is_owner: bool) -> None:
-        user = User.objects.create_user(f"{role}@test.com", role=role)
+        user = User.objects.create_user(f"delivered+{role}@resend.dev", role=role)
 
         founder = Founder()
         founder.created_by = (
-            user if is_owner else User.objects.create_user("other@test.com")
+            user if is_owner else User.objects.create_user("delivered+other@resend.dev")
         )
 
         result = can_manage_entry(user, founder)
