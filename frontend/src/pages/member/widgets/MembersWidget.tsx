@@ -28,7 +28,7 @@ export function MembersWidget() {
 			</p>
 
 			<div className="mt-5">
-				{isLoading && <p className="text-foreground/60 text-sm">Loading members…</p>}
+				{isLoading && <p className="text-foreground/60 text-sm">Loading members...</p>}
 
 				{error && (
 					<p className="text-foreground/60 text-sm" role="alert">

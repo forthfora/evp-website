@@ -50,7 +50,7 @@ export function RoleRoute({ roles, children }: { roles: Role[]; children: ReactN
 function LoadingGate() {
 	return (
 		<div className="flex w-full items-center justify-center px-4 py-60">
-			<p className="text-foreground/60">Loading…</p>
+			<p className="text-foreground/60">Loading...</p>
 		</div>
 	);
 }

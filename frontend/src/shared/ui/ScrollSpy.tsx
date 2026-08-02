@@ -150,13 +150,9 @@ export function ScrollSpy({ fadeThreshold = 450 }: ScrollSpyProps = {}) {
 								}`}
 							/>
 
-							<span className="text-shadow-3xl z-10 max-w-35 min-w-36 rounded-lg px-3 py-1.5 text-lg tracking-wide transition-all duration-300">
-								<p
-									className={
-										isActive ? 'text-accent font-bold' : 'font-md text-foreground button-underline'
-									}
-								>
-									{heading.text}
+							<span className="text-shadow-3xl z-10 max-w-35 rounded-lg px-3 py-1.5 text-lg tracking-wide transition-all duration-300">
+								<p className={isActive ? 'text-accent font-bold' : 'font-md text-foreground'}>
+									<span className="button-underline">{heading.text}</span>
 								</p>
 							</span>
 						</div>

@@ -104,52 +104,12 @@ def _build_email_html(body_html: str, *, preheader: str = "") -> str:
 """  # noqa: E501
 
 
-def _build_otp_body(code: str) -> str:
-    """Build the inner body content for an OTP verification email."""
-    return f"""
-              <p style="margin:0 0 16px; font-size:30px; color:#333333; line-height:1.5;">
-                <b>Hello!</b>
-              </p>
-              <p style="margin:0 0 16px; font-size:15px; color:#333333; line-height:1.5;">
-                We're sending you this because you requested a verification code for your Edinburgh VenturePoint account.
-              </p>
-              <hr>
-
-              <p style="margin:24px 0 8px; font-size:14px; color:#333333;">
-                Here's your code:
-              </p>
-              <p style="margin:0 0 24px; font-size:28px; font-weight:bold; letter-spacing:0.25em; color:#0b2545; text-align:center; background-color:#f4f4f7; padding:16px; border-radius:6px;">
-                {code}
-              </p>
-
-              <p style="margin:0 0 16px; font-size:14px; color:#333333; line-height:1.5;">
-                <strong>Do not forward or share this code with anyone.</strong> It may allow others to access your account.
-              </p>
-              <p style="margin:0 0 24px; font-size:14px; color:#333333; line-height:1.5;">
-                This code expires in 10 minutes. If you didn't request it, you can safely ignore and delete this email.
-              </p>
-              <hr>
-"""  # noqa: E501
-
-
-def _build_welcome_body(name: str) -> str:
-    """Build the inner body content for a welcome email."""
-    return f"""
-              <p style="margin:0 0 16px; font-size:30px; color:#333333; line-height:1.5;">
-                <b>Welcome, {name}!</b>
-              </p>
-              <p style="margin:0 0 16px; font-size:15px; color:#333333; line-height:1.5;">
-                Your Edinburgh VenturePoint account is ready to go. We're glad to have you with us.
-              </p>
-              <hr>
-"""  # noqa: E501
-
-
 def send_email(
     to: str | list[str],
     subject: str,
     body: str,
     *,
+    preheader: str = "",
     from_email: str | None = None,
 ):
     """Send an email via Resend, or log it when sending is disabled.
@@ -165,12 +125,14 @@ def send_email(
     sender = from_email or settings.FROM_EMAIL
     recipients = [to] if isinstance(to, str) else to
 
+    html = _build_email_html(body, preheader=preheader)
+
     if not settings.RESEND_ENABLED:
         logger.info(
             "[LOG-ONLY EMAIL] To: %s | Subject: %s | Body:\n%s",
             ", ".join(recipients),
             subject,
-            body,
+            html,
         )
         return
 
@@ -183,7 +145,7 @@ def send_email(
                 "from": sender,
                 "to": recipients,
                 "subject": subject,
-                "html": body,
+                "html": html,
             }
         )
 
@@ -192,43 +154,60 @@ def send_email(
         raise EmailSendError(err) from err
 
 
+def _build_otp_body(code: str) -> str:
+    """Build the inner body content for an OTP verification email."""
+    return f"""
+<p style="margin:0 0 16px; font-size:30px; color:#333333; line-height:1.5;">
+  <b>Hello!</b>
+</p>
+<p style="margin:0 0 16px; font-size:15px; color:#333333; line-height:1.5;">
+  We're sending you this because you requested a verification code for your Edinburgh VenturePoint account.
+</p>
+<hr>
+
+<p style="margin:24px 0 8px; font-size:14px; color:#333333;">
+  Here's your code:
+</p>
+<p style="margin:0 0 24px; font-size:28px; font-weight:bold; letter-spacing:0.25em; color:#0b2545; text-align:center; background-color:#f4f4f7; padding:16px; border-radius:6px;">
+  {code}
+</p>
+
+<p style="margin:0 0 16px; font-size:14px; color:#333333; line-height:1.5;">
+  <strong>Do not forward or share this code with anyone.</strong> It may allow others to access your account.
+</p>
+<p style="margin:0 0 24px; font-size:14px; color:#333333; line-height:1.5;">
+  This code expires in 10 minutes. If you didn't request it, you can safely ignore and delete this email.
+</p>
+<hr>
+"""  # noqa: E501
+
+
 def send_otp_email(email: str, code: str):
-    """Send a one-time passcode email.
-
-    Args:
-        email: The recipient's email address.
-        code: The 6-digit numeric code to include.
-
-    Raises:
-        EmailSendError: If the email API fails to load or send the email.
-    """
-    html_body = _build_email_html(
-        _build_otp_body(code),
-        preheader="Your Edinburgh VenturePoint verification code is inside.",
-    )
     return send_email(
         to=email,
-        subject="Your EVP verification code",
-        body=html_body,
+        subject="Your EVP Verification Code",
+        body=_build_otp_body(code),
+        preheader="Your Edinburgh VenturePoint verification code is inside.",
     )
+
+
+def _build_welcome_body(name: str) -> str:
+    """Build the inner body content for a welcome email."""
+    return f"""
+<p style="margin:0 0 16px; font-size:30px; color:#333333; line-height:1.5;">
+  <b>Welcome, {name}!</b>
+</p>
+<p style="margin:0 0 16px; font-size:15px; color:#333333; line-height:1.5;">
+  Your Edinburgh VenturePoint account is ready to go. We're glad to have you with us.
+</p>
+<hr>
+"""
 
 
 def send_welcome_email(email: str, name: str):
-    """Send a welcome email after signup.
-
-    Args:
-        email: The recipient's email address.
-        name: The recipient's name.
-
-    Raises:
-        EmailSendError: If the email API fails to load or send the email.
-    """
-    html_body = _build_email_html(
-        _build_welcome_body(name),
-        preheader="Welcome to Edinburgh VenturePoint!",
-    )
     return send_email(
         to=email,
         subject="Welcome to Edinburgh VenturePoint",
-        body=html_body,
+        body=_build_welcome_body(name),
+        preheader="Your account is setup and ready to go!",
     )

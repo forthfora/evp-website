@@ -114,7 +114,7 @@ function StartupsSection({ username, role }: { username: string | undefined; rol
 	});
 
 	if (isLoading) {
-		return <p className="text-foreground/60 mt-6 text-sm">Loading startups…</p>;
+		return <p className="text-foreground/60 mt-6 text-sm">Loading startups...</p>;
 	}
 
 	if (error) {
@@ -478,7 +478,7 @@ function FoundersSection({ username, role }: { username: string | undefined; rol
 	});
 
 	if (isLoading) {
-		return <p className="text-foreground/60 mt-6 text-sm">Loading founders…</p>;
+		return <p className="text-foreground/60 mt-6 text-sm">Loading founders...</p>;
 	}
 
 	if (error) {
