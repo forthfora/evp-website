@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useChangeEmail, useRequestOtp, useUpdateMe } from '@/shared/lib/auth/api';
 import { useAuth } from '@/shared/lib/auth/use-auth';
 import { cn } from '@/shared/lib/utils';
+import { AnimatedCheckbox } from '@/shared/ui/common/AnimatedCheckbox';
 
 const inputClass =
 	'bg-background/40 border-accent/30 placeholder:text-foreground/30 focus:border-accent focus:ring-accent/20 w-full rounded-lg border px-4 py-2.5 text-sm transition-colors duration-200 outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50';
@@ -98,7 +99,7 @@ export function SettingsWidget() {
 
 	return (
 		<div className="glass-box rounded-2xl p-8">
-			<h2 className="text-2xl font-bold">Account Settings</h2>
+			<h2 className="text-2xl font-bold">account settings</h2>
 			<p className="text-foreground/60 mt-1 text-sm">Manage your profile and email preferences.</p>
 
 			{/* Name */}
@@ -126,10 +127,12 @@ export function SettingsWidget() {
 					<button
 						type="button"
 						onClick={() => void handleSaveName()}
-						disabled={updateMeMut.isPending}
+						disabled={
+							updateMeMut.isPending || (firstName == user?.first_name && lastName == user.last_name)
+						}
 						className={primaryBtnClass}
 					>
-						{updateMeMut.isPending ? 'saving...' : 'save'}
+						{updateMeMut.isPending ? 'updating...' : 'update'}
 					</button>
 					{nameMsg && (
 						<p
@@ -214,21 +217,21 @@ export function SettingsWidget() {
 			</div>
 
 			{/* Update-email opt-in */}
-			<div className="mt-6 flex items-center justify-between gap-4">
-				<div>
-					<p className="text-sm font-semibold">Update emails</p>
+			<div className="mt-6 flex items-center gap-4">
+				<div className="shrink-0">
+					<p className="text-lg font-semibold">update emails</p>
 					<p className="text-foreground/60 text-sm">
 						Receive non-essential update emails from EVP.
 					</p>
 				</div>
-				<label className="flex cursor-pointer items-center gap-2">
-					<input
-						type="checkbox"
-						checked={optIn}
-						onChange={(e) => void handleToggleOptIn(e.target.checked)}
-						className="h-5 w-5 cursor-pointer"
-					/>
-					<span className="text-sm">{optIn ? 'opted in' : 'opted out'}</span>
+
+				<div
+					aria-hidden="true"
+					className="text-foreground-muted/50 mx-3 mt-1 min-w-6 flex-1 self-center border-b-2 border-dotted"
+				/>
+
+				<label className="flex shrink-0 cursor-pointer items-center gap-2">
+					<AnimatedCheckbox checked={optIn} onChange={(v) => void handleToggleOptIn(v)} />
 				</label>
 			</div>
 		</div>

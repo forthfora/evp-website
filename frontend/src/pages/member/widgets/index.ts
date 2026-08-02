@@ -18,13 +18,13 @@ export interface Widget {
 export const widgetRegistry: Widget[] = [
 	{
 		id: 'welcome',
-		title: 'Welcome',
+		title: 'welcome',
 		visibleTo: ['member', 'scout', 'committee', 'admin'],
 		component: WelcomeWidget,
 	},
 	{
 		id: 'startup-db',
-		title: 'Startup Database',
+		title: 'startup database',
 		visibleTo: ['scout', 'committee', 'admin'],
 		component: StartupDatabaseWidget,
 	},
@@ -36,13 +36,13 @@ export const widgetRegistry: Widget[] = [
 	},
 	{
 		id: 'admin-updates',
-		title: 'Send Update',
+		title: 'send update',
 		visibleTo: ['admin'],
 		component: AdminUpdatesWidget,
 	},
 	{
 		id: 'settings',
-		title: 'Account Settings',
+		title: 'account settings',
 		visibleTo: ['member', 'scout', 'committee', 'admin'],
 		component: SettingsWidget,
 	},

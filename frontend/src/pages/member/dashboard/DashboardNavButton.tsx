@@ -21,7 +21,6 @@ export function DashboardNavButton({ to, label, isActive }: DashboardNavButtonPr
 				'button-underline text-base font-semibold no-underline transition-colors md:text-xl',
 				isActive ? 'active text-accent' : 'text-foreground/70 hover:text-foreground',
 			)}
-			viewTransition
 		>
 			{label}
 		</Link>
