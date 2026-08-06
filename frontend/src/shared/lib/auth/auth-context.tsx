@@ -61,7 +61,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 					await logoutRequest();
 				} finally {
 					setUser(null);
-					browserRouter.navigate('/', { viewTransition: true });
+					const currentPath = browserRouter.state.location.pathname;
+					browserRouter.navigate(currentPath, {
+						viewTransition: true,
+					});
 				}
 			},
 		}),

@@ -16,7 +16,10 @@ async function fetchCsrfToken(): Promise<string> {
 		csrfFetch = (async () => {
 			const res = await fetch('/api/csrf', { credentials: 'include' });
 			if (!res.ok) {
-				throw new ApiRequestError(res.status, 'Failed to fetch CSRF token.');
+				throw new ApiRequestError(
+					res.status,
+					'Failed to fetch CSRF token. Our servers might be down, please try again later.',
+				);
 			}
 			const data = (await res.json()) as { csrftoken?: string };
 			if (!data.csrftoken) {

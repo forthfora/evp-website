@@ -1,3 +1,4 @@
+export * from './ConfirmDialog';
 export * from './contact/ContactSection';
 export * from './contact/InteractiveContactButton';
 export * from './EventsBanner';
