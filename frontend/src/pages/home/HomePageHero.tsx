@@ -1,7 +1,7 @@
 import { Socials } from '@common';
 import { useEffect, useState } from 'react';
 
-import { AccountAndSettings } from '@/shared/ui/header/AccountAndSettings';
+import { HeroActions } from '@/shared/ui/header/HeroActions';
 import { LogoAndTitle } from '@/shared/ui/header/LogoAndTitle';
 import { HeaderNavButtons } from '@/shared/ui/header/nav-link-buttons/NavLinkButtons';
 
@@ -116,11 +116,7 @@ export function HomePageHero({
 				</nav>
 
 				<div className="flex flex-row items-center gap-7">
-					<Socials />
-					<span className="text-foreground-muted hidden select-none md:inline" aria-hidden>
-						|
-					</span>
-					<AccountAndSettings />
+					<HeroActions />
 				</div>
 			</div>
 		</div>

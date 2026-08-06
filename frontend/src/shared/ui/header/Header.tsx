@@ -5,7 +5,7 @@ import { useLocation } from 'react-router';
 
 import { cn } from '@/shared/lib/utils';
 
-import { AccountAndSettings } from './AccountAndSettings';
+import { HeaderActions } from './HeaderActions';
 import { LogoAndTitle } from './LogoAndTitle';
 import { HeaderNavButtons } from './nav-link-buttons/NavLinkButtons';
 
@@ -84,7 +84,7 @@ export function Header({
 
 				<div className="flex flex-1 items-center justify-end">
 					<div className="hidden md:block">
-						<AccountAndSettings />
+						<HeaderActions />
 					</div>
 
 					<button
@@ -112,7 +112,7 @@ export function Header({
 							</nav>
 							<hr className="border-border" />
 							<div className="flex flex-col gap-4">
-								<AccountAndSettings />
+								<HeaderActions />
 							</div>
 						</div>
 					</motion.div>

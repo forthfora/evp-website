@@ -206,7 +206,7 @@ function ContactHero() {
 					className="mx-auto max-w-2xl pb-5 text-xl"
 				>
 					<p className="mb-5">Stay in the loop. Find us on:</p>
-					<Socials className="mx-2 h-12 w-12 md:h-9 md:w-9" />
+					<Socials className="mx-2 h-11 w-11 md:h-9 md:w-9" />
 				</motion.div>
 			</div>
 		</section>

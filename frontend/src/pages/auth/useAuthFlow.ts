@@ -126,6 +126,7 @@ export function useAuthFlow() {
 
 		try {
 			await updateMeMut.mutateAsync({ first_name: firstName.trim(), last_name: lastName.trim() });
+			await login(); // refresh the profile in AuthContext so the name displays immediately
 			navigate('/member', { viewTransition: true });
 		} catch (err) {
 			setError(getErrorMessage(err, 'Something went wrong. Please try again.'));

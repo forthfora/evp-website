@@ -11,7 +11,7 @@ interface SocialsProps {
 /**
  * Represents list of clickable social icons used throughout the site (LinkedIn, Instagram, etc.)
  */
-export function Socials({ className = 'h-8 w-8 md:h-6 md:w-6' }: SocialsProps) {
+export function Socials({ className = 'h-7 w-7 md:h-6 md:w-6' }: SocialsProps) {
 	return (
 		<div className="flex flex-col items-center gap-2">
 			<div className="flex flex-row items-center gap-4">

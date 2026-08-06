@@ -293,7 +293,7 @@ export function ConfirmDialog({
 							aria-labelledby={titleId}
 							aria-describedby={descriptionId}
 							onClick={(event) => event.stopPropagation()}
-							className="bg-background/80 glass-box ring-accent/30 relative w-full max-w-sm rounded-2xl p-6 shadow-2xl ring-1 md:p-8"
+							className="bg-background/80 glass-box ring-accent/30 relative w-full max-w-xs rounded-2xl p-6 shadow-2xl ring-1"
 							style={
 								isAnchored
 									? {
@@ -310,8 +310,8 @@ export function ConfirmDialog({
 							exit={{ opacity: 0, scale: 0.95, y: 12 }}
 							transition={{ duration: 0.2, ease: 'easeOut' }}
 						>
-							<h2 className="text-2xl font-bold">{title}</h2>
-							<SectionDivider width="w-80" />
+							<h2 className="text-xl font-bold">{title}</h2>
+							<SectionDivider width="w-68" />
 							<p id={descriptionId} className="text-foreground/60 mt-2 text-sm">
 								{message}
 							</p>
