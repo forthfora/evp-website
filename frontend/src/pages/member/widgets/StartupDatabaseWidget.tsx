@@ -47,7 +47,7 @@ export function StartupDatabaseWidget() {
 		<div className="glass-box flex w-full flex-col rounded-2xl p-8">
 			<div className="flex flex-wrap items-start justify-between gap-4">
 				<div>
-					<h2 className="text-2xl font-bold">start-up database</h2>
+					<h2 className="text-2xl font-bold">Start-up Database</h2>
 					<p className="text-foreground/60 mt-1 text-sm">
 						Browse and manage your start-up entries.
 					</p>

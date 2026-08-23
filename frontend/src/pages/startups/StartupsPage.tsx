@@ -28,7 +28,7 @@ export function StartupsPage() {
 				<RadialGlowOverlay />
 
 				<div className="relative z-10 mx-auto mt-40 w-full max-w-6xl px-4">
-					<UnderlinedTitle id="our-start-ups" title="our start-ups" />
+					<UnderlinedTitle id="our-start-ups" title="Our start-ups" />
 
 					<motion.p
 						initial={{ opacity: 0, y: 30 }}
@@ -37,7 +37,7 @@ export function StartupsPage() {
 						transition={{ duration: 0.5, ease: 'easeIn', delay: 0.15 }}
 						className="mx-auto max-w-4xl py-5 text-center text-3xl font-bold italic"
 					>
-						born in Scotland, built for the world.
+						Born in Scotland, built for the world.
 					</motion.p>
 
 					<motion.p
@@ -65,8 +65,8 @@ export function StartupsPage() {
 				>
 					<UnderlinedTitle
 						id="meet-the-startups"
-						navLabel="meet the startups"
-						title="meet the student-led ventures we've worked with."
+						navLabel="Meet the startups"
+						title="Meet the student-led ventures we've worked with."
 						size="text-5xl"
 						level={2}
 					/>
@@ -117,8 +117,8 @@ export function StartupsPage() {
 						<div className="z-10 flex flex-col items-center justify-center gap-4">
 							<UnderlinedTitle
 								id="you"
-								navLabel="reach out"
-								title={'you?'}
+								navLabel="Reach out"
+								title={'You?'}
 								size="text-7xl"
 								animated={false}
 								level={2}

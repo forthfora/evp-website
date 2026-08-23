@@ -162,7 +162,7 @@ export function EventsPage() {
 				title="Our Events"
 				description="See what's coming up, and how you can get involved."
 			/>
-			<UnderlinedTitle id="our-events" title="our events" className="mb-10" />
+			<UnderlinedTitle id="our-events" title="Our events" className="mb-10" />
 			<div className="glass-box py-20">
 				<EventsBanner />
 
@@ -198,7 +198,7 @@ export function EventsPage() {
 					className="flex flex-col items-center text-center"
 				>
 					<h2 id="upcoming-events" className="mb-5 text-4xl font-bold md:text-6xl">
-						upcoming events
+						Upcoming events
 					</h2>
 					<SectionDivider width="w-75 md:w-100" my="my-2" />
 				</motion.div>
@@ -232,7 +232,7 @@ export function EventsPage() {
 					className="flex flex-col items-center text-center"
 				>
 					<h2 id="past-events" className="mb-5 text-4xl font-bold md:text-6xl">
-						past events
+						Past events
 					</h2>
 					<SectionDivider width="w-75 md:w-100" my="my-2" />
 					<p className="text-foreground-muted mt-4 text-2xl">A look back at where we've been.</p>

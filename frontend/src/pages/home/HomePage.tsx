@@ -38,7 +38,7 @@ export function HomePage() {
 				<ContactSection
 					image={contactImg}
 					imageAlt="The Scottish flag on a cathedral tower"
-					heading="interested?"
+					heading="Interested?"
 					body={[
 						"Whether you're a start-up looking for funding or a student looking for a role, reach out and find a place at EVP.",
 					]}
@@ -68,7 +68,7 @@ function AboutUsSection() {
 					className="flex w-full flex-col items-center gap-5 text-center md:w-1/2 md:items-start md:text-left"
 				>
 					<h2 id="who-we-are" className="text-4xl font-bold md:text-5xl">
-						who we are
+						Who we are
 					</h2>
 					<SectionDivider width="w-75 md:w-100" my="my-2" />
 					<p className="text-lg md:text-xl">
@@ -96,19 +96,19 @@ function WhatWeDoSection() {
 	const cards: { img: string; title: string; body: string; to: string }[] = [
 		{
 			img: whatWeDoImg1,
-			title: 'discover our start-ups',
+			title: 'Discover our start-ups',
 			body: "Read about the student-led start-ups that we've worked with.",
 			to: 'startups',
 		},
 		{
 			img: whatWeDoImg2,
-			title: 'our investing programme',
+			title: 'Our investing programme',
 			body: 'We grant students real exposure to early-stage investing.',
 			to: 'contact#scout-programme',
 		},
 		{
 			img: whatWeDoImg3,
-			title: 'network & partnerships',
+			title: 'Network & partnerships',
 			body: 'From angel syndicates to celebrated founders.',
 			to: 'contact#network',
 		},
@@ -118,7 +118,7 @@ function WhatWeDoSection() {
 		<section className="w-full py-25">
 			<motion.div {...fadeUp()}>
 				<h2 id="what-we-do" className="text-center text-4xl font-bold md:text-5xl">
-					what we do
+					What we do
 				</h2>
 				<SectionDivider className="mx-auto" width="w-75 md:w-100" my="my-2" />
 			</motion.div>
@@ -169,10 +169,10 @@ function EventsSection() {
 			<motion.div {...fadeUp()} className="flex flex-col items-center">
 				<h1
 					id="events"
-					data-nav-label="our events"
+					data-nav-label="Our events"
 					className="pt-10 pb-5 text-center text-5xl font-bold"
 				>
-					join us at our next event!
+					Join us at our next event!
 				</h1>
 				<SectionDivider />
 				<p className="mx-auto max-w-2xl py-5 text-center text-lg md:text-2xl">

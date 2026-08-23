@@ -16,8 +16,8 @@ export function PartnersSection() {
 			>
 				<UnderlinedTitle
 					id="our-partners"
-					navLabel="our partners"
-					title="powered by our partners."
+					navLabel="Our Partners"
+					title="Powered by our partners."
 					size="text-5xl"
 					level={2}
 				/>

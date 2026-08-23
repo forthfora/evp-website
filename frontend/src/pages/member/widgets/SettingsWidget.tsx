@@ -99,7 +99,7 @@ export function SettingsWidget() {
 
 	return (
 		<div className="glass-box rounded-2xl p-8">
-			<h2 className="text-2xl font-bold">account settings</h2>
+			<h2 className="text-2xl font-bold">Account Settings</h2>
 			<p className="text-foreground/60 mt-1 text-sm">Manage your profile and email preferences.</p>
 
 			{/* Name */}

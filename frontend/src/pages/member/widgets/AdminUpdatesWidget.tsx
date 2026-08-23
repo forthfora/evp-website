@@ -32,7 +32,7 @@ export function AdminUpdatesWidget() {
 
 	return (
 		<div className="glass-box rounded-2xl p-8">
-			<h2 className="text-2xl font-bold">send email to all members</h2>
+			<h2 className="text-2xl font-bold">Send email to all members</h2>
 			<p className="text-foreground/60 mt-1 text-sm">
 				Send an email update to all members of EVP (who haven't opted out).
 			</p>

@@ -45,7 +45,7 @@ export function AboutPage() {
 				<RadialGlowOverlay />
 
 				<div className="relative z-10 mx-auto mt-30 w-full max-w-6xl px-4 md:px-8">
-					<UnderlinedTitle id="who-we-are" title="who we are" />
+					<UnderlinedTitle id="who-we-are" title="Who we are" />
 
 					<motion.p
 						initial={{ opacity: 0, y: 30 }}
@@ -54,7 +54,7 @@ export function AboutPage() {
 						transition={{ duration: 0.5, ease: 'easeIn', delay: 0.15 }}
 						className="mx-auto max-w-4xl py-5 text-center text-2xl font-bold italic md:text-3xl"
 					>
-						built by students, for students.
+						Built by students, for students.
 					</motion.p>
 
 					<motion.p
@@ -90,7 +90,7 @@ export function AboutPage() {
 					>
 						<h2
 							id="idea"
-							data-nav-label="got an idea?"
+							data-nav-label="Got an idea?"
 							className="mb-4 text-3xl leading-tight font-bold italic md:text-5xl md:leading-16"
 						>
 							Have a great idea, but lack the funding?
@@ -123,7 +123,7 @@ export function AboutPage() {
 			<div className="mx-auto mt-10 w-full max-w-6xl px-4 md:px-8">
 				<UnderlinedTitle
 					id="meet-the-team"
-					title="meet the team"
+					title="Meet the team"
 					className="py-10 pt-20 md:py-15 md:pt-50"
 					size="text-4xl md:text-6xl"
 					level={2}
@@ -136,7 +136,7 @@ export function AboutPage() {
 			<ContactSection
 				image={contactImg}
 				imageAlt="Event photo"
-				heading="want to get involved?"
+				heading="Want to get involved?"
 				body={[
 					'Our team is constantly bringing on new members.',
 					<strong>Get in touch to see how you can be part of EVP.</strong>,

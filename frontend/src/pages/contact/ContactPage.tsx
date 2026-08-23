@@ -25,7 +25,7 @@ export function ContactPage() {
 			<ContactHero />
 
 			<section className="py-10 pt-50">
-				<UnderlinedTitle title={'what we offer'} delay={0.5} level={2} />
+				<UnderlinedTitle title={'What we offer'} delay={0.5} level={2} />
 
 				<div className="glass-box my-20 w-full overflow-hidden py-25 md:py-40">
 					<div className="mx-auto flex max-w-6xl flex-col items-center gap-10 px-4 md:flex-row md:items-start">
@@ -34,7 +34,7 @@ export function ContactPage() {
 							className="flex w-full flex-col items-center gap-5 text-center md:w-1/2 md:items-start md:text-left"
 						>
 							<h2 id="scout-programme" className="text-4xl font-bold md:text-5xl">
-								the scout programme
+								The Scout Programme
 							</h2>
 							<SectionDivider width="w-75 md:w-100" my="my-2" />
 							<b className="text-lg md:text-xl">
@@ -81,7 +81,7 @@ export function ContactPage() {
 							className="flex w-full flex-col items-center gap-5 text-center md:w-1/2 md:items-end md:text-right"
 						>
 							<h2 id="network" className="text-4xl font-bold md:text-5xl">
-								our network
+								Our network
 							</h2>
 							<SectionDivider width="w-75 md:w-100" my="my-2" />
 							<b className="text-lg md:text-xl">
@@ -117,7 +117,7 @@ function OfferCardsSection() {
 	const cards: { img: string; title: string; body: ReactNode }[] = [
 		{
 			img: offerImg1,
-			title: 'angel syndicates',
+			title: 'Angel Syndicates',
 			body: (
 				<p>
 					We have close relationships with some of the oldest and most established angel syndicates
@@ -127,7 +127,7 @@ function OfferCardsSection() {
 		},
 		{
 			img: offerImg2,
-			title: 'exclusive programmes',
+			title: 'Exclusive Programmes',
 			body: (
 				<p>
 					We work with accelerators, government-funded programs, and others to provide student
@@ -137,7 +137,7 @@ function OfferCardsSection() {
 		},
 		{
 			img: offerImg3,
-			title: 'top tech societies',
+			title: 'Top Tech Societies',
 			body: (
 				<p>
 					We are a CompSoc Special Interest Group. Our members have access to everything the largest
@@ -185,7 +185,7 @@ function ContactHero() {
 			<RadialGlowOverlay />
 
 			<div className="relative z-10 mx-auto mt-40 w-full max-w-6xl px-4">
-				<UnderlinedTitle id="get-in-touch" title="get in touch" />
+				<UnderlinedTitle id="get-in-touch" title="Get in touch" />
 
 				<motion.div
 					initial={{ opacity: 0, y: 30 }}
@@ -264,7 +264,7 @@ function ContactFormSection() {
 					className="flex w-full flex-col items-center gap-6 text-center md:w-1/2 md:items-start md:text-left"
 				>
 					<h2 id="email" className="-scroll-mt-25 text-4xl font-bold md:text-5xl">
-						contact us
+						Contact us
 					</h2>
 					<SectionDivider width="w-75 md:w-100" my="my-2" />
 					<p className="text-lg md:text-xl">

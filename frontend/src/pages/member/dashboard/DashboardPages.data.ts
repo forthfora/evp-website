@@ -12,10 +12,10 @@ export interface DashboardPage {
 }
 
 export const DASHBOARD_PAGES: DashboardPage[] = [
-	{ id: 'home', label: 'home', widgetIds: ['welcome', 'settings'] },
-	{ id: 'startups', label: 'startup database', widgetIds: ['startup-db'] },
-	{ id: 'members', label: 'member list', widgetIds: ['members'] },
-	{ id: 'admin', label: 'admin', widgetIds: ['admin-updates'] },
+	{ id: 'home', label: 'Home', widgetIds: ['welcome', 'settings'] },
+	{ id: 'startups', label: 'Startup Database', widgetIds: ['startup-db'] },
+	{ id: 'members', label: 'Member List', widgetIds: ['members'] },
+	{ id: 'admin', label: 'Admin', widgetIds: ['admin-updates'] },
 ];
 
 export function getWidgetsForPage(page: DashboardPage, role: Role): Widget[] {

@@ -22,7 +22,7 @@ export function MembersWidget() {
 
 	return (
 		<div className="glass-box rounded-2xl p-8">
-			<h2 className="text-2xl font-bold">member list</h2>
+			<h2 className="text-2xl font-bold">Member List</h2>
 			<p className="text-foreground/60 mt-1 text-sm">
 				All members of EVP registered to the site. Only visible to committee members.
 			</p>

@@ -73,7 +73,7 @@ export function HomePageHero({
 
 				{/* Scaled text sizes for mobile, allowed text wrapping, kept nowrap for md+ */}
 				<div className="animate-shimmer bg-[linear-gradient(135deg,var(--color-foreground)_35%,var(--color-highlight-inverted)_50%,var(--color-foreground)_65%)] bg-size-[300%_300%] bg-clip-text text-2xl leading-tight font-bold whitespace-normal text-transparent [animation-delay:1.2s] md:text-4xl md:whitespace-nowrap">
-					<i>where students build and invest.</i>
+					<i>Where students build and invest.</i>
 				</div>
 
 				{/* Responsive divider line */}

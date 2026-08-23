@@ -83,7 +83,7 @@ export function AuthSection({ size = 'default' }: AuthSectionProps) {
 				anchorRef={logoutButtonRef}
 				anchorPlacement="top"
 				anchorAlign="center"
-				title="log out?"
+				title="Log out?"
 				message="Are you sure you want to log out?"
 				destructive
 				onConfirm={() => {
