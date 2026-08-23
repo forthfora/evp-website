@@ -12,7 +12,8 @@ export function ThemeToggle() {
 		<button
 			onClick={toggleTheme}
 			className="button-underline flex cursor-pointer items-center justify-center border-none bg-transparent p-2"
-			aria-label="Toggle theme"
+			aria-label="Switch Theme"
+			title="Switch Theme"
 		>
 			<span className="relative inline-flex h-7 w-7 items-center justify-center overflow-hidden md:h-5 md:w-5">
 				<AnimatePresence mode="popLayout" initial={false}>

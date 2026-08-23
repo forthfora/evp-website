@@ -25,7 +25,7 @@ export function HeroActions() {
 				</span>
 			</div>
 
-			<div className="flex items-center justify-center gap-1">
+			<div className="flex items-center justify-center gap-4">
 				<ThemeToggle />
 				<ShareButton />
 			</div>

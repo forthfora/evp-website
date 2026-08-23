@@ -1,21 +1,11 @@
-import { Socials } from '@common';
 import { useEffect, useState } from 'react';
 
+import { useScrollVisibility } from '@/shared/lib/scroll-visibility';
 import { HeroActions } from '@/shared/ui/header/HeroActions';
 import { LogoAndTitle } from '@/shared/ui/header/LogoAndTitle';
 import { HeaderNavButtons } from '@/shared/ui/header/nav-link-buttons/NavLinkButtons';
 
 interface HomePageHeroProps {
-	/**
-	 * How far the user must scroll DOWN (px) before the hero fades out.
-	 * @default 100
-	 */
-	fadeOutAt?: number;
-	/**
-	 * How far the user must scroll back UP (px) before the hero fades in again.
-	 * @default 75
-	 */
-	fadeInAt?: number;
 	/** Transition duration in milliseconds. @default 600 */
 	transitionDuration?: number;
 	/**
@@ -34,45 +24,24 @@ interface HomePageHeroProps {
 const EASING = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
 export function HomePageHero({
-	fadeOutAt = 100,
-	fadeInAt = 75,
 	transitionDuration = 600,
 	slideDistance = 300,
 	mountDelay = 100,
 }: HomePageHeroProps) {
-	// Always start hidden so the fade-in transition fires on mount.
-	const [visible, setVisible] = useState(false);
+	const { isScrolledPast } = useScrollVisibility();
 
-	// Mount fade-in — evaluates scroll AFTER the delay to account for async scroll restoration
+	// Always start hidden so the mount fade-in transition fires.
+	const [hasMounted, setHasMounted] = useState(false);
+
 	useEffect(() => {
-		const id = setTimeout(() => {
-			// If the browser restored scroll down the page during the delay, this prevents the fade-in.
-			if (window.scrollY <= fadeOutAt) {
-				setVisible(true);
-			}
-		}, mountDelay);
-
+		const id = setTimeout(() => setHasMounted(true), mountDelay);
 		return () => clearTimeout(id);
-	}, [fadeOutAt, mountDelay]);
+	}, [mountDelay]);
 
-	// Scroll listener — always active.
-	useEffect(() => {
-		const handleScroll = () => {
-			const y = window.scrollY;
-
-			// React automatically bails out of state updates if the new value is the same as the old one,
-			// so we don't need to check `prev` before returning false/true.
-			setVisible((prev) => {
-				if (y > fadeOutAt) return false;
-				if (y < fadeInAt) return true;
-				return prev;
-			});
-		};
-
-		window.addEventListener('scroll', handleScroll, { passive: true });
-		return () => window.removeEventListener('scroll', handleScroll);
-	}, [fadeOutAt, fadeInAt]);
-
+	// Hero is visible when: mounted AND not scrolled past the hero zone.
+	// This is the exact inverse of the header's visibility on the home page,
+	// guaranteeing they never appear together.
+	const visible = hasMounted && !isScrolledPast;
 	const transition = `opacity ${transitionDuration}ms ${EASING}, transform ${transitionDuration}ms ${EASING}`;
 
 	return (

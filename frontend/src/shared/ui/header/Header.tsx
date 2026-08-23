@@ -1,8 +1,9 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useLocation } from 'react-router';
 
+import { useScrollVisibility } from '@/shared/lib/scroll-visibility';
 import { cn } from '@/shared/lib/utils';
 
 import { HeaderActions } from './HeaderActions';
@@ -10,22 +11,16 @@ import { LogoAndTitle } from './LogoAndTitle';
 import { HeaderNavButtons } from './nav-link-buttons/NavLinkButtons';
 
 interface HeaderProps {
-	fadeInAt?: number;
-	fadeOutAt?: number;
 	transitionDuration?: number;
 	slideDistance?: number;
 }
 
 const EASING = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
-export function Header({
-	fadeInAt = 150,
-	fadeOutAt = 100,
-	transitionDuration = 600,
-	slideDistance = 100,
-}: HeaderProps) {
+export function Header({ transitionDuration = 600, slideDistance = 100 }: HeaderProps) {
 	const location = useLocation();
 	const isHomePage = location.pathname === '/';
+	const { isScrolledPast } = useScrollVisibility();
 
 	const [trackedPathname, setTrackedPathname] = useState(location.pathname);
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -34,29 +29,6 @@ export function Header({
 		setTrackedPathname(location.pathname);
 		setMobileMenuOpen(false);
 	}
-
-	const [isScrolledPast, setIsScrolledPast] = useState(() => {
-		if (typeof window !== 'undefined') {
-			return window.scrollY > fadeInAt;
-		}
-		return false;
-	});
-
-	useEffect(() => {
-		if (!isHomePage) return;
-
-		const handleScroll = () => {
-			const y = window.scrollY;
-			setIsScrolledPast((prev) => {
-				if (!prev && y > fadeInAt) return true;
-				if (prev && y < fadeOutAt) return false;
-				return prev;
-			});
-		};
-
-		window.addEventListener('scroll', handleScroll, { passive: true });
-		return () => window.removeEventListener('scroll', handleScroll);
-	}, [isHomePage, fadeInAt, fadeOutAt]);
 
 	const visible = !isHomePage || isScrolledPast;
 	const transition = `opacity ${transitionDuration}ms ${EASING}, transform ${transitionDuration}ms ${EASING}`;
