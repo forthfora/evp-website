@@ -219,7 +219,7 @@ export function SettingsWidget() {
 			{/* Update-email opt-in */}
 			<div className="mt-6 flex items-center gap-4">
 				<div className="shrink-0">
-					<p className="text-lg font-semibold">update emails</p>
+					<p className="text-lg font-semibold">Update Emails</p>
 					<p className="text-foreground/60 text-sm">
 						Receive non-essential update emails from EVP.
 					</p>

@@ -48,7 +48,7 @@ export function AuthSection({ size = 'default' }: AuthSectionProps) {
 						</p>
 						<span
 							className={cn(
-								'rounded-full px-2 py-0.5 text-xs font-medium',
+								'rounded-full px-2 py-0.5 text-xs font-medium capitalize',
 								RoleColors[user.role] ?? 'bg-gray-500/20 text-gray-400',
 							)}
 						>
@@ -62,7 +62,7 @@ export function AuthSection({ size = 'default' }: AuthSectionProps) {
 						aria-label="log out"
 					>
 						<LogOut size={20} />
-						<span className="hidden md:inline">log out</span>
+						<span className="hidden md:inline">Log out</span>
 					</button>
 				</>
 			) : (

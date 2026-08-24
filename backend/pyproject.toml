@@ -10,6 +10,7 @@ dependencies = [
     "Django==6.0.5",
     "django-cors-headers==4.9.0",
     "django-jazzmin>=3.0.4",
+    "django-redis>=5.4.0",
     "django-ninja==1.6.2",
     "gunicorn>=26.0.0",
     "psycopg[binary]>=3.3.4",
