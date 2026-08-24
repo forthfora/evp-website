@@ -30,7 +30,7 @@ export type YearData = {
 
 export const COMMITTEE_DATA: YearData[] = [
 	{
-		year: '2026/2027 (current)',
+		year: '2026/2027 (Current)',
 		members: [
 			{
 				role: 'President',
