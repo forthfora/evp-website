@@ -78,31 +78,4 @@ The local development server will be available at: `http://localhost:16017`
 * **Nginx:** Reverse proxy server handling incoming requests and serving static/media files.
 * **Gunicorn:** Python WSGI HTTP Server for UNIX, serving the Django application in production.
 
-<br/>
-
-# Key Features
-
-TODO
-
-<br/>
-
-# Architecture
-
-TODO
-
-<br/>
-
-### TODO
-
-- react
-- vite
-- docker
-- node
-- nginx
-
-- django
-- ninja
-- gunicorn
-
-- mysql
 
