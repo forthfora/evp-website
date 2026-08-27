@@ -5,7 +5,7 @@
 | **Product**      | Edinburgh VenturePoint (EVP) Website      |
 | **Status**       | Live — https://edinburghventurepoint.com  |
 | **Hosting**      | Tardis servers (https://tardisproject.uk) |
-| **Last updated** | 2026-07-30                                |
+| **Last updated** | 2026-08-27                                |
 
 ## 1. Overview
 
@@ -45,6 +45,8 @@ society communications.
 | Startups | `/startups` | Showcase of society-affiliated startups and partner organisations |
 | Events   | `/events`   | Upcoming and past events                                          |
 | Contact  | `/contact`  | Contact form / enquiry details                                    |
+| Join     | `/join`     | Unified login/signup (email → OTP code → names if new)            |
+| Member   | `/member`   | Member dashboard (protected, role-based widgets)                  |
 | Error    | `*` (404)   | Friendly not-found / error page                                   |
 
 ### 4.2 Backend Capabilities
@@ -58,13 +60,13 @@ society communications.
   returns `{created}` and signs the user in — new accounts are created on first
   verification and then prompted for first/last name. Profile `GET/PATCH
   /api/accounts/me` (names, update-email opt-in), OTP-verified email change
-  `POST /api/accounts/email/change`, `POST /api/accounts/logout`, CSRF bootstrap
-  at `GET /api/csrf`; admin update emails at `POST /api/accounts/sendall`.
+  `POST /api/accounts/email/change`, `POST /api/accounts/logout`, member list
+  `GET /api/accounts/members` (admin/committee only), admin send-all-emails at
+  `POST /api/accounts/sendall`, CSRF bootstrap at `GET /api/csrf`.
   Admin management.
 - **Roles**: every account has one of four roles — `member` (default),
   `scout`, `committee`, `admin` — elevated manually via the Django admin.
-  See §4.3 for the capability matrix and `docs/adr/0002-roles-startupdb-and-admin-comms.md`
-  for the full architecture.
+  See §4.3 for the capability matrix.
 - **Startup database**: `StartupEntry` records (unique name, founders,
   founding date, description, website, linkedin, email, location, notes)
   linked many-to-many to `Founder` records (first & last name as the
@@ -73,10 +75,10 @@ society communications.
   schema is expected to evolve.
 - **Admin communications**: Admins can send update emails to all members
   (opt-out via `receives_update_emails`).
-- **Admin panel** (`/admin/`, Jazzmin-themed) for committee/admin content and
-  role management.
+- **Admin panel** (`/evp-dev/`, Jazzmin-themed) for committee/admin content and
+  role management. Note: the admin URL is `/evp-dev/`, not `/admin/`.
 - **REST API** (`/api/`, Django Ninja) with auto-generated docs at `/api/docs`
-  (DEBUG only).
+  (DEBUG only). All endpoints are rate-limited via `django-ratelimit`.
 
 ### 4.3 Roles & Permissions
 
@@ -95,7 +97,7 @@ change; the rule lives in a single backend permission function.
 
 ### 4.4 Out of Scope (for now)
 
-- Password-based login (the schema keeps the extension point open — see ADR 0001).
+- Password-based login (the schema keeps the extension point open).
 - Payments, ticketing, or e-commerce.
 - Blog/CMS beyond what the admin panel manages.
 - A persistent newsletter/issue archive — admin emails are ad-hoc sends.
@@ -131,14 +133,19 @@ change; the rule lives in a single backend permission function.
 7. Administrators shall manage users, roles, and content through the Django admin panel.
 8. Admins shall be able to send update emails to all members who have not opted out.
 9. The frontend shall fetch dynamic data via the API (TanStack React Query) with runtime validation (zod).
+10. The member dashboard (`/member`) shall be a protected, role-filtered page
+    with hash-based navigation (e.g. `/member#startups`). Widgets are registered
+    in a central registry and shown/hidden based on the user's role. Pages:
+    Home (welcome + account settings), Startup Database (scout+), Member List
+    (committee+), Admin (admin only).
 
 ## 6. Non-Functional Requirements
 
 - **Performance**: static assets served via Nginx; frontend built and minified by Vite.
 - **SEO**: `robots.txt` and `sitemap.xml` served from `frontend/public/`.
 - **Reliability**: fully containerized (Docker Compose); production deploys automated via GitHub Actions (CI test job → matrix build → GHCR → SSH rolling update); images tagged with both `latest` and commit SHA for rollback capability.
-- **Security**: environment-based secrets (`backend/.env`), CORS restricted, session + CSRF auth, no committed credentials.
-- **Maintainability**: TypeScript + ESLint/Prettier on the frontend; type-hinted Python + Pydantic schemas on the backend.
+- **Security**: environment-based secrets (`backend/.env`), CORS restricted, session + CSRF auth, no committed credentials. All API endpoints rate-limited via `django-ratelimit` (per-IP or per-user-or-IP). Nginx also applies rate limiting (`limit_req_zone`: global 20r/s, API 5r/s).
+- **Maintainability**: TypeScript + ESLint/Prettier on the frontend; type-hinted Python + Pydantic schemas on the backend. Frontend tests via Vitest + @testing-library/react; backend tests via Django's test runner.
 
 ## 7. Technical Architecture
 
@@ -156,10 +163,10 @@ change; the rule lives in a single backend permission function.
 
 ## 9. Future Considerations
 
-- Password-based login as an additional auth mechanism (extension point documented in ADR 0001).
+- Password-based login as an additional auth mechanism (extension point open).
 - Elevated Committee permissions on the startup database (single-function change in `can_manage_entry`).
 - Async/queued delivery for admin update emails if membership grows.
 - Event RSVP/ticketing integration.
 - Public startup directory surfacing `StartupEntry` data, with submissions via the API.
-- Member profile pages (avatars, bios) building on the existing `User.image` field.
+- Member profile pages (avatars, bios) — would require adding an image field to the `User` model (one does not currently exist).
 - Unsubscribe/self-service email preference management on the frontend.
