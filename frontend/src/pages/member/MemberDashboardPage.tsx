@@ -59,7 +59,7 @@ export function MemberDashboardPage() {
 						key={activePageId}
 						exit={{ opacity: 0, y: -30 }}
 						transition={{ duration: 0.15, ease: 'easeOut' }}
-						className="grid-col-1 grid gap-6"
+						className="grid grid-cols-1 gap-6"
 					>
 						{widgets.map((widget, i) => (
 							<motion.div

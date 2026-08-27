@@ -3,8 +3,6 @@ from django.http import Http404, HttpRequest
 from ninja import NinjaAPI
 from ninja.errors import AuthorizationError, HttpError, ValidationError
 
-from helpers.exceptions import ResourceNotFound
-
 api = NinjaAPI(
     title="EVP API",
     version="1.0.0",
@@ -36,20 +34,10 @@ def validation_error_handler(request: HttpRequest, exc: ValidationError):
     return api.create_response(request, {"errors": errors}, status=422)
 
 
-def _resource_from_path(path: str) -> str:
-    # TODO: add more specific cases
-    return "resource"
-
-
 @api.exception_handler(Http404)
 def not_found_handler(request: HttpRequest, exc: Http404):
-    resource = (
-        exc.resource
-        if isinstance(exc, ResourceNotFound)
-        else _resource_from_path(request.path)
-    )
     return api.create_response(
-        request, {"errors": {resource: ["not found"]}}, status=404
+        request, {"errors": {"resource": ["not found"]}}, status=404
     )
 
 
@@ -57,7 +45,7 @@ def not_found_handler(request: HttpRequest, exc: Http404):
 def authorization_error_handler(request: HttpRequest, exc: AuthorizationError):
     return api.create_response(
         request,
-        {"errors": {_resource_from_path(request.path): ["forbidden"]}},
+        {"errors": {"resource": ["forbidden"]}},
         status=403,
     )
 

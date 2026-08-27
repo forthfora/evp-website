@@ -3,10 +3,7 @@ import { useState } from 'react';
 import { useSendAllEmail } from '@/shared/lib/auth/api';
 import type { SendAllEmailOut } from '@/shared/lib/auth/schemas';
 import { cn } from '@/shared/lib/utils';
-
-const inputClass =
-	'bg-background/40 border-accent/30 placeholder:text-foreground/30 focus:border-accent focus:ring-accent/20 w-full rounded-lg border px-4 py-2.5 text-sm transition-colors duration-200 outline-none focus:ring-2';
-const labelClass = 'text-left text-xs font-semibold tracking-widest uppercase opacity-70';
+import { inputClass, labelClass } from '@/shared/styles/formClasses';
 
 export function AdminUpdatesWidget() {
 	const sendMut = useSendAllEmail();

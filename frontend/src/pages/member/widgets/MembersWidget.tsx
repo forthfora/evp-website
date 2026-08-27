@@ -1,6 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
-
-import { fetchMembers } from '@/shared/lib/auth/api';
+import { useMembers } from '@/shared/lib/auth/api';
 import { RoleColors } from '@/shared/lib/auth/schemas';
 import { cn } from '@/shared/lib/utils';
 
@@ -11,14 +9,7 @@ function formatDate(iso: string): string {
 }
 
 export function MembersWidget() {
-	const {
-		data: members = [],
-		isLoading,
-		error,
-	} = useQuery({
-		queryKey: ['members'],
-		queryFn: fetchMembers,
-	});
+	const { data: members = [], isLoading, error } = useMembers();
 
 	return (
 		<div className="glass-box rounded-2xl p-8">

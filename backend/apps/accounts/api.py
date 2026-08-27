@@ -127,6 +127,18 @@ def _me_out(user: User) -> MeOut:
     )
 
 
+def _member_out(user: User) -> MemberOut:
+    return MemberOut(
+        username=user.username,
+        email=user.email,
+        first_name=user.first_name,
+        last_name=user.last_name,
+        role=user.role,
+        date_joined=user.date_joined.isoformat(),
+        receives_update_emails=user.receives_update_emails,
+    )
+
+
 @router.get(
     "/me",
     auth=django_auth,
@@ -187,18 +199,7 @@ def change_email(request: HttpRequest, payload: EmailChangeIn):
 @ratelimit(key="user_or_ip", rate="120/m", block=True)
 def list_members(request: HttpRequest):
     users = User.objects.all().order_by("email")
-    return [
-        MemberOut(
-            username=u.username,
-            email=u.email,
-            first_name=u.first_name,
-            last_name=u.last_name,
-            role=u.role,
-            date_joined=u.date_joined.isoformat(),
-            receives_update_emails=u.receives_update_emails,
-        )
-        for u in users
-    ]
+    return [_member_out(u) for u in users]
 
 
 @router.post(
