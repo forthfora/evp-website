@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
+from django_ratelimit.decorators import ratelimit
 from ninja import Router
 from ninja.errors import HttpError
 
@@ -69,6 +70,7 @@ def _startup_out(entry: StartupEntry) -> StartupOut:
     },
     summary="List all founders.",
 )
+@ratelimit(key="user_or_ip", rate="120/m", block=True)
 def list_founders(request: HttpRequest):
     return [_founder_out(f) for f in Founder.objects.all()]
 
@@ -78,6 +80,7 @@ def list_founders(request: HttpRequest):
     response={201: FounderOut, 401: None, 403: None},
     summary="Create a founder.",
 )
+@ratelimit(key="user_or_ip", rate="60/m", block=True)
 def create_founder(request: HttpRequest, payload: FounderIn):
     user = request.user
     founder = Founder.objects.create(
@@ -98,6 +101,7 @@ def create_founder(request: HttpRequest, payload: FounderIn):
     response={200: FounderOut, 401: None, 403: None, 404: None},
     summary="Update a founder. (owner or admin)",
 )
+@ratelimit(key="user_or_ip", rate="60/m", block=True)
 def update_founder(
     request: HttpRequest,
     founder_id: int,
@@ -121,6 +125,7 @@ def update_founder(
     response={204: None, 401: None, 403: None, 404: None},
     summary="Delete a founder. (owner or admin)",
 )
+@ratelimit(key="user_or_ip", rate="60/m", block=True)
 def delete_founder(
     request: HttpRequest,
     founder_id: int,
@@ -140,6 +145,7 @@ def delete_founder(
     response={200: list[StartupOut], 401: None, 403: None},
     summary="List all startup entries.",
 )
+@ratelimit(key="user_or_ip", rate="120/m", block=True)
 def list_entries(request: HttpRequest):
     entries = StartupEntry.objects.prefetch_related("founders")
     return [_startup_out(e) for e in entries]
@@ -150,6 +156,7 @@ def list_entries(request: HttpRequest):
     response={201: StartupOut, 401: None, 403: None},
     summary="Create a new startup entry.",
 )
+@ratelimit(key="user_or_ip", rate="60/m", block=True)
 def create_entry(request: HttpRequest, payload: StartupIn):
     user: User = request.user  # type: ignore
     data = payload.model_dump(exclude={"founder_ids"})
@@ -166,6 +173,7 @@ def create_entry(request: HttpRequest, payload: StartupIn):
     response={200: StartupOut, 401: None, 403: None, 404: None},
     summary="Update a startup entry. (owner or admin)",
 )
+@ratelimit(key="user_or_ip", rate="60/m", block=True)
 def update_entry(
     request: HttpRequest,
     entry_id: int,
@@ -195,6 +203,7 @@ def update_entry(
     response={204: None, 401: None, 403: None, 404: None},
     summary="Delete a startup entry. (owner or admin)",
 )
+@ratelimit(key="user_or_ip", rate="60/m", block=True)
 def delete_entry(
     request: HttpRequest,
     entry_id: int,

@@ -3,6 +3,7 @@ import logging
 from django.conf import settings
 from django.http import HttpResponse
 from django.middleware.csrf import get_token
+from django_ratelimit.decorators import ratelimit
 from ninja import Router
 from ninja.errors import HttpError
 
@@ -20,6 +21,7 @@ router = Router(tags=["Core"])
     response={200: CSRFOut},
     summary="Returns CSRF token.",
 )
+@ratelimit(key="ip", rate="60/m", block=True)
 def get_csrf(request):
     return {"csrftoken": get_token(request)}
 
@@ -30,6 +32,7 @@ def get_csrf(request):
     response={204: None, 500: None},
     summary="Sends a contact email to EVP.",
 )
+@ratelimit(key="ip", rate="5/10m", block=True)
 def send_contact_email(request, data: ContactIn):
     email_subject = f"EVP Contact: {data.name}"
     email_body = f"Name: {data.name}\nEmail: {data.email}\n\nMessage:\n{data.message}"

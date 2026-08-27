@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from django.contrib.auth import login, logout
 from django.http import HttpResponse
+from django_ratelimit.decorators import ratelimit
 from ninja import Router
 from ninja.errors import HttpError, logger
 from ninja.security import django_auth
@@ -36,6 +37,7 @@ router = Router(tags=["Accounts"])
     response={200: RequestOTPOut, 429: None, 500: None},
     summary="Sends an OTP and reports whether an account exists.",
 )
+@ratelimit(key="ip", rate="5/10m", block=True)
 def request_otp(request, payload: RequestOTPIn):
     email = payload.email
     wait = EmailOTP.remaining_cooldown(email)
@@ -80,6 +82,7 @@ def _consume_otp(email: str, code: str) -> bool:
     response={200: VerifyOTPOut, 401: None},
     summary="Verifies the provided OTP code and signs the user in.",
 )
+@ratelimit(key="ip", rate="10/10m", block=True)
 def verify_otp(request, payload: VerifyOTPIn):
     if not _consume_otp(payload.email, payload.code):
         raise HttpError(
@@ -104,6 +107,7 @@ def verify_otp(request, payload: VerifyOTPIn):
     response={204: None, 401: None},
     summary="Logs the authenticated user out.",
 )
+@ratelimit(key="user_or_ip", rate="60/m", block=True)
 def logout_view(request):
     user: User = request.user  # type: ignore
     EmailOTP.reset_throttle(user.email)
@@ -129,6 +133,7 @@ def _me_out(user: User) -> MeOut:
     response={200: MeOut, 401: None},
     summary="Returns the authenticated user's profile.",
 )
+@ratelimit(key="user_or_ip", rate="120/m", block=True)
 def accounts_me(request: HttpRequest):
     user: User = request.user  # type: ignore
     return _me_out(user)
@@ -140,6 +145,7 @@ def accounts_me(request: HttpRequest):
     response={200: MeOut, 401: None},
     summary="Updates the authenticated user's profile (names, update-email opt-in).",
 )
+@ratelimit(key="user_or_ip", rate="60/m", block=True)
 def update_me(request: HttpRequest, payload: MePatchIn):
     user: User = request.user  # type: ignore
     data = payload.model_dump(exclude_unset=True)
@@ -155,6 +161,7 @@ def update_me(request: HttpRequest, payload: MePatchIn):
     response={200: MeOut, 400: None, 401: None},
     summary="Verifies an OTP for a new email and switches the user's email.",
 )
+@ratelimit(key="user_or_ip", rate="5/10m", block=True)
 def change_email(request: HttpRequest, payload: EmailChangeIn):
     user: User = request.user  # type: ignore
 
@@ -177,6 +184,7 @@ def change_email(request: HttpRequest, payload: EmailChangeIn):
     response={200: list[MemberOut], 401: None, 403: None},
     summary="Lists all members. (admin or committee)",
 )
+@ratelimit(key="user_or_ip", rate="120/m", block=True)
 def list_members(request: HttpRequest):
     users = User.objects.all().order_by("email")
     return [
@@ -199,6 +207,7 @@ def list_members(request: HttpRequest):
     response={200: SendAllEmailOut, 401: None, 403: None},
     summary="Send an email to all opted-in members. (admin)",
 )
+@ratelimit(key="user_or_ip", rate="3/10m", block=True)
 def send_all_members_email(request: HttpRequest, payload: SendAllEmailIn):
     sent = 0
     skipped = 0
