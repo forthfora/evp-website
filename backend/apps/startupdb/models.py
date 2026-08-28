@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from django.conf import settings
 from django.db import models
 
@@ -14,7 +12,7 @@ class Occupation(models.TextChoices):
 class Founder(models.Model):
     id: int
 
-    startups: models.Manager[StartupEntry]
+    startups: models.Manager["StartupEntry"]
 
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)

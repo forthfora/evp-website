@@ -1,13 +1,7 @@
-from __future__ import annotations
-
-from typing import TYPE_CHECKING
-
+from django.db import models
 from ninja.errors import HttpError
 
-if TYPE_CHECKING:
-    from django.db import models
-
-    from apps.accounts.models import User
+from apps.accounts.models import User
 
 
 class RoleAuth:

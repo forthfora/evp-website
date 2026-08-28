@@ -42,8 +42,8 @@ if not DEBUG:
 
 # CORS & CSRF Origins
 CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:16016",
-    "http://127.0.0.1:16016",
+    "http://localhost:16017",
+    "http://127.0.0.1:16017",
     # "https://tardis.ac",
     "https://edinburghventurepoint.com",
     "https://www.edinburghventurepoint.com",
@@ -78,14 +78,6 @@ if "test" in sys.argv:
 if DEBUG:
     # output 'email' to console
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-else:
-    # send real email using Resend's API
-    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-    EMAIL_HOST = "smtp.resend.com"
-    EMAIL_PORT = 587
-    EMAIL_USE_TLS = True
-    EMAIL_HOST_USER = "resend"
-    EMAIL_HOST_PASSWORD = RESEND_API_KEY
 
 # Application definition
 INSTALLED_APPS = [

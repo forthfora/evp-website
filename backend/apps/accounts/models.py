@@ -1,5 +1,3 @@
-from __future__ import annotations  # make type hints lazy
-
 import math
 import secrets
 import uuid
@@ -31,7 +29,7 @@ class UserManager(BaseUserManager):
         first_name: str = "",
         last_name: str = "",
         **other_fields,
-    ) -> User:
+    ) -> "User":
         if not email:
             raise ValueError("Accounts must have an email.")
 
@@ -53,7 +51,7 @@ class UserManager(BaseUserManager):
         first_name: str = "",
         last_name: str = "",
         **other_fields,
-    ) -> User:
+    ) -> "User":
         other_fields.setdefault("is_staff", True)
         other_fields.setdefault("is_superuser", True)
         other_fields.setdefault("is_active", True)

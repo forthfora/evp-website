@@ -1,9 +1,5 @@
-from __future__ import annotations
-
-from typing import TYPE_CHECKING
-
 from django.contrib.auth import login, logout
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse
 from django_ratelimit.decorators import ratelimit
 from ninja import Router
 from ninja.errors import HttpError, logger
@@ -24,9 +20,6 @@ from apps.accounts.schemas import (
 )
 from apps.core.email import EmailSendError, send_email, send_otp_email
 from apps.core.permissions import RoleAuth
-
-if TYPE_CHECKING:
-    from django.http import HttpRequest
 
 router = Router(tags=["Accounts"])
 

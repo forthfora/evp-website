@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import logging
 
 from django.conf import settings
@@ -191,6 +189,7 @@ def send_otp_email(email: str, code: str):
     )
 
 
+# TODO: send welcome email on signup.
 def _build_welcome_body(name: str) -> str:
     """Build the inner body content for a welcome email."""
     return f"""

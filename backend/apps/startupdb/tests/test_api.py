@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import hypothesis.strategies as st
 from django.test import TestCase
 from hypothesis import given, settings
