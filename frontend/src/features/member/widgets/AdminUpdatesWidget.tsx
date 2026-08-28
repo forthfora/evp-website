@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useSendAllEmail } from '@/lib/auth/api';
 import type { SendAllEmailOut } from '@/lib/auth/schemas';
 import { cn } from '@/lib/utils/cn';
-import { inputClass, labelClass } from '@/styles/formClasses';
+import { inputClass, labelClass } from '@/styles/form-classes';
 
 export function AdminUpdatesWidget() {
 	const sendMut = useSendAllEmail();

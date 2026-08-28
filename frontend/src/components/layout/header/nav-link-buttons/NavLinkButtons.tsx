@@ -1,5 +1,5 @@
 import { NavLinkButton } from './NavLinkButton';
-import { NAV_LINKS } from './NavLinkButtons.data';
+import { NAV_LINKS } from './nav-links.data';
 
 export function HeaderNavButtons() {
 	return (

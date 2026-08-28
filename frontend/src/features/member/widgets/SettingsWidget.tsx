@@ -4,12 +4,7 @@ import { AnimatedCheckbox } from '@/components/ui/AnimatedCheckbox';
 import { useChangeEmail, useRequestOtp, useUpdateMe } from '@/lib/auth/api';
 import { useAuth } from '@/lib/auth/use-auth';
 import { cn } from '@/lib/utils/cn';
-import {
-	ghostBtnClass,
-	inputClass,
-	labelClass,
-	primaryBtnClass,
-} from '@/styles/formClasses';
+import { ghostBtnClass, inputClass, labelClass, primaryBtnClass } from '@/styles/form-classes';
 
 type StepMessage = { ok: boolean; text: string } | null;
 

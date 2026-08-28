@@ -6,7 +6,7 @@ import { CodeStep } from './steps/CodeStep';
 import { EmailStep } from './steps/EmailStep';
 import { NamesStep } from './steps/NamesStep';
 import { stepVariants } from './styles';
-import { useAuthFlow } from './useAuthFlow';
+import { useAuthFlow } from './use-auth-flow';
 
 export function AuthPage() {
 	const flow = useAuthFlow();
