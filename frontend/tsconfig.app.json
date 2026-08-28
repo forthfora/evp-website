@@ -23,8 +23,8 @@
 
 		"paths": {
 			"@/*": ["./src/*"],
-			"@assets/*": ["./src/shared/assets/*"],
-			"@common": ["./src/shared/ui/common/index.ts"],
+			"@assets/*": ["./src/assets/*"],
+			"@common": ["./src/components/ui/index.ts"],
 		}
 	},
 	"include": ["src"]

@@ -1,0 +1,1 @@
+export { MemberDashboardPage } from './MemberDashboardPage';
