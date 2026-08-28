@@ -1,8 +1,9 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { useId, useLayoutEffect, useRef, useState, type RefObject } from 'react';
+import { type RefObject,useId, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { cn } from '@/shared/lib/utils';
+
 import { SectionDivider } from './SectionDivider';
 
 type DialogPosition =
