@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { type RefObject, useId, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-import { cn } from '@/lib/utils/cn';
+import { cn } from '@/utils/cn';
 
 import { SectionDivider } from './SectionDivider';
 

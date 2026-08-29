@@ -6,9 +6,9 @@ import { LogOut } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { Link } from 'react-router';
 
-import { RoleColors } from '@/lib/auth/schemas';
-import { useAuth } from '@/lib/auth/use-auth';
-import { cn } from '@/lib/utils/cn';
+import { RoleColors } from '@/features/auth/schemas';
+import { useAuth } from '@/features/auth/hooks/use-auth';
+import { cn } from '@/utils/cn';
 
 interface AuthSectionProps {
 	/** Size of the Join EVP button. */

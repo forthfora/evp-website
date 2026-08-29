@@ -4,7 +4,7 @@ import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/header/Header';
 import { ScrollSpy } from '@/components/layout/ScrollSpy';
 import { GlobalBackground } from '@/components/three/global-background/GlobalBackground';
-import { ScrollVisibilityProvider } from '@/lib/utils/ScrollVisibility';
+import { ScrollVisibilityProvider } from '@/utils/ScrollVisibility';
 
 export function AppLayout() {
 	return (

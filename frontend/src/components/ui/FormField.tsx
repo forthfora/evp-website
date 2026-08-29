@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import { cn } from '@/lib/utils/cn';
+import { cn } from '@/utils/cn';
 import { labelClass } from '@/styles/form-classes';
 
 interface FormFieldProps {

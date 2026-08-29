@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
 
-import { cn } from '@/lib/utils/cn';
+import { cn } from '@/utils/cn';
 
 interface InteractiveLinkButtonProps {
 	/** Route the button navigates to. */

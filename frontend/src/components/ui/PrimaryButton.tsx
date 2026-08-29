@@ -1,6 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 
-import { cn } from '@/lib/utils/cn';
+import { cn } from '@/utils/cn';
 import { primaryBtnClass } from '@/styles/form-classes';
 
 interface PrimaryButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {

@@ -3,7 +3,7 @@ import '@/styles/button-underline.css';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Moon, Sun } from 'lucide-react';
 
-import { useTheme } from '@/app/providers/ThemeContext.data';
+import { useTheme } from '@/components/theme/ThemeContext.data';
 
 export function ThemeToggle() {
 	const { theme, toggleTheme } = useTheme();

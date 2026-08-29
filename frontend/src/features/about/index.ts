@@ -1,1 +1,2 @@
-export { AboutPage } from './AboutPage';
+export * from './constants/committee';
+export type * from './types';

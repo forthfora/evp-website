@@ -1,1 +1,2 @@
-export { MemberDashboardPage } from './MemberDashboardPage';
+export { getAvailablePages, getWidgetsForPage } from './utils/widgets';
+export { DashboardNav } from './components/DashboardNav';
