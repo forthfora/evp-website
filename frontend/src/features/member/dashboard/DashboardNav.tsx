@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 
-import { DashboardNavButton } from './DashboardNavButton';
 import type { DashboardPage } from './dashboard.data';
+import { DashboardNavButton } from './DashboardNavButton';
 
 interface DashboardNavProps {
 	pages: DashboardPage[];

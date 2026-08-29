@@ -1,3 +1,4 @@
+import { WidgetCard } from '@/components/ui';
 import { useMembers } from '@/lib/auth/api';
 import { RoleColors } from '@/lib/auth/schemas';
 import { cn } from '@/lib/utils/cn';
@@ -12,12 +13,10 @@ export function MembersWidget() {
 	const { data: members = [], isLoading, error } = useMembers();
 
 	return (
-		<div className="glass-box rounded-2xl p-8">
-			<h2 className="text-2xl font-bold">Member List</h2>
-			<p className="text-foreground/60 mt-1 text-sm">
-				All members of EVP registered to the site. Only visible to committee members.
-			</p>
-
+		<WidgetCard
+			title="Member List"
+			description="All members of EVP registered to the site. Only visible to committee members."
+		>
 			<div className="mt-5">
 				{isLoading && <p className="text-foreground/60 text-sm">Loading members...</p>}
 
@@ -78,6 +77,6 @@ export function MembersWidget() {
 					</table>
 				)}
 			</div>
-		</div>
+		</WidgetCard>
 	);
 }

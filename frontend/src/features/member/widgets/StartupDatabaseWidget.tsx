@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
+import { WidgetCard } from '@/components/ui';
 import {
 	createFounder,
 	createStartup,
@@ -44,30 +45,26 @@ export function StartupDatabaseWidget() {
 	const username = user?.username;
 
 	return (
-		<div className="glass-box flex w-full flex-col rounded-2xl p-8">
-			<div className="flex flex-wrap items-start justify-between gap-4">
-				<div>
-					<h2 className="text-2xl font-bold">Start-up Database</h2>
-					<p className="text-foreground/60 mt-1 text-sm">
-						Browse and manage your start-up entries.
-					</p>
-				</div>
-				<div className="flex gap-2">
-					<button
-						type="button"
-						onClick={() => setTab('startups')}
-						className={cn(ghostBtnClass, tab === 'startups' && 'bg-accent/20')}
-					>
-						Startups
-					</button>
-					<button
-						type="button"
-						onClick={() => setTab('founders')}
-						className={cn(ghostBtnClass, tab === 'founders' && 'bg-accent/20')}
-					>
-						Founders
-					</button>
-				</div>
+		<WidgetCard
+			title="Start-up Database"
+			description="Browse and manage your start-up entries."
+			className="flex w-full flex-col"
+		>
+			<div className="mb-4 flex gap-2">
+				<button
+					type="button"
+					onClick={() => setTab('startups')}
+					className={cn(ghostBtnClass, tab === 'startups' && 'bg-accent/20')}
+				>
+					Startups
+				</button>
+				<button
+					type="button"
+					onClick={() => setTab('founders')}
+					className={cn(ghostBtnClass, tab === 'founders' && 'bg-accent/20')}
+				>
+					Founders
+				</button>
 			</div>
 
 			{tab === 'startups' ? (
@@ -75,7 +72,7 @@ export function StartupDatabaseWidget() {
 			) : (
 				<FoundersSection username={username} role={role} />
 			)}
-		</div>
+		</WidgetCard>
 	);
 }
 

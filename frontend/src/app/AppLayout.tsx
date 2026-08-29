@@ -1,18 +1,18 @@
 import { Outlet, ScrollRestoration } from 'react-router';
 
 import { Footer } from '@/components/layout/Footer';
-// import { GlobalBackground } from '@/components/three/GlobalBackground';
 import { Header } from '@/components/layout/header/Header';
 import { ScrollSpy } from '@/components/layout/ScrollSpy';
+import { GlobalBackground } from '@/components/three/global-background/GlobalBackground';
 import { ScrollVisibilityProvider } from '@/lib/utils/ScrollVisibility';
 
 export function AppLayout() {
 	return (
 		<ScrollVisibilityProvider>
 			<div className="bg-background text-foreground relative flex min-h-screen flex-col justify-between font-sans transition-colors duration-200">
-				{/* <div className="fixed inset-0 z-0">
+				<div className="fixed inset-0 z-0">
 					<GlobalBackground />
-				</div> */}
+				</div>
 
 				<div className="relative z-10 flex min-h-screen flex-col justify-between">
 					<Header />

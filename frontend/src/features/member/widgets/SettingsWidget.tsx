@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { WidgetCard } from '@/components/ui';
 import { AnimatedCheckbox } from '@/components/ui/AnimatedCheckbox';
 import { useChangeEmail, useRequestOtp, useUpdateMe } from '@/lib/auth/api';
 import { useAuth } from '@/lib/auth/use-auth';
@@ -91,10 +92,7 @@ export function SettingsWidget() {
 	}
 
 	return (
-		<div className="glass-box rounded-2xl p-8">
-			<h2 className="text-2xl font-bold">Account Settings</h2>
-			<p className="text-foreground/60 mt-1 text-sm">Manage your profile and email preferences.</p>
-
+		<WidgetCard title="Account Settings" description="Manage your profile and email preferences.">
 			{/* Name */}
 			<div className="mt-5 flex flex-col gap-3">
 				<p className={labelClass}>name</p>
@@ -227,6 +225,6 @@ export function SettingsWidget() {
 					<AnimatedCheckbox checked={optIn} onChange={(v) => void handleToggleOptIn(v)} />
 				</label>
 			</div>
-		</div>
+		</WidgetCard>
 	);
 }

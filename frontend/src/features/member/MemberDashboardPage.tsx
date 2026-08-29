@@ -6,8 +6,8 @@ import { PageMeta } from '@/components/ui';
 import type { Role } from '@/lib/auth/schemas';
 import { useAuth } from '@/lib/auth/use-auth';
 
-import { DashboardNav } from './dashboard/DashboardNav';
 import { getAvailablePages, getWidgetsForPage } from './dashboard/dashboard.data';
+import { DashboardNav } from './dashboard/DashboardNav';
 
 export function MemberDashboardPage() {
 	const { user } = useAuth();
