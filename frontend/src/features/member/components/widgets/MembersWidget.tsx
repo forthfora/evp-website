@@ -1,6 +1,6 @@
 import { WidgetCard } from '@/components/ui';
 import { useMembers } from '@/features/auth/api/api';
-import { RoleColors } from '@/features/auth/schemas';
+import { RoleColors } from '@/features/auth/api/schemas';
 import { cn } from '@/utils/cn';
 
 function formatDate(iso: string): string {

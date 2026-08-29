@@ -1,4 +1,4 @@
-import type { Role } from '@/features/auth/schemas';
+import type { Role } from '@/features/auth/api/schemas';
 
 import { AdminUpdatesWidget } from './AdminUpdatesWidget';
 import { MembersWidget } from './MembersWidget';

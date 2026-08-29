@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { HeroActions } from '@/components/layout/header/HeroActions';
 import { LogoAndTitle } from '@/components/layout/header/LogoAndTitle';
 import { HeaderNavButtons } from '@/components/layout/header/nav-link-buttons/NavLinkButtons';
-import { useScrollVisibility } from '@/utils/use-scroll-visibility';
+import { useScrollVisibility } from '@/components/layout/scroll/use-scroll-visibility';
 
 interface HomePageHeroProps {
 	/** Transition duration in milliseconds. @default 600 */

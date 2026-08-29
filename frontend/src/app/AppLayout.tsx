@@ -2,9 +2,9 @@ import { Outlet, ScrollRestoration } from 'react-router';
 
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/header/Header';
-import { ScrollSpy } from '@/components/layout/ScrollSpy';
+import { ScrollSpy } from '@/components/layout/scroll/ScrollSpy';
 import { GlobalBackground } from '@/components/three/global-background/GlobalBackground';
-import { ScrollVisibilityProvider } from '@/utils/ScrollVisibility';
+import { ScrollVisibilityProvider } from '@/components/layout/scroll/ScrollVisibilityProvider';
 
 export function AppLayout() {
 	return (

@@ -4,7 +4,7 @@ import { createContext, type ReactNode, useContext, useEffect, useMemo, useState
 import { browserRouter } from '@/app/router';
 import { setUnauthorizedHandler } from '@/lib/api/api';
 import { fetchMe, logout as logoutRequest } from '@/features/auth/api/api';
-import type { MeResponse } from '@/features/auth/schemas';
+import type { MeResponse } from '@/features/auth/api/schemas';
 
 interface AuthContextValue {
 	/** The authenticated user's profile, or `null` when signed out. */

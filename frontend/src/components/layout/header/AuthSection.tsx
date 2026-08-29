@@ -6,7 +6,7 @@ import { LogOut } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { Link } from 'react-router';
 
-import { RoleColors } from '@/features/auth/schemas';
+import { RoleColors } from '@/features/auth/api/schemas';
 import { useAuth } from '@/features/auth/hooks/use-auth';
 import { cn } from '@/utils/cn';
 

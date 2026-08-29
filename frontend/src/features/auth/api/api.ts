@@ -15,7 +15,7 @@ import type {
 	UpdateMeInput,
 	VerifyOTPInput,
 	VerifyOTPOut,
-} from '../schemas';
+} from './schemas';
 import {
 	ChangeEmailInputSchema,
 	MemberOutSchema,
@@ -24,7 +24,7 @@ import {
 	SendAllEmailOutSchema,
 	UpdateMeInputSchema,
 	VerifyOTPOutSchema,
-} from '../schemas';
+} from './schemas';
 
 export { ApiRequestError };
 

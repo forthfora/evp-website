@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import { FormField, PrimaryButton, WidgetCard } from '@/components/ui';
 import { useSendAllEmail } from '@/features/auth/api/api';
-import type { SendAllEmailOut } from '@/features/auth/schemas';
+import type { SendAllEmailOut } from '@/features/auth/api/schemas';
 import { cn } from '@/utils/cn';
 import { inputClass } from '@/styles/form-classes';
 

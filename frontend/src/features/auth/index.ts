@@ -28,4 +28,4 @@ export {
 	useSendAllEmail,
 } from './api/api';
 
-export type * from './schemas';
+export type * from './api/schemas';

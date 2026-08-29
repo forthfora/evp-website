@@ -16,7 +16,7 @@ import {
 	updateFounder,
 	updateStartup,
 } from '@/lib/api/startupdb';
-import type { Role } from '@/features/auth/schemas';
+import type { Role } from '@/features/auth/api/schemas';
 import { useAuth } from '@/features/auth/hooks/use-auth';
 import { cn } from '@/utils/cn';
 

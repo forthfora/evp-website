@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useLocation } from 'react-router';
 
 import { cn } from '@/utils/cn';
-import { useScrollVisibility } from '@/utils/use-scroll-visibility';
+import { useScrollVisibility } from '@/components/layout/scroll/use-scroll-visibility';
 
 import { HeaderActions } from './HeaderActions';
 import { LogoAndTitle } from './LogoAndTitle';

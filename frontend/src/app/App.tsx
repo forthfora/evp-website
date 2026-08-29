@@ -1,5 +1,3 @@
-import './app.css';
-
 import { RouterProvider } from 'react-router';
 import { browserRouter } from './router';
 import { AppProvider } from './provider';

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Navigate } from 'react-router';
 
-import type { Role } from '../schemas';
+import type { Role } from '../api/schemas';
 import { useAuth } from '../hooks/use-auth';
 
 /** Redirects unauthenticated users to `/join`; renders children otherwise. */

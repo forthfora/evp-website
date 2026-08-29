@@ -65,7 +65,7 @@ evp-website/
 - **TanStack React Query**, **zod**, **lucide-react** / **react-icons**
 - Path aliases `@/` → `src/`, `@assets/` → `src/shared/assets`, `@common/` → `src/shared/ui/common`
 - Tooling: ESLint (`simple-import-sort`, react-hooks), Prettier (`prettier-plugin-tailwindcss`)
-- Testing: **Vitest** (jsdom environment) with `@testing-library/react` — config in `vitest.config.ts`, setup in `src/test-setup.ts`
+- Testing: **Vitest** (jsdom environment) with `@testing-library/react` — config in `vitest.config.ts`, setup in `src/setup-tests.ts`
 - **Routes** (defined in `src/app/browser-router.tsx`):
   - `/` — Home (landing page, hero, highlights)
   - `/about` — About (mission, history, team)
