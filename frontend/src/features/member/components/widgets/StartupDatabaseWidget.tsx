@@ -2,6 +2,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
 import { WidgetCard } from '@/components/ui';
+import type { Role } from '@/features/auth/api/schemas';
+import { useAuth } from '@/features/auth/hooks/use-auth';
 import {
 	createFounder,
 	createStartup,
@@ -16,8 +18,6 @@ import {
 	updateFounder,
 	updateStartup,
 } from '@/lib/api/startupdb';
-import type { Role } from '@/features/auth/api/schemas';
-import { useAuth } from '@/features/auth/hooks/use-auth';
 import { cn } from '@/utils/cn';
 
 const inputClass =

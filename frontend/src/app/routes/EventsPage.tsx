@@ -3,11 +3,11 @@ import { animate, motion, useInView, useMotionValue, useSpring } from 'framer-mo
 import { useEffect, useRef } from 'react';
 
 import {
-	UPCOMING_EVENTS,
-	PAST_EVENTS,
 	EVENTS_STATS,
-	type EVPEvent,
 	type EventSpotStatus,
+	type EVPEvent,
+	PAST_EVENTS,
+	UPCOMING_EVENTS,
 } from '@/features/events';
 
 function AnimatedCounter({ value, suffix }: { value: number; suffix: string }) {

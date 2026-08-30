@@ -3,8 +3,8 @@ import { motion } from 'framer-motion';
 
 import { SectionDivider } from '@/components/ui';
 
-import { ErrorBanner } from '../ErrorBanner';
 import { inputClass, primaryBtnClass } from '../../styles';
+import { ErrorBanner } from '../ErrorBanner';
 
 type EmailStepProps = {
 	email: string;

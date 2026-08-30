@@ -10,9 +10,8 @@ import { ContactSection, EventsBanner, PageMeta, SectionDivider } from '@common'
 import { motion } from 'framer-motion';
 import { Link } from 'react-router';
 
-import { fadeUp, slideIn } from '@/utils/motion';
-
 import { HomePageHero } from '@/features/homepage';
+import { fadeUp, slideIn } from '@/utils/motion';
 
 export function HomePage() {
 	return (

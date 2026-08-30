@@ -1,5 +1,5 @@
-import { ErrorBanner } from '../ErrorBanner';
 import { inputClass, primaryBtnClass } from '../../styles';
+import { ErrorBanner } from '../ErrorBanner';
 
 type NamesStepProps = {
 	firstName: string;

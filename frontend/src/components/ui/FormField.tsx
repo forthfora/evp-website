@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 
-import { cn } from '@/utils/cn';
 import { labelClass } from '@/styles/form-classes';
+import { cn } from '@/utils/cn';
 
 interface FormFieldProps {
 	/** ID shared by the label's htmlFor and the control's id. */

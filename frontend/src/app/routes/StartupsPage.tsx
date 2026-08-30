@@ -3,7 +3,7 @@ import { InteractiveContactButton, PageMeta, RadialGlowOverlay, UnderlinedTitle 
 import { motion } from 'framer-motion';
 import { useMemo } from 'react';
 
-import { generateColumns, STARTUPS, PartnersSection, StartupBlock } from '@/features/startups';
+import { generateColumns, PartnersSection, StartupBlock,STARTUPS } from '@/features/startups';
 
 export function StartupsPage() {
 	const columns = useMemo(() => generateColumns(STARTUPS), []);

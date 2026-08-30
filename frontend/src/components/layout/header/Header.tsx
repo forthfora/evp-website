@@ -3,8 +3,8 @@ import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { useLocation } from 'react-router';
 
-import { cn } from '@/utils/cn';
 import { useScrollVisibility } from '@/components/layout/scroll/use-scroll-visibility';
+import { cn } from '@/utils/cn';
 
 import { HeaderActions } from './HeaderActions';
 import { LogoAndTitle } from './LogoAndTitle';

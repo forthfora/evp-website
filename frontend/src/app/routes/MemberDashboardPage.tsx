@@ -5,7 +5,6 @@ import { useLocation, useNavigate } from 'react-router';
 import { PageMeta } from '@/components/ui';
 import type { Role } from '@/features/auth/api/schemas';
 import { useAuth } from '@/features/auth/hooks/use-auth';
-
 import { DashboardNav, getAvailablePages, getWidgetsForPage } from '@/features/member';
 
 export function MemberDashboardPage() {

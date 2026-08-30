@@ -1,7 +1,7 @@
 import type { RefObject } from 'react';
 
-import { ErrorBanner } from '../ErrorBanner';
 import { digitInputClass, linkBtnClass, primaryBtnClass } from '../../styles';
+import { ErrorBanner } from '../ErrorBanner';
 
 type CodeStepProps = {
 	email: string;

@@ -1,8 +1,8 @@
 import { UnderlinedTitle } from '@common';
 import { motion } from 'framer-motion';
 
-import { PartnerBlock } from './PartnerBlock';
 import { PARTNERS } from '../constants/partners';
+import { PartnerBlock } from './PartnerBlock';
 
 export function PartnersSection() {
 	return (

@@ -4,8 +4,8 @@ import { WidgetCard } from '@/components/ui';
 import { AnimatedCheckbox } from '@/components/ui/AnimatedCheckbox';
 import { useChangeEmail, useRequestOtp, useUpdateMe } from '@/features/auth/api/api';
 import { useAuth } from '@/features/auth/hooks/use-auth';
-import { cn } from '@/utils/cn';
 import { ghostBtnClass, inputClass, labelClass, primaryBtnClass } from '@/styles/form-classes';
+import { cn } from '@/utils/cn';
 
 type StepMessage = { ok: boolean; text: string } | null;
 

@@ -1,7 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { PageMeta } from '@/components/ui';
-
 import { CodeStep, EmailStep, NamesStep, stepVariants, useAuthFlow } from '@/features/auth';
 
 export function AuthPage() {

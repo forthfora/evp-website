@@ -1,16 +1,16 @@
 import { createBrowserRouter } from 'react-router';
 
-import { ErrorPage } from './routes/ErrorPage';
+import { ProtectedRoute } from '@/features/auth/components/ProtectedRoute';
+
+import { AppLayout } from './AppLayout';
 import { AboutPage } from './routes/AboutPage';
 import { AuthPage } from './routes/AuthPage';
 import { ContactPage } from './routes/ContactPage';
+import { ErrorPage } from './routes/ErrorPage';
 import { EventsPage } from './routes/EventsPage';
 import { HomePage } from './routes/HomePage';
 import { MemberDashboardPage } from './routes/MemberDashboardPage';
 import { StartupsPage } from './routes/StartupsPage';
-import { ProtectedRoute } from '@/features/auth/components/ProtectedRoute';
-
-import { AppLayout } from './AppLayout';
 
 export const browserRouter = createBrowserRouter([
 	{

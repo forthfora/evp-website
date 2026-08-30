@@ -1,31 +1,26 @@
-export { AuthProvider, useAuth } from './components/AuthProvider';
-export { useAuthFlow } from './hooks/use-auth-flow';
-
-export { ProtectedRoute, RoleRoute } from './components/ProtectedRoute';
-
-export { CodeStep } from './components/steps/CodeStep';
-export { EmailStep } from './components/steps/EmailStep';
-export { NamesStep } from './components/steps/NamesStep';
-
-export { stepVariants } from './styles';
-
 export {
+	changeEmail,
 	fetchMe,
 	fetchMembers,
-	requestOtp,
-	verifyOtp,
-	updateMe,
-	changeEmail,
 	logout,
+	requestOtp,
 	sendAllEmail,
+	updateMe,
+	useChangeEmail,
+	useLogout,
 	useMe,
 	useMembers,
 	useRequestOtp,
-	useVerifyOtp,
-	useUpdateMe,
-	useChangeEmail,
-	useLogout,
 	useSendAllEmail,
+	useUpdateMe,
+	useVerifyOtp,
+	verifyOtp,
 } from './api/api';
-
 export type * from './api/schemas';
+export { AuthProvider, useAuth } from './components/AuthProvider';
+export { ProtectedRoute, RoleRoute } from './components/ProtectedRoute';
+export { CodeStep } from './components/steps/CodeStep';
+export { EmailStep } from './components/steps/EmailStep';
+export { NamesStep } from './components/steps/NamesStep';
+export { useAuthFlow } from './hooks/use-auth-flow';
+export { stepVariants } from './styles';
