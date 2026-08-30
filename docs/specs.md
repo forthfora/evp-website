@@ -149,7 +149,7 @@ change; the rule lives in a single backend permission function.
 
 ## 7. Technical Architecture
 
-- **Frontend**: React 19 + Vite 8 + TypeScript 6, React Router 7, Tailwind CSS 4, three.js, framer-motion. Path aliases `@/`, `@assets/`, `@common`. Served by Nginx on port 16017.
+- **Frontend**: React 19 + Vite 8 + TypeScript 6, React Router 7, Tailwind CSS 4, three.js, framer-motion. Path aliases `@/`. Served by Nginx on port 16017.
 - **Backend**: Django 6 + Django Ninja, Gunicorn (port 17017), MySQL in production.
 - **Infra**: Docker Compose orchestration; images in GHCR at `ghcr.io/forthfora/evp-website/<service>`; CI/CD on push to `main` (test → build-and-push → deploy) and on PRs (test + build only). GHA layer caching (type=gha) used for faster builds.
 - See `AGENTS.md` at the repo root for detailed developer/agent guidance.

@@ -1,7 +1,8 @@
 import '@/styles/button-underline.css';
 
-import { Socials } from '@common';
 import { Link } from 'react-router';
+
+import { Socials } from '@/components/ui';
 
 export function Footer() {
 	return (

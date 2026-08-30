@@ -1,7 +1,7 @@
-import campusXCapital2026Img from '@assets/events/campus-x-capital.webp';
-import demoDay2026Img from '@assets/events/demo-day.webp';
-import meetUpNight2026Img from '@assets/events/meet-up-night.webp';
-import nextGenHack2026Img from '@assets/events/next-gen-hack.webp';
+import campusXCapital2026Img from '@/assets/events/campus-x-capital.webp';
+import demoDay2026Img from '@/assets/events/demo-day.webp';
+import meetUpNight2026Img from '@/assets/events/meet-up-night.webp';
+import nextGenHack2026Img from '@/assets/events/next-gen-hack.webp';
 
 import type { EventStat, EVPEvent } from '../types';
 

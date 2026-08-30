@@ -1,5 +1,6 @@
-import { UnderlinedTitle } from '@common';
 import { motion } from 'framer-motion';
+
+import { UnderlinedTitle } from '@/components/ui';
 
 import { PARTNERS } from '../constants/partners';
 import { PartnerBlock } from './PartnerBlock';

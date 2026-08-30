@@ -1,9 +1,14 @@
-import startupsBkg from '@assets/startups/startups-bkg.webp';
-import { InteractiveContactButton, PageMeta, RadialGlowOverlay, UnderlinedTitle } from '@common';
 import { motion } from 'framer-motion';
 import { useMemo } from 'react';
 
-import { generateColumns, PartnersSection, StartupBlock,STARTUPS } from '@/features/startups';
+import startupsBkg from '@/assets/startups/startups-bkg.webp';
+import {
+	InteractiveContactButton,
+	PageMeta,
+	RadialGlowOverlay,
+	UnderlinedTitle,
+} from '@/components/ui';
+import { generateColumns, PartnersSection, StartupBlock, STARTUPS } from '@/features/startups';
 
 export function StartupsPage() {
 	const columns = useMemo(() => generateColumns(STARTUPS), []);

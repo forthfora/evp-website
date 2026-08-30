@@ -1,18 +1,18 @@
-import aliImg from '@assets/about/pictures/ali.webp';
-import andrewImg from '@assets/about/pictures/andrew.webp';
-import arielImg from '@assets/about/pictures/ariel.webp';
-import christopherImg from '@assets/about/pictures/christopher.webp';
-import freddieImg from '@assets/about/pictures/freddie.webp';
-import georgeImg from '@assets/about/pictures/george.webp';
-import guillaumeImg from '@assets/about/pictures/guillaume.webp';
-import laureImg from '@assets/about/pictures/laure.webp';
-import matisseImg from '@assets/about/pictures/matisse.webp';
-import pahalImg from '@assets/about/pictures/pahal.webp';
-import roryImg from '@assets/about/pictures/rory.webp';
-import teohImg from '@assets/about/pictures/teoh.webp';
-import tobiImg from '@assets/about/pictures/tobi.webp';
-import xavierImg from '@assets/about/pictures/xavier.webp';
-import zachariasImg from '@assets/about/pictures/zacharias.webp';
+import aliImg from '@/assets/about/pictures/ali.webp';
+import andrewImg from '@/assets/about/pictures/andrew.webp';
+import arielImg from '@/assets/about/pictures/ariel.webp';
+import christopherImg from '@/assets/about/pictures/christopher.webp';
+import freddieImg from '@/assets/about/pictures/freddie.webp';
+import georgeImg from '@/assets/about/pictures/george.webp';
+import guillaumeImg from '@/assets/about/pictures/guillaume.webp';
+import laureImg from '@/assets/about/pictures/laure.webp';
+import matisseImg from '@/assets/about/pictures/matisse.webp';
+import pahalImg from '@/assets/about/pictures/pahal.webp';
+import roryImg from '@/assets/about/pictures/rory.webp';
+import teohImg from '@/assets/about/pictures/teoh.webp';
+import tobiImg from '@/assets/about/pictures/tobi.webp';
+import xavierImg from '@/assets/about/pictures/xavier.webp';
+import zachariasImg from '@/assets/about/pictures/zacharias.webp';
 
 import type { YearData } from '../types';
 

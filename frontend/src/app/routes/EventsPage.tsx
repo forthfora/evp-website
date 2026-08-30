@@ -1,7 +1,7 @@
-import { EventsBanner, PageMeta, SectionDivider, UnderlinedTitle } from '@common';
 import { animate, motion, useInView, useMotionValue, useSpring } from 'framer-motion';
 import { useEffect, useRef } from 'react';
 
+import { EventsBanner, PageMeta, SectionDivider, UnderlinedTitle } from '@/components/ui';
 import {
 	EVENTS_STATS,
 	type EventSpotStatus,

@@ -1,6 +1,6 @@
-import eventsImg1 from '@assets/homepage/events-banner/event-1.webp';
-import eventsImg2 from '@assets/homepage/events-banner/event-2.webp';
-import eventsImg3 from '@assets/homepage/events-banner/event-3.webp';
+import eventsImg1 from '@/assets/homepage/events-banner/event-1.webp';
+import eventsImg2 from '@/assets/homepage/events-banner/event-2.webp';
+import eventsImg3 from '@/assets/homepage/events-banner/event-3.webp';
 
 import { ScrollingImageBanner } from './ScrollingImageBanner';
 

@@ -1,11 +1,11 @@
 import '@/styles/button-underline.css';
 import '@/styles/button-spin.css';
 
-import { ConfirmDialog, InteractiveLinkButton } from '@common';
 import { LogOut } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { Link } from 'react-router';
 
+import { ConfirmDialog, InteractiveLinkButton } from '@/components/ui';
 import { RoleColors } from '@/features/auth/api/schemas';
 import { useAuth } from '@/features/auth/hooks/use-auth';
 import { cn } from '@/utils/cn';

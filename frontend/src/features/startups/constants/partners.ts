@@ -1,7 +1,7 @@
-import apolloImg from '@assets/startups/partner-icons/apollo.webp';
-import googleCloudImg from '@assets/startups/partner-icons/google-cloud.webp';
-import natwestImg from '@assets/startups/partner-icons/natwest.webp';
-import youngEdgeImg from '@assets/startups/partner-icons/young-edge.webp';
+import apolloImg from '@/assets/startups/partner-icons/apollo.webp';
+import googleCloudImg from '@/assets/startups/partner-icons/google-cloud.webp';
+import natwestImg from '@/assets/startups/partner-icons/natwest.webp';
+import youngEdgeImg from '@/assets/startups/partner-icons/young-edge.webp';
 
 import type { Partner } from '../types';
 

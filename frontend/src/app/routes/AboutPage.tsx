@@ -1,19 +1,19 @@
 import '@/styles/button-underline.css';
 
-import aboutBkg from '@assets/about/about-bkg.webp';
-import ideaImg from '@assets/homepage/events-banner/event-2.webp';
-import contactImg from '@assets/homepage/events-banner/event-2.webp';
+import { motion } from 'framer-motion';
+import { Globe, Mail, User } from 'lucide-react';
+import { FaLinkedin } from 'react-icons/fa6';
+
+import aboutBkg from '@/assets/about/about-bkg.webp';
+import ideaImg from '@/assets/homepage/events-banner/event-2.webp';
+import contactImg from '@/assets/homepage/events-banner/event-2.webp';
 import {
 	ContactSection,
 	PageMeta,
 	RadialGlowOverlay,
 	SectionDivider,
 	UnderlinedTitle,
-} from '@common';
-import { motion } from 'framer-motion';
-import { Globe, Mail, User } from 'lucide-react';
-import { FaLinkedin } from 'react-icons/fa6';
-
+} from '@/components/ui';
 import { COMMITTEE_DATA, type Member, type YearData } from '@/features/about';
 
 const containerVariants = {

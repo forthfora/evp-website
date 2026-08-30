@@ -1,13 +1,19 @@
-import offerImg1 from '@assets/contact/offer-1.webp';
-import offerImg2 from '@assets/contact/offer-2.webp';
-import offerImg3 from '@assets/contact/offer-3.webp';
-import networkImg from '@assets/contact/promo-network.webp';
-import scoutImg from '@assets/contact/promo-scout.webp';
-import contactImg from '@assets/homepage/promo-tower.webp';
-import { PageMeta, RadialGlowOverlay, SectionDivider, Socials, UnderlinedTitle } from '@common';
 import { motion } from 'framer-motion';
 import { type ReactNode, useRef, useState } from 'react';
 
+import offerImg1 from '@/assets/contact/offer-1.webp';
+import offerImg2 from '@/assets/contact/offer-2.webp';
+import offerImg3 from '@/assets/contact/offer-3.webp';
+import networkImg from '@/assets/contact/promo-network.webp';
+import scoutImg from '@/assets/contact/promo-scout.webp';
+import contactImg from '@/assets/homepage/promo-tower.webp';
+import {
+	PageMeta,
+	RadialGlowOverlay,
+	SectionDivider,
+	Socials,
+	UnderlinedTitle,
+} from '@/components/ui';
 import { sendContact } from '@/lib/api/contact';
 import { slideIn } from '@/utils/motion';
 

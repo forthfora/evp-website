@@ -63,7 +63,7 @@ evp-website/
 - **React 19**, **TypeScript 6**, **Vite 8**, **React Router 7** (data router via `createBrowserRouter`)
 - **Tailwind CSS 4** (via `@tailwindcss/vite`), **Sass**, **framer-motion**, **three.js**
 - **TanStack React Query**, **zod**, **lucide-react** / **react-icons**
-- Path aliases `@/` → `src/`, `@assets/` → `src/shared/assets`, `@common/` → `src/shared/ui/common`
+- Path aliases `@/` → `src/`
 - Tooling: ESLint (`simple-import-sort`, react-hooks), Prettier (`prettier-plugin-tailwindcss`)
 - Testing: **Vitest** (jsdom environment) with `@testing-library/react` — config in `vitest.config.ts`, setup in `src/setup-tests.ts`
 - **Routes** (defined in `src/app/browser-router.tsx`):
@@ -146,7 +146,6 @@ These are known issues in the current codebase that a future refactor should add
 
 - **Python version mismatch**: `backend/pyproject.toml` requires `>=3.13`, but `backend/Dockerfile` uses `python:3.12-slim-trixie`. CI uses Python 3.13. The Dockerfile should be updated to `python:3.13-slim-trixie`.
 - **Missing `MEDIA_URL` / `MEDIA_ROOT`**: `config/urls.py` references `settings.MEDIA_URL` and `settings.MEDIA_ROOT` in DEBUG mode, but neither is defined in `config/settings.py`. This will crash if `DEBUG=True` and the URL config is loaded. Either define them or remove the media URL pattern.
-- **CSRF_TRUSTED_ORIGINS port mismatch**: `config/settings.py` lists `http://localhost:16016` in `CSRF_TRUSTED_ORIGINS`, but the frontend is served on port `16017`. This should be `16017`.
 - **Unused dependencies**: `PyJWT` and `django-redis` are listed in `backend/pyproject.toml` but are not currently used (auth is session-based with no JWT; no Redis cache is configured in settings).
 - **Email backend mismatch**: `settings.py` configures Django's SMTP email backend for non-DEBUG mode, but `apps/core/email.py` actually sends via the Resend Python SDK directly. The SMTP config is dead code.
 - **`docs/adr/` directory does not exist**: Both `specs.md` and earlier versions of this file referenced ADRs under `docs/adr/` (e.g. `0001`, `0002`), but that directory was never created. The ADR references should be removed or the ADRs should be written.

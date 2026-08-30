@@ -52,7 +52,46 @@ function renderAuth() {
 
 describe('AuthProvider', () => {
 	beforeEach(() => {
-		vi.clearAllMocks();
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async (url: string) => {
+				if (url === '/api/accounts/me') {
+					return new Response(
+						JSON.stringify({
+							email: 'member@test.com',
+							username: 'testmember',
+							role: 'member',
+							date_joined: '2026-01-01T00:00:00Z',
+							first_name: 'Test',
+							last_name: 'User',
+							receives_update_emails: true,
+						}),
+						{
+							status: 200,
+							headers: { 'Content-Type': 'application/json' },
+						},
+					);
+				}
+
+				if (url === '/api/accounts/logout' || url.includes('logout')) {
+					return new Response(null, { status: 204 });
+				}
+
+				// Mock CSRF token fetch if your API client requests it during tests
+				if (url === '/api/csrf') {
+					return new Response(JSON.stringify({ csrftoken: 'fake-token' }), {
+						status: 200,
+						headers: { 'Content-Type': 'application/json' },
+					});
+				}
+
+				return new Response(null, { status: 404 });
+			}),
+		);
+	});
+
+	afterEach(() => {
+		vi.unstubAllGlobals();
 	});
 
 	it('hydrates the user from fetchMe on mount when a session exists', async () => {
@@ -68,8 +107,16 @@ describe('AuthProvider', () => {
 		expect(screen.getByTestId('loading')).toHaveTextContent('false');
 	});
 
-	it('stays unauthenticated when there is no active session', async () => {
-		mockFetchMe.mockRejectedValue(new Error('401'));
+	test('stays unauthenticated when there is no active session', async () => {
+		vi.mocked(fetch).mockImplementationOnce(async (url) => {
+			if (url === '/api/accounts/me') {
+				return new Response(JSON.stringify({ detail: 'Not authenticated' }), {
+					status: 401,
+					headers: { 'Content-Type': 'application/json' },
+				});
+			}
+			return new Response(null, { status: 404 });
+		});
 
 		renderAuth();
 
@@ -102,7 +149,11 @@ describe('AuthProvider', () => {
 		await userEvent.click(screen.getByRole('button', { name: 'logout' }));
 
 		await waitFor(() => expect(screen.getByTestId('email')).toHaveTextContent('none'));
-		expect(mockLogout).toHaveBeenCalledTimes(1);
+
+		expect(vi.mocked(fetch)).toHaveBeenCalledWith(
+			expect.stringMatching('/api/accounts/logout'),
+			expect.objectContaining({ method: 'POST' }),
+		);
 		expect(screen.getByTestId('auth')).toHaveTextContent('false');
 	});
 });

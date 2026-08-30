@@ -1,6 +1,7 @@
-import { SectionDivider } from '@common';
 import { motion } from 'framer-motion';
 import type { ReactNode } from 'react';
+
+import { SectionDivider } from '@/components/ui';
 
 import { InteractiveContactButton } from './InteractiveContactButton';
 

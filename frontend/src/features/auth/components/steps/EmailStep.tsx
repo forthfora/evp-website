@@ -1,6 +1,6 @@
-import joinImage from '@assets/homepage/promo-bar.webp';
 import { motion } from 'framer-motion';
 
+import joinImage from '@/assets/homepage/promo-bar.webp';
 import { SectionDivider } from '@/components/ui';
 
 import { inputClass, primaryBtnClass } from '../../styles';

@@ -14,7 +14,7 @@ export type ContactInput = z.infer<typeof ContactInputSchema>;
 
 export async function sendContact(input: ContactInput): Promise<void> {
 	const parsed = ContactInputSchema.parse(input);
-	await requestJson('/api/contact', z.undefined(), {
+	await requestJson('/api/contact', z.void(), {
 		method: 'POST',
 		body: JSON.stringify(parsed),
 	});
