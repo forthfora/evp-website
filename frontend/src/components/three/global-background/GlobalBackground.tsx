@@ -1,8 +1,8 @@
 import { lazy, Suspense } from 'react';
 
-import { useTheme } from '@/components/theme/ThemeContext.data';
+import { useTheme } from '@/components/theme/theme-context';
 
-const ColorBends = lazy(() => import('./ColorBends'));
+const ColorBends = lazy(() => import('./color-bends'));
 
 const DARK_COLORS = ['292852', '0d0c2b'];
 const LIGHT_COLORS = ['6262a1', '7676a3'];
