@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 
 import { cn } from '@/utils/cn';
 
+import { buttonVariants } from './button';
 import { SectionDivider } from './SectionDivider';
 
 type DialogPosition =
@@ -321,7 +322,7 @@ export function ConfirmDialog({
 									type="button"
 									ref={cancelRef}
 									onClick={() => onCancelRef.current()}
-									className="border-accent/30 hover:border-accent/60 cursor-pointer rounded-lg border px-4 py-2 text-sm transition-colors duration-200"
+									className={buttonVariants({ intent: 'ghost', size: 'sm' })}
 								>
 									{cancelLabel}
 								</button>
@@ -329,8 +330,8 @@ export function ConfirmDialog({
 									type="button"
 									onClick={() => onConfirmRef.current()}
 									className={cn(
-										'cursor-pointer rounded-lg px-4 py-2 text-sm font-bold tracking-widest text-white uppercase transition-all duration-200 active:scale-[0.98]',
-										destructive ? 'bg-red-600 hover:bg-red-500' : 'bg-accent hover:bg-accent/80',
+										buttonVariants({ intent: 'primary', size: 'sm' }),
+										destructive && 'bg-red-600 hover:bg-red-500',
 									)}
 								>
 									{confirmLabel}

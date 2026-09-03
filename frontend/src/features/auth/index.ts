@@ -22,5 +22,5 @@ export { ProtectedRoute, RoleRoute } from './components/ProtectedRoute';
 export { CodeStep } from './components/steps/CodeStep';
 export { EmailStep } from './components/steps/EmailStep';
 export { NamesStep } from './components/steps/NamesStep';
+export { stepVariants } from './components/steps/variants';
 export { useAuthFlow } from './hooks/use-auth-flow';
-export { stepVariants } from './styles';

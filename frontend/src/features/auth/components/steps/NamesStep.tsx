@@ -1,4 +1,6 @@
-import { inputClass, primaryBtnClass } from '../../styles';
+import { buttonVariants } from '@/components/ui/button';
+import { inputVariants } from '@/components/ui/input';
+
 import { ErrorBanner } from '../ErrorBanner';
 
 type NamesStepProps = {
@@ -45,7 +47,7 @@ export function NamesStep({
 						placeholder="First name"
 						autoComplete="given-name"
 						disabled={isSubmitting}
-						className={inputClass}
+						className={inputVariants({ size: 'md' })}
 					/>
 					<input
 						type="text"
@@ -57,14 +59,14 @@ export function NamesStep({
 						placeholder="Last name"
 						autoComplete="family-name"
 						disabled={isSubmitting}
-						className={inputClass}
+						className={inputVariants({ size: 'md' })}
 					/>
 
 					<button
 						type="button"
 						onClick={onSubmit}
 						disabled={isSubmitting || !firstName.trim() || !lastName.trim()}
-						className={primaryBtnClass}
+						className={buttonVariants({ intent: 'primary', size: 'md' })}
 					>
 						{isSubmitting ? 'saving...' : 'continue'}
 					</button>

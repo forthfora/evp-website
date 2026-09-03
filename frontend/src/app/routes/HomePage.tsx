@@ -1,7 +1,4 @@
-import '@/styles/button-underline.css';
-
 import { motion } from 'framer-motion';
-import { Link } from 'react-router';
 
 import homepageBkg from '@/assets/homepage/homepage-bkg.webp';
 import whatWeDoImg3 from '@/assets/homepage/promo-bar.webp';
@@ -9,9 +6,11 @@ import aboutUsImg from '@/assets/homepage/promo-chairs.webp';
 import whatWeDoImg2 from '@/assets/homepage/promo-conf.webp';
 import whatWeDoImg1 from '@/assets/homepage/promo-present.webp';
 import contactImg from '@/assets/homepage/promo-tower.webp';
-import { ContactSection, EventsBanner, PageMeta, SectionDivider } from '@/components/ui';
+import { ContactSection, EventsBanner, PageMeta, PromoCard, SectionDivider } from '@/components/ui';
+import { MediaTextSection } from '@/components/ui/media-text-section';
+import { TextLink } from '@/components/ui/text-link';
 import { HomePageHero } from '@/features/homepage';
-import { fadeUp, slideIn } from '@/utils/motion';
+import { fadeUp } from '@/utils/motion';
 
 export function HomePage() {
 	return (
@@ -53,40 +52,26 @@ export function HomePage() {
 function AboutUsSection() {
 	return (
 		<section className="glass-box w-full overflow-hidden py-25 md:py-50">
-			<div className="mx-auto flex max-w-6xl flex-col items-center gap-10 px-4 md:flex-row md:items-start">
-				<motion.div {...slideIn('left')} className="flex w-full justify-center md:w-1/2">
-					<img
-						src={aboutUsImg}
-						alt="A group photo with several members of EVP's committee"
-						className="w-full max-w-md rounded-lg object-cover shadow-2xl"
-					/>
-				</motion.div>
-
-				<motion.div
-					{...slideIn('right', 0.2)}
-					className="flex w-full flex-col items-center gap-5 text-center md:w-1/2 md:items-start md:text-left"
-				>
-					<h2 id="who-we-are" className="text-4xl font-bold md:text-5xl">
-						Who we are
-					</h2>
-					<SectionDivider width="w-75 md:w-100" my="my-2" />
-					<p className="text-lg md:text-xl">
-						Edinburgh VenturePoint is a student-led community for ambitious founders and future
-						investors.
-					</p>
-					<p>
-						We exist to identify, support, and showcase the most promising student-led start-ups in
-						Scotland.
-					</p>
-					<Link
-						to="about"
-						className="text-accent button-underline mt-5 text-2xl font-bold transition-opacity md:text-xl"
-						viewTransition
-					>
-						Learn More...
-					</Link>
-				</motion.div>
-			</div>
+			<MediaTextSection
+				image={aboutUsImg}
+				imageAlt="A group photo with several members of EVP's committee"
+			>
+				<h2 id="who-we-are" className="text-4xl font-bold md:text-5xl">
+					Who we are
+				</h2>
+				<SectionDivider width="w-75 md:w-100" my="my-2" />
+				<p className="text-lg md:text-xl">
+					Edinburgh VenturePoint is a student-led community for ambitious founders and future
+					investors.
+				</p>
+				<p>
+					We exist to identify, support, and showcase the most promising student-led start-ups in
+					Scotland.
+				</p>
+				<TextLink to="about" className="mt-5 text-2xl md:text-xl">
+					Learn More...
+				</TextLink>
+			</MediaTextSection>
 		</section>
 	);
 }
@@ -124,29 +109,7 @@ function WhatWeDoSection() {
 
 			<div className="mx-auto flex max-w-7xl flex-col items-center gap-10 overflow-x-hidden p-4 md:flex-row md:items-start">
 				{cards.map(({ img, title, body, to }, i) => (
-					<motion.div
-						key={to}
-						initial={{ opacity: 0, x: 50 }}
-						whileInView={{ opacity: 1, x: 0 }}
-						viewport={{ once: true, amount: 0.2 }}
-						transition={{ duration: 0.6, ease: 'easeOut' as const, delay: i * 0.2 }}
-						className="glass-box flex w-full flex-col gap-10 pb-15 text-center"
-					>
-						<img
-							src={img}
-							alt={title}
-							className="mx-auto h-100 w-full max-w-md object-cover shadow-2xl"
-						/>
-						<h3 className="px-15 text-4xl font-bold">{title}</h3>
-						<p className="px-10 text-lg">{body}</p>
-						<Link
-							to={to}
-							className="text-accent button-underline mx-auto text-2xl font-bold transition-opacity md:text-xl"
-							viewTransition
-						>
-							Learn More...
-						</Link>
-					</motion.div>
+					<PromoCard key={to} image={img} title={title} body={<p>{body}</p>} to={to} index={i} />
 				))}
 			</div>
 		</section>
@@ -178,13 +141,9 @@ function EventsSection() {
 					From exclusive investor meet-ups to the most promising start-ups, we've got something to
 					offer everyone.
 				</p>
-				<Link
-					to="events"
-					className="text-accent button-underline mx-auto pt-5 text-3xl font-bold transition-opacity md:text-2xl"
-					viewTransition
-				>
+				<TextLink to="events" className="mx-auto pt-5 text-3xl md:text-2xl">
 					See events...
-				</Link>
+				</TextLink>
 			</motion.div>
 		</section>
 	);

@@ -2,9 +2,11 @@ import { useState } from 'react';
 
 import { WidgetCard } from '@/components/ui';
 import { AnimatedCheckbox } from '@/components/ui/AnimatedCheckbox';
+import { buttonVariants } from '@/components/ui/button';
+import { inputVariants } from '@/components/ui/input';
+import { labelVariants } from '@/components/ui/label';
 import { useChangeEmail, useRequestOtp, useUpdateMe } from '@/features/auth/api/api';
 import { useAuth } from '@/features/auth/hooks/use-auth';
-import { ghostBtnClass, inputClass, labelClass, primaryBtnClass } from '@/styles/form-classes';
 import { cn } from '@/utils/cn';
 
 type StepMessage = { ok: boolean; text: string } | null;
@@ -95,7 +97,7 @@ export function SettingsWidget() {
 		<WidgetCard title="Account Settings" description="Manage your profile and email preferences.">
 			{/* Name */}
 			<div className="mt-5 flex flex-col gap-3">
-				<p className={labelClass}>name</p>
+				<p className={labelVariants({ size: 'sm' })}>name</p>
 				<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
 					<input
 						type="text"
@@ -103,7 +105,7 @@ export function SettingsWidget() {
 						onChange={(e) => setFirstName(e.target.value)}
 						placeholder="First name"
 						autoComplete="given-name"
-						className={inputClass}
+						className={inputVariants({ size: 'sm' })}
 					/>
 					<input
 						type="text"
@@ -111,7 +113,7 @@ export function SettingsWidget() {
 						onChange={(e) => setLastName(e.target.value)}
 						placeholder="Last name"
 						autoComplete="family-name"
-						className={inputClass}
+						className={inputVariants({ size: 'sm' })}
 					/>
 				</div>
 				<div className="flex items-center gap-3">
@@ -121,7 +123,7 @@ export function SettingsWidget() {
 						disabled={
 							updateMeMut.isPending || (firstName == user?.first_name && lastName == user.last_name)
 						}
-						className={primaryBtnClass}
+						className={buttonVariants({ intent: 'primary', size: 'sm' })}
 					>
 						{updateMeMut.isPending ? 'updating...' : 'update'}
 					</button>
@@ -138,7 +140,7 @@ export function SettingsWidget() {
 
 			{/* Email */}
 			<div className="mt-6 flex flex-col gap-3">
-				<p className={labelClass}>email</p>
+				<p className={labelVariants({ size: 'sm' })}>email</p>
 				<p className="text-foreground/60 text-sm">Current: {user?.email}</p>
 
 				{emailStep === 'idle' ? (
@@ -149,14 +151,14 @@ export function SettingsWidget() {
 							onChange={(e) => setNewEmail(e.target.value)}
 							placeholder="New email address"
 							autoComplete="email"
-							className={inputClass}
+							className={inputVariants({ size: 'sm' })}
 						/>
 						<div className="flex gap-2">
 							<button
 								type="button"
 								onClick={() => void handleSendEmailCode()}
 								disabled={requestOtpMut.isPending || !newEmail.trim()}
-								className={primaryBtnClass}
+								className={buttonVariants({ intent: 'primary', size: 'sm' })}
 							>
 								{requestOtpMut.isPending ? 'sending...' : 'send code'}
 							</button>
@@ -174,14 +176,14 @@ export function SettingsWidget() {
 							value={emailCode}
 							onChange={(e) => setEmailCode(e.target.value.replace(/\D/g, ''))}
 							placeholder="6-digit code"
-							className={inputClass}
+							className={inputVariants({ size: 'sm' })}
 						/>
 						<div className="flex gap-2">
 							<button
 								type="button"
 								onClick={() => void handleConfirmEmail()}
 								disabled={changeEmailMut.isPending || emailCode.trim().length !== 6}
-								className={primaryBtnClass}
+								className={buttonVariants({ intent: 'primary', size: 'sm' })}
 							>
 								{changeEmailMut.isPending ? 'confirming...' : 'confirm'}
 							</button>
@@ -189,7 +191,7 @@ export function SettingsWidget() {
 								type="button"
 								onClick={() => setEmailStep('idle')}
 								disabled={changeEmailMut.isPending}
-								className={ghostBtnClass}
+								className={buttonVariants({ intent: 'ghost', size: 'sm' })}
 							>
 								cancel
 							</button>

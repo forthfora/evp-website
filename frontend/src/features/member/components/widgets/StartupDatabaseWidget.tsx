@@ -2,6 +2,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
 import { WidgetCard } from '@/components/ui';
+import { buttonVariants } from '@/components/ui/button';
+import { inputVariants } from '@/components/ui/input';
+import { labelVariants } from '@/components/ui/label';
 import type { Role } from '@/features/auth/api/schemas';
 import { useAuth } from '@/features/auth/hooks/use-auth';
 import {
@@ -19,14 +22,6 @@ import {
 	updateStartup,
 } from '@/lib/api/startupdb';
 import { cn } from '@/utils/cn';
-
-const inputClass =
-	'bg-background/40 border-accent/30 placeholder:text-foreground/30 focus:border-accent focus:ring-accent/20 w-full rounded-lg border px-4 py-2.5 text-sm transition-colors duration-200 outline-none focus:ring-2';
-const labelClass = 'text-left text-xs font-semibold tracking-widest uppercase opacity-70';
-const primaryBtnClass =
-	'bg-accent hover:bg-accent/80 cursor-pointer rounded-lg px-4 py-2 text-sm font-bold tracking-widest text-white uppercase transition-all duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40';
-const ghostBtnClass =
-	'border-accent/30 hover:border-accent/60 cursor-pointer rounded-lg border px-4 py-2 text-sm transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-40';
 
 /** Ownership rule mirroring `can_manage_entry` in the backend. */
 function canManage(createdBy: string, username: string | undefined, role: Role): boolean {
@@ -54,14 +49,20 @@ export function StartupDatabaseWidget() {
 				<button
 					type="button"
 					onClick={() => setTab('startups')}
-					className={cn(ghostBtnClass, tab === 'startups' && 'bg-accent/20')}
+					className={cn(
+						buttonVariants({ intent: 'ghost', size: 'sm' }),
+						tab === 'startups' && 'bg-accent/20',
+					)}
 				>
 					Startups
 				</button>
 				<button
 					type="button"
 					onClick={() => setTab('founders')}
-					className={cn(ghostBtnClass, tab === 'founders' && 'bg-accent/20')}
+					className={cn(
+						buttonVariants({ intent: 'ghost', size: 'sm' }),
+						tab === 'founders' && 'bg-accent/20',
+					)}
 				>
 					Founders
 				</button>
@@ -130,7 +131,11 @@ function StartupsSection({ username, role }: { username: string | undefined; rol
 				<p className="text-foreground/60 text-sm">
 					{startups.length} startup{startups.length === 1 ? '' : 's'}
 				</p>
-				<button type="button" className={primaryBtnClass} onClick={() => setEditing('new')}>
+				<button
+					type="button"
+					className={buttonVariants({ intent: 'primary', size: 'sm' })}
+					onClick={() => setEditing('new')}
+				>
 					Add startup
 				</button>
 			</div>
@@ -180,14 +185,14 @@ function StartupsSection({ username, role }: { username: string | undefined; rol
 									<div className="flex shrink-0 gap-2">
 										<button
 											type="button"
-											className={ghostBtnClass}
+											className={buttonVariants({ intent: 'ghost', size: 'sm' })}
 											onClick={() => setEditing(startup)}
 										>
 											Edit
 										</button>
 										<button
 											type="button"
-											className={cn(ghostBtnClass, 'hover:border-red-500/60 hover:text-red-500')}
+											className={cn(buttonVariants({ intent: 'ghost', size: 'sm' }), 'hover:border-red-500/60 hover:text-red-500')}
 											disabled={deleteMut.isPending}
 											onClick={() => {
 												if (window.confirm(`Delete "${startup.name}"?`)) {
@@ -288,13 +293,13 @@ function StartupForm({
 			}}
 		>
 			<div className="flex flex-col gap-1.5">
-				<label htmlFor="startup-name" className={labelClass}>
+				<label htmlFor="startup-name" className={labelVariants({ size: 'sm' })}>
 					name *
 				</label>
 				<input
 					id="startup-name"
 					type="text"
-					className={inputClass}
+					className={inputVariants({ size: 'sm' })}
 					value={values.name}
 					onChange={(e) => set('name', e.target.value)}
 					required
@@ -302,7 +307,7 @@ function StartupForm({
 			</div>
 
 			<div className="flex flex-col gap-1.5">
-				<label className={labelClass}>founders</label>
+				<label className={labelVariants({ size: 'sm' })}>founders</label>
 				{founders.length === 0 ? (
 					<p className="text-foreground/60 text-xs">
 						No founders yet — add some under the Founders tab first.
@@ -333,25 +338,25 @@ function StartupForm({
 
 			<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
 				<div className="flex flex-col gap-1.5">
-					<label htmlFor="startup-date" className={labelClass}>
+					<label htmlFor="startup-date" className={labelVariants({ size: 'sm' })}>
 						founding date
 					</label>
 					<input
 						id="startup-date"
 						type="date"
-						className={inputClass}
+						className={inputVariants({ size: 'sm' })}
 						value={values.founding_date ?? ''}
 						onChange={(e) => set('founding_date', e.target.value || null)}
 					/>
 				</div>
 				<div className="flex flex-col gap-1.5">
-					<label htmlFor="startup-email" className={labelClass}>
+					<label htmlFor="startup-email" className={labelVariants({ size: 'sm' })}>
 						email
 					</label>
 					<input
 						id="startup-email"
 						type="email"
-						className={inputClass}
+						className={inputVariants({ size: 'sm' })}
 						value={values.email}
 						onChange={(e) => set('email', e.target.value)}
 					/>
@@ -360,25 +365,25 @@ function StartupForm({
 
 			<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
 				<div className="flex flex-col gap-1.5">
-					<label htmlFor="startup-website" className={labelClass}>
+					<label htmlFor="startup-website" className={labelVariants({ size: 'sm' })}>
 						website
 					</label>
 					<input
 						id="startup-website"
 						type="url"
-						className={inputClass}
+						className={inputVariants({ size: 'sm' })}
 						value={values.website}
 						onChange={(e) => set('website', e.target.value)}
 					/>
 				</div>
 				<div className="flex flex-col gap-1.5">
-					<label htmlFor="startup-linkedin" className={labelClass}>
+					<label htmlFor="startup-linkedin" className={labelVariants({ size: 'sm' })}>
 						linkedin
 					</label>
 					<input
 						id="startup-linkedin"
 						type="url"
-						className={inputClass}
+						className={inputVariants({ size: 'sm' })}
 						value={values.linkedin}
 						onChange={(e) => set('linkedin', e.target.value)}
 					/>
@@ -386,39 +391,39 @@ function StartupForm({
 			</div>
 
 			<div className="flex flex-col gap-1.5">
-				<label htmlFor="startup-location" className={labelClass}>
+				<label htmlFor="startup-location" className={labelVariants({ size: 'sm' })}>
 					location
 				</label>
 				<input
 					id="startup-location"
 					type="text"
-					className={inputClass}
+					className={inputVariants({ size: 'sm' })}
 					value={values.location}
 					onChange={(e) => set('location', e.target.value)}
 				/>
 			</div>
 
 			<div className="flex flex-col gap-1.5">
-				<label htmlFor="startup-description" className={labelClass}>
+				<label htmlFor="startup-description" className={labelVariants({ size: 'sm' })}>
 					description
 				</label>
 				<textarea
 					id="startup-description"
 					rows={3}
-					className={cn(inputClass, 'resize-none')}
+					className={cn(inputVariants({ size: 'sm' }), 'resize-none')}
 					value={values.description}
 					onChange={(e) => set('description', e.target.value)}
 				/>
 			</div>
 
 			<div className="flex flex-col gap-1.5">
-				<label htmlFor="startup-notes" className={labelClass}>
+				<label htmlFor="startup-notes" className={labelVariants({ size: 'sm' })}>
 					notes
 				</label>
 				<textarea
 					id="startup-notes"
 					rows={2}
-					className={cn(inputClass, 'resize-none')}
+					className={cn(inputVariants({ size: 'sm' }), 'resize-none')}
 					value={values.notes}
 					onChange={(e) => set('notes', e.target.value)}
 				/>
@@ -427,12 +432,12 @@ function StartupForm({
 			<div className="mt-1 flex gap-2">
 				<button
 					type="submit"
-					className={primaryBtnClass}
+					className={buttonVariants({ intent: 'primary', size: 'sm' })}
 					disabled={isPending || !values.name.trim()}
 				>
 					{isPending ? 'saving...' : initial ? 'Save changes' : 'Create startup'}
 				</button>
-				<button type="button" className={ghostBtnClass} onClick={onCancel} disabled={isPending}>
+				<button type="button" className={buttonVariants({ intent: 'ghost', size: 'sm' })} onClick={onCancel} disabled={isPending}>
 					Cancel
 				</button>
 			</div>
@@ -494,7 +499,7 @@ function FoundersSection({ username, role }: { username: string | undefined; rol
 				<p className="text-foreground/60 text-sm">
 					{founders.length} founder{founders.length === 1 ? '' : 's'}
 				</p>
-				<button type="button" className={primaryBtnClass} onClick={() => setEditing('new')}>
+				<button type="button" className={buttonVariants({ intent: 'primary', size: 'sm' })} onClick={() => setEditing('new')}>
 					Add founder
 				</button>
 			</div>
@@ -537,14 +542,14 @@ function FoundersSection({ username, role }: { username: string | undefined; rol
 									<div className="flex shrink-0 gap-2">
 										<button
 											type="button"
-											className={ghostBtnClass}
+											className={buttonVariants({ intent: 'ghost', size: 'sm' })}
 											onClick={() => setEditing(founder)}
 										>
 											Edit
 										</button>
 										<button
 											type="button"
-											className={cn(ghostBtnClass, 'hover:border-red-500/60 hover:text-red-500')}
+											className={cn(buttonVariants({ intent: 'ghost', size: 'sm' }), 'hover:border-red-500/60 hover:text-red-500')}
 											disabled={deleteMut.isPending}
 											onClick={() => {
 												if (window.confirm(`Delete ${founder.first_name} ${founder.last_name}?`)) {
@@ -626,26 +631,26 @@ function FounderForm({
 		>
 			<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
 				<div className="flex flex-col gap-1.5">
-					<label htmlFor="founder-first" className={labelClass}>
+					<label htmlFor="founder-first" className={labelVariants({ size: 'sm' })}>
 						first name *
 					</label>
 					<input
 						id="founder-first"
 						type="text"
-						className={inputClass}
+						className={inputVariants({ size: 'sm' })}
 						value={values.first_name}
 						onChange={(e) => set('first_name', e.target.value)}
 						required
 					/>
 				</div>
 				<div className="flex flex-col gap-1.5">
-					<label htmlFor="founder-last" className={labelClass}>
+					<label htmlFor="founder-last" className={labelVariants({ size: 'sm' })}>
 						last name *
 					</label>
 					<input
 						id="founder-last"
 						type="text"
-						className={inputClass}
+						className={inputVariants({ size: 'sm' })}
 						value={values.last_name}
 						onChange={(e) => set('last_name', e.target.value)}
 						required
@@ -655,12 +660,12 @@ function FounderForm({
 
 			<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
 				<div className="flex flex-col gap-1.5">
-					<label htmlFor="founder-occupation" className={labelClass}>
+					<label htmlFor="founder-occupation" className={labelVariants({ size: 'sm' })}>
 						occupation
 					</label>
 					<select
 						id="founder-occupation"
-						className={inputClass}
+						className={inputVariants({ size: 'sm' })}
 						value={values.occupation}
 						onChange={(e) => set('occupation', e.target.value as FounderIn['occupation'])}
 					>
@@ -671,13 +676,13 @@ function FounderForm({
 					</select>
 				</div>
 				<div className="flex flex-col gap-1.5">
-					<label htmlFor="founder-location" className={labelClass}>
+					<label htmlFor="founder-location" className={labelVariants({ size: 'sm' })}>
 						location
 					</label>
 					<input
 						id="founder-location"
 						type="text"
-						className={inputClass}
+						className={inputVariants({ size: 'sm' })}
 						value={values.location}
 						onChange={(e) => set('location', e.target.value)}
 					/>
@@ -686,25 +691,25 @@ function FounderForm({
 
 			<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
 				<div className="flex flex-col gap-1.5">
-					<label htmlFor="founder-email" className={labelClass}>
+					<label htmlFor="founder-email" className={labelVariants({ size: 'sm' })}>
 						email
 					</label>
 					<input
 						id="founder-email"
 						type="email"
-						className={inputClass}
+						className={inputVariants({ size: 'sm' })}
 						value={values.email}
 						onChange={(e) => set('email', e.target.value)}
 					/>
 				</div>
 				<div className="flex flex-col gap-1.5">
-					<label htmlFor="founder-linkedin" className={labelClass}>
+					<label htmlFor="founder-linkedin" className={labelVariants({ size: 'sm' })}>
 						linkedin
 					</label>
 					<input
 						id="founder-linkedin"
 						type="url"
-						className={inputClass}
+						className={inputVariants({ size: 'sm' })}
 						value={values.linkedin}
 						onChange={(e) => set('linkedin', e.target.value)}
 					/>
@@ -712,13 +717,13 @@ function FounderForm({
 			</div>
 
 			<div className="flex flex-col gap-1.5">
-				<label htmlFor="founder-notes" className={labelClass}>
+				<label htmlFor="founder-notes" className={labelVariants({ size: 'sm' })}>
 					notes
 				</label>
 				<textarea
 					id="founder-notes"
 					rows={2}
-					className={cn(inputClass, 'resize-none')}
+					className={cn(inputVariants({ size: 'sm' }), 'resize-none')}
 					value={values.notes}
 					onChange={(e) => set('notes', e.target.value)}
 				/>
@@ -727,12 +732,12 @@ function FounderForm({
 			<div className="mt-1 flex gap-2">
 				<button
 					type="submit"
-					className={primaryBtnClass}
+					className={buttonVariants({ intent: 'primary', size: 'sm' })}
 					disabled={isPending || !values.first_name.trim() || !values.last_name.trim()}
 				>
 					{isPending ? 'saving...' : initial ? 'Save changes' : 'Create founder'}
 				</button>
-				<button type="button" className={ghostBtnClass} onClick={onCancel} disabled={isPending}>
+				<button type="button" className={buttonVariants({ intent: 'ghost', size: 'sm' })} onClick={onCancel} disabled={isPending}>
 					Cancel
 				</button>
 			</div>

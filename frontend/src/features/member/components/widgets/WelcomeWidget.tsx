@@ -1,4 +1,4 @@
-import { SectionDivider, WidgetCard } from '@/components/ui';
+import { SectionDivider, ShimmerTitle, WidgetCard } from '@/components/ui';
 import { useAuth } from '@/features/auth/hooks/use-auth';
 
 export function WelcomeWidget() {
@@ -13,8 +13,8 @@ export function WelcomeWidget() {
 
 	return (
 		<WidgetCard title="">
-			<h2 className="font-title animate-shimmer mx-auto bg-[linear-gradient(90deg,var(--color-highlight)_35%,var(--color-highlight-inverted)_50%,var(--color-highlight)_65%)] bg-size-[300%_300%] bg-clip-text text-4xl leading-tight text-transparent [animation-delay:1.0s] md:whitespace-nowrap">
-				Welcome, {displayName}.
+			<h2 className="mx-auto text-4xl leading-tight md:whitespace-nowrap">
+				<ShimmerTitle className="[animation-delay:1.0s]">Welcome, {displayName}.</ShimmerTitle>
 			</h2>
 			<SectionDivider />
 			<p className="text-foreground-muted mt-2">

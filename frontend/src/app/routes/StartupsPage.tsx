@@ -2,12 +2,7 @@ import { motion } from 'framer-motion';
 import { useMemo } from 'react';
 
 import startupsBkg from '@/assets/startups/startups-bkg.webp';
-import {
-	InteractiveContactButton,
-	PageMeta,
-	RadialGlowOverlay,
-	UnderlinedTitle,
-} from '@/components/ui';
+import { HeroSection, InteractiveContactButton, PageMeta, UnderlinedTitle } from '@/components/ui';
 import { generateColumns, PartnersSection, StartupBlock, STARTUPS } from '@/features/startups';
 
 export function StartupsPage() {
@@ -20,40 +15,30 @@ export function StartupsPage() {
 				description="Learn about the partners & start-ups EVP has worked with."
 			/>
 			{/* Hero */}
-			<div className="relative flex min-h-180 w-full items-center justify-center">
-				<img
-					src={startupsBkg}
-					alt="About Background"
-					className="absolute inset-0 h-full w-full object-cover shadow-2xl"
-				/>
-				<div className="bg-background/40 absolute inset-0" />
-				<RadialGlowOverlay />
+			<HeroSection image={startupsBkg} imageAlt="About Background">
+				<UnderlinedTitle id="our-start-ups" title="Our start-ups" />
 
-				<div className="relative z-10 mx-auto mt-40 w-full max-w-6xl px-4">
-					<UnderlinedTitle id="our-start-ups" title="Our start-ups" />
+				<motion.p
+					initial={{ opacity: 0, y: 30 }}
+					whileInView={{ opacity: 1, y: 0 }}
+					viewport={{ once: true, amount: 1 }}
+					transition={{ duration: 0.5, ease: 'easeIn', delay: 0.15 }}
+					className="mx-auto max-w-4xl py-5 text-center text-3xl font-bold italic"
+				>
+					Born in Scotland, built for the world.
+				</motion.p>
 
-					<motion.p
-						initial={{ opacity: 0, y: 30 }}
-						whileInView={{ opacity: 1, y: 0 }}
-						viewport={{ once: true, amount: 1 }}
-						transition={{ duration: 0.5, ease: 'easeIn', delay: 0.15 }}
-						className="mx-auto max-w-4xl py-5 text-center text-3xl font-bold italic"
-					>
-						Born in Scotland, built for the world.
-					</motion.p>
-
-					<motion.p
-						initial={{ opacity: 0, y: 30 }}
-						whileInView={{ opacity: 1, y: 0 }}
-						viewport={{ once: true, amount: 1 }}
-						transition={{ duration: 0.5, ease: 'easeIn', delay: 0.25 }}
-						className="mx-auto max-w-2xl pb-5 text-center text-xl"
-					>
-						We identify the most promising student-led start-ups across Scotland and provide them
-						with access to the resources and connections they need to thrive.
-					</motion.p>
-				</div>
-			</div>
+				<motion.p
+					initial={{ opacity: 0, y: 30 }}
+					whileInView={{ opacity: 1, y: 0 }}
+					viewport={{ once: true, amount: 1 }}
+					transition={{ duration: 0.5, ease: 'easeIn', delay: 0.25 }}
+					className="mx-auto max-w-2xl pb-5 text-center text-xl"
+				>
+					We identify the most promising student-led start-ups across Scotland and provide them with
+					access to the resources and connections they need to thrive.
+				</motion.p>
+			</HeroSection>
 
 			<PartnersSection />
 

@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
 
-import { labelClass } from '@/styles/form-classes';
 import { cn } from '@/utils/cn';
+
+import { labelVariants } from './label';
 
 interface FormFieldProps {
 	/** ID shared by the label's htmlFor and the control's id. */
@@ -21,7 +22,7 @@ interface FormFieldProps {
 export function FormField({ id, label, children, className }: FormFieldProps) {
 	return (
 		<div className={cn('flex flex-col gap-1.5', className)}>
-			<label htmlFor={id} className={labelClass}>
+			<label htmlFor={id} className={labelVariants({ size: 'sm' })}>
 				{label}
 			</label>
 			{children}

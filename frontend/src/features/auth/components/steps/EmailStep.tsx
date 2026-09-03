@@ -2,8 +2,9 @@ import { motion } from 'framer-motion';
 
 import joinImage from '@/assets/homepage/promo-bar.webp';
 import { SectionDivider } from '@/components/ui';
+import { buttonVariants } from '@/components/ui/button';
+import { inputVariants } from '@/components/ui/input';
 
-import { inputClass, primaryBtnClass } from '../../styles';
 import { ErrorBanner } from '../ErrorBanner';
 
 type EmailStepProps = {
@@ -78,14 +79,14 @@ export function EmailStep({
 							placeholder="you@example.com"
 							autoComplete="email"
 							disabled={isSubmitting}
-							className={inputClass}
+							className={inputVariants({ size: 'md' })}
 						/>
 
 						<button
 							type="button"
 							onClick={onSubmit}
 							disabled={isSubmitting || !email.trim()}
-							className={primaryBtnClass}
+							className={buttonVariants({ intent: 'primary', size: 'md' })}
 						>
 							{isSubmitting ? 'sending...' : 'send code'}
 						</button>

@@ -1,6 +1,6 @@
-import '@/styles/button-underline.css';
+import { isRouteErrorResponse, useRouteError } from 'react-router';
 
-import { isRouteErrorResponse, Link, useRouteError } from 'react-router';
+import { TextLink } from '@/components/ui/text-link';
 
 export function ErrorPage() {
 	const error = useRouteError();
@@ -61,20 +61,16 @@ export function ErrorPage() {
 			<h1 className="text-4xl font-bold md:text-5xl">{title}</h1>
 			<div className="text-foreground-muted my-2 w-full max-w-md border-b" />
 			<p className="text-lg">{errorMessage}</p>
-			<Link
-				to="/"
-				className="text-accent button-underline px-12 py-2 text-xl font-bold"
-				viewTransition
-			>
+			<TextLink to="/" className="px-12 py-2 text-xl font-bold">
 				Return to Home
-			</Link>
+			</TextLink>
 
 			{isDev && devDetails && (
-				<details className="mt-8 w-full overflow-hidden rounded-l bg-gray-800 p-4 text-left">
-					<summary className="cursor-pointer font-semibold text-gray-200">
+				<details className="bg-background-muted mt-8 w-full overflow-hidden rounded-lg p-4 text-left">
+					<summary className="text-foreground cursor-pointer font-semibold">
 						Developer Error Details
 					</summary>
-					<pre className="mt-4 overflow-auto p-2 text-sm whitespace-pre-wrap text-red-600 dark:text-red-400">
+					<pre className="text-accent mt-4 overflow-auto p-2 text-sm whitespace-pre-wrap">
 						{devDetails}
 					</pre>
 				</details>

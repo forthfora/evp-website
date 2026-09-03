@@ -1,10 +1,10 @@
-import '@/styles/button-underline.css';
-
 import type { ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
 
 import { cn } from '@/utils/cn';
+
+import { BlobBackground } from './blob-background';
 
 interface InteractiveLinkButtonProps {
 	/** Route the button navigates to. */
@@ -60,9 +60,7 @@ export function InteractiveLinkButton({
 			style={{ backgroundColor: 'var(--color-accent)' }}
 		>
 			{/* Blobs */}
-			<span className="animate-blob1 pointer-events-none absolute -top-4 -left-4 h-16 w-16 rounded-full bg-[#8b85fa] opacity-70 blur-xl" />
-			<span className="animate-blob2 pointer-events-none absolute -right-4 -bottom-4 h-20 w-20 rounded-full bg-[#c084fc] opacity-60 blur-xl" />
-			<span className="animate-blob3 pointer-events-none absolute top-1/2 left-1/2 h-14 w-14 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#8b85fa] opacity-50 blur-lg" />
+			<BlobBackground />
 
 			{/* Spotlight */}
 			<span

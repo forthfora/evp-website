@@ -1,6 +1,3 @@
-import '@/styles/button-underline.css';
-import '@/styles/button-spin.css';
-
 import { LogOut } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { Link } from 'react-router';

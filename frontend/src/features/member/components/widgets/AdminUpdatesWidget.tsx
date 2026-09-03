@@ -1,9 +1,9 @@
 import { useState } from 'react';
 
 import { FormField, PrimaryButton, WidgetCard } from '@/components/ui';
+import { inputVariants } from '@/components/ui/input';
 import { useSendAllEmail } from '@/features/auth/api/api';
 import type { SendAllEmailOut } from '@/features/auth/api/schemas';
-import { inputClass } from '@/styles/form-classes';
 import { cn } from '@/utils/cn';
 
 export function AdminUpdatesWidget() {
@@ -38,7 +38,7 @@ export function AdminUpdatesWidget() {
 					<input
 						id="update-subject"
 						type="text"
-						className={inputClass}
+						className={inputVariants({ size: 'sm' })}
 						value={subject}
 						onChange={(e) => setSubject(e.target.value)}
 						placeholder="Subject line"
@@ -50,7 +50,7 @@ export function AdminUpdatesWidget() {
 					<textarea
 						id="update-body"
 						rows={6}
-						className={cn(inputClass, 'resize-none')}
+						className={cn(inputVariants({ size: 'sm' }), 'resize-none')}
 						value={body}
 						onChange={(e) => setBody(e.target.value)}
 						placeholder="Plain-text message sent to all opted-in members."

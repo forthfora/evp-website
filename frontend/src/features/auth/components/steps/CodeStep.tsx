@@ -1,6 +1,8 @@
 import type { RefObject } from 'react';
 
-import { digitInputClass, linkBtnClass, primaryBtnClass } from '../../styles';
+import { buttonVariants } from '@/components/ui/button';
+import { inputVariants } from '@/components/ui/input';
+
 import { ErrorBanner } from '../ErrorBanner';
 
 type CodeStepProps = {
@@ -65,7 +67,7 @@ export function CodeStep({
 								onChange={(e) => onDigitChange(i, e.target.value)}
 								onKeyDown={(e) => onDigitKeyDown(i, e.key)}
 								disabled={isVerifying}
-								className={digitInputClass}
+								className={inputVariants({ size: 'digit' })}
 							/>
 						))}
 					</div>
@@ -74,16 +76,26 @@ export function CodeStep({
 						type="button"
 						onClick={onVerify}
 						disabled={isVerifying || codeDigits.some((d) => !d)}
-						className={primaryBtnClass}
+						className={buttonVariants({ intent: 'primary', size: 'md' })}
 					>
 						{isVerifying ? 'verifying...' : 'verify'}
 					</button>
 
-					<button type="button" onClick={onResend} disabled={isResending} className={linkBtnClass}>
+					<button
+						type="button"
+						onClick={onResend}
+						disabled={isResending}
+						className={buttonVariants({ intent: 'link', size: 'sm' })}
+					>
 						{isResending ? 'resending...' : "Didn't receive anything? Request a new code."}
 					</button>
 
-					<button type="button" onClick={onBack} disabled={isVerifying} className={linkBtnClass}>
+					<button
+						type="button"
+						onClick={onBack}
+						disabled={isVerifying}
+						className={buttonVariants({ intent: 'link', size: 'sm' })}
+					>
 						Use a different email.
 					</button>
 				</div>

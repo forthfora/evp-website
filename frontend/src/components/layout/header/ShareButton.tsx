@@ -1,5 +1,3 @@
-import '@/styles/button-underline.css';
-
 import { Share2 } from 'lucide-react';
 
 export function ShareButton() {

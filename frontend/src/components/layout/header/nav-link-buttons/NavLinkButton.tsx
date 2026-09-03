@@ -1,5 +1,3 @@
-import '@/styles/button-underline.css';
-
 import { NavLink } from 'react-router';
 
 interface NavLinkItemProps {

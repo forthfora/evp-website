@@ -1,5 +1,3 @@
-import '@/styles/button-underline.css';
-
 import { Mail } from 'lucide-react';
 import { FaInstagram, FaLinkedin } from 'react-icons/fa6';
 import { Link } from 'react-router';

@@ -1,6 +1,3 @@
-import '@/styles/button-underline.css';
-import '@/styles/logo-build.css';
-
 import { Link, useLocation } from 'react-router';
 
 import evpLogo from '@/assets/evp-logo.webp';

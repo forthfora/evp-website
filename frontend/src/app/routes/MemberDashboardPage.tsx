@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 
-import { PageMeta } from '@/components/ui';
+import { PageMeta, ShimmerTitle } from '@/components/ui';
 import type { Role } from '@/features/auth/api/schemas';
 import { useAuth } from '@/features/auth/hooks/use-auth';
 import { DashboardNav, getAvailablePages, getWidgetsForPage } from '@/features/member';
@@ -47,9 +47,9 @@ export function MemberDashboardPage() {
 				whileInView={{ opacity: 1, y: 0 }}
 				viewport={{ once: true, amount: 1 }}
 				transition={{ duration: 0.5, ease: 'easeOut', delay: 0.2 }}
-				className="font-title animate-shimmer mx-auto bg-[linear-gradient(135deg,var(--color-highlight)_35%,var(--color-highlight-inverted)_50%,var(--color-highlight)_65%)] bg-size-[300%_300%] bg-clip-text text-4xl leading-tight text-transparent [animation-delay:0.5s] md:whitespace-nowrap"
+				className="mx-auto text-4xl leading-tight md:whitespace-nowrap"
 			>
-				Member Dashboard
+				<ShimmerTitle className="[animation-delay:0.5s]">Member Dashboard</ShimmerTitle>
 			</motion.h1>
 
 			<DashboardNav pages={availablePages} activePageId={activePageId ?? ''} />

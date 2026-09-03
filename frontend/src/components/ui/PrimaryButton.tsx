@@ -1,7 +1,8 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 
-import { primaryBtnClass } from '@/styles/form-classes';
 import { cn } from '@/utils/cn';
+
+import { buttonVariants } from './button';
 
 interface PrimaryButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 	children: ReactNode;
@@ -10,7 +11,11 @@ interface PrimaryButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 /** Shared primary action button with the project's accent styling. */
 export function PrimaryButton({ children, className, ...props }: PrimaryButtonProps) {
 	return (
-		<button type="button" className={cn(primaryBtnClass, className)} {...props}>
+		<button
+			type="button"
+			className={cn(buttonVariants({ intent: 'primary', size: 'sm' }), className)}
+			{...props}
+		>
 			{children}
 		</button>
 	);
