@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { cn } from '@/utils/cn';
 
 import { SectionDivider } from '../section/SectionDivider';
-import { buttonVariants } from './Button';
+import { buttonVariants } from './button/button-variants';
 
 type DialogPosition =
 	| 'center'

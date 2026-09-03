@@ -3,7 +3,7 @@ import type { HTMLAttributes } from 'react';
 
 import { cn } from '@/utils/cn';
 
-import { glassSectionVariants } from './glass-section/glass-section-variants';
+import { glassSectionVariants } from './glass-section-variants';
 
 interface GlassSectionProps
 	extends HTMLAttributes<HTMLElement>, VariantProps<typeof glassSectionVariants> {

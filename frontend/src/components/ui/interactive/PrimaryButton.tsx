@@ -2,7 +2,7 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react';
 
 import { cn } from '@/utils/cn';
 
-import { buttonVariants } from './Button';
+import { buttonVariants } from './button/button-variants';
 
 interface PrimaryButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 	children: ReactNode;

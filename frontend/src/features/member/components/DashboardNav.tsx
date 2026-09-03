@@ -13,9 +13,9 @@ export function DashboardNav({ pages, activePageId }: DashboardNavProps) {
 
 	return (
 		<nav aria-label="Dashboard sections" className="flex justify-center">
-			<ul className="flex flex-wrap items-center justify-center gap-15">
+			<ul className="flex flex-wrap items-center justify-center gap-8 md:gap-15">
 				{pages.map((page, i) => (
-					<li key={page.id} className="flex items-center gap-4 md:gap-15">
+					<li key={page.id} className="flex items-center gap-8 md:gap-15">
 						<motion.div
 							initial={{ opacity: 0, y: 30 }}
 							whileInView={{ opacity: 1, y: 0 }}

@@ -2,9 +2,9 @@ import { useState } from 'react';
 
 import { WidgetCard } from '@/components/ui';
 import { AnimatedCheckbox } from '@/components/ui/interactive/AnimatedCheckbox';
-import { buttonVariants } from '@/components/ui/interactive/Button';
-import { inputVariants } from '@/components/ui/interactive/Input';
-import { labelVariants } from '@/components/ui/labels/Label';
+import { buttonVariants } from '@/components/ui/interactive/button/button-variants';
+import { inputVariants } from '@/components/ui/interactive/input/input-variants';
+import { labelVariants } from '@/components/ui/labels/label-variants';
 import { useChangeEmail, useRequestOtp, useUpdateMe } from '@/features/auth/api/api';
 import { useAuth } from '@/features/auth/hooks/use-auth';
 import { cn } from '@/utils/cn';
@@ -220,7 +220,7 @@ export function SettingsWidget() {
 
 				<div
 					aria-hidden="true"
-					className="text-foreground-muted/50 mx-3 mt-1 min-w-6 flex-1 self-center border-b-2 border-dotted"
+					className="text-foreground-muted/50 mx-3 mt-1 hidden min-w-6 flex-1 self-center border-b-2 border-dotted md:block"
 				/>
 
 				<label className="flex shrink-0 cursor-pointer items-center gap-2">

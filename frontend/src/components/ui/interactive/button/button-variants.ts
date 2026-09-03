@@ -1,9 +1,6 @@
-import { cva, type VariantProps } from 'class-variance-authority';
-import type { ButtonHTMLAttributes } from 'react';
+import { cva } from 'class-variance-authority';
 
-import { cn } from '@/utils/cn';
-
-const buttonVariants = cva(
+export const buttonVariants = cva(
 	'cursor-pointer font-bold tracking-widest uppercase transition-all duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40',
 	{
 		variants: {
@@ -24,14 +21,3 @@ const buttonVariants = cva(
 		},
 	},
 );
-
-interface ButtonProps
-	extends ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {}
-
-export function Button({ className, intent, size, ...props }: ButtonProps) {
-	return (
-		<button type="button" className={cn(buttonVariants({ intent, size }), className)} {...props} />
-	);
-}
-
-export { buttonVariants };

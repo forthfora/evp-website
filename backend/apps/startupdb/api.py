@@ -20,7 +20,8 @@ from apps.startupdb.schemas import (
 if TYPE_CHECKING:
     from apps.accounts.models import User
 
-router = Router(tags=["StartupDB"], auth=RoleAuth("admin", "committee", "scout"))
+# TODO: readd access later
+router = Router(tags=["StartupDB"], auth=RoleAuth())
 
 
 def _founder_out(founder: Founder) -> FounderOut:

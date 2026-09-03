@@ -1,7 +1,7 @@
 import type { RefObject } from 'react';
 
-import { buttonVariants } from '@/components/ui/interactive/Button';
-import { inputVariants } from '@/components/ui/interactive/Input';
+import { buttonVariants } from '@/components/ui/interactive/button/button-variants';
+import { inputVariants } from '@/components/ui/interactive/input/input-variants';
 
 import { ErrorBanner } from '../ErrorBanner';
 

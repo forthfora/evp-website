@@ -2,8 +2,8 @@ import { motion } from 'framer-motion';
 
 import joinImage from '@/assets/homepage/promo-bar.webp';
 import { SectionDivider } from '@/components/ui';
-import { buttonVariants } from '@/components/ui/interactive/Button';
-import { inputVariants } from '@/components/ui/interactive/Input';
+import { buttonVariants } from '@/components/ui/interactive/button/button-variants';
+import { inputVariants } from '@/components/ui/interactive/input/input-variants';
 
 import { ErrorBanner } from '../ErrorBanner';
 

@@ -2,9 +2,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
 import { WidgetCard } from '@/components/ui';
-import { buttonVariants } from '@/components/ui/interactive/Button';
-import { inputVariants } from '@/components/ui/interactive/Input';
-import { labelVariants } from '@/components/ui/labels/Label';
+import { buttonVariants } from '@/components/ui/interactive/button/button-variants';
+import { inputVariants } from '@/components/ui/interactive/input/input-variants';
+import { labelVariants } from '@/components/ui/labels/label-variants';
 import type { Role } from '@/features/auth/api/schemas';
 import { useAuth } from '@/features/auth/hooks/use-auth';
 import {

@@ -67,7 +67,7 @@ def _build_email_html(body_html: str, *, preheader: str = "") -> str:
                 <tr>
                   <td>
                     <img
-                      src="https://zachonyejiaka.wordpress.com/wp-content/uploads/2026/03/evp-logo-blue-png.png"
+                      src="https://www.edinburghventurepoint.com/favicon.png"
                       alt="Edinburgh VenturePoint"
                       width="160"
                       style="display:block; border:0; outline:none; text-decoration:none;"

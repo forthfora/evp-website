@@ -16,7 +16,7 @@ export function DashboardNavButton({ to, label, isActive }: DashboardNavButtonPr
 			to={to}
 			aria-current={isActive ? 'page' : undefined}
 			className={cn(
-				'button-underline text-base font-semibold no-underline transition-colors md:text-xl',
+				'button-underline text-xl font-semibold no-underline transition-colors',
 				isActive ? 'active text-accent' : 'text-foreground/70 hover:text-foreground',
 			)}
 		>
