@@ -2,7 +2,7 @@ import { isRouteErrorResponse, useRouteError } from 'react-router';
 
 import { TextLink } from '@/components/ui/interactive/TextLink';
 
-export function ErrorPage() {
+export default function ErrorPage() {
 	const error = useRouteError();
 
 	let title = "We're sorry, something's gone wrong...";

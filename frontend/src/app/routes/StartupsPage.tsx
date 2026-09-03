@@ -5,7 +5,7 @@ import startupsBkg from '@/assets/startups/startups-bkg.webp';
 import { HeroSection, InteractiveContactButton, PageMeta, UnderlinedTitle } from '@/components/ui';
 import { generateColumns, PartnersSection, StartupBlock, STARTUPS } from '@/features/startups';
 
-export function StartupsPage() {
+export default function StartupsPage() {
 	const columns = useMemo(() => generateColumns(STARTUPS), []);
 
 	return (
@@ -93,13 +93,7 @@ export function StartupsPage() {
 						transition={{ duration: 0.5, ease: 'easeIn' }}
 						className="border-accent group relative z-10 mx-auto flex h-150 flex-col items-center justify-center gap-4 overflow-hidden rounded-xl border-4 text-center transition-all duration-300"
 					>
-						{/* Background Blobs */}
-						<div className="glass-box pointer-events-none absolute inset-0 overflow-hidden">
-							{/* Blob 1 */}
-							<div className="absolute -top-20 -left-20 h-72 w-72 rounded-full bg-purple-500/10 blur-3xl transition-colors duration-500 group-hover:bg-purple-500/20" />
-							{/* Blob 2 */}
-							<div className="absolute -right-20 -bottom-20 h-72 w-72 rounded-full bg-blue-500/10 blur-3xl transition-colors duration-500 group-hover:bg-blue-500/20" />
-						</div>
+						<div className="glass-box pointer-events-none absolute inset-0 overflow-hidden" />
 
 						<div className="z-10 flex flex-col items-center justify-center gap-4">
 							<UnderlinedTitle

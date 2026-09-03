@@ -4,7 +4,7 @@ import { SectionDivider, UnderlinedTitle } from '@/components/ui';
 import { MediaTextSection } from '@/components/ui/section/MediaTextSection';
 import { ContactFormSection, ContactHero, OfferCardsSection } from '@/features/contact';
 
-export function ContactPage() {
+export default function ContactPage() {
 	return (
 		<div className="flex w-full flex-col">
 			<ContactHero />

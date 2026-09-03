@@ -12,7 +12,7 @@ import {
 } from '@/components/ui';
 import { COMMITTEE_DATA, MemberYearSection } from '@/features/about';
 
-export function AboutPage() {
+export default function AboutPage() {
 	return (
 		<div className="flex w-full flex-col overflow-x-hidden">
 			<PageMeta title="About Us" description="Meet the team behind EVP, and find out what we do." />

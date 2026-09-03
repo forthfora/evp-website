@@ -5,7 +5,7 @@ import { Header } from '@/components/layout/header/Header';
 import { ScrollSpy } from '@/components/layout/scroll/ScrollSpy';
 import { GlobalBackground } from '@/components/three/global-background/GlobalBackground';
 
-export function AppLayout() {
+export default function AppLayout() {
 	return (
 		<>
 			<div className="bg-background text-foreground relative flex min-h-screen flex-col justify-between font-sans transition-colors duration-200">

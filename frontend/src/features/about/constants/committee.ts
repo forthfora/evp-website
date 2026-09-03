@@ -25,6 +25,7 @@ export const COMMITTEE_DATA: YearData[] = [
 				name: 'Teoh Zi Yang',
 				image: teohImg,
 				linkedin: 'https://www.linkedin.com/in/teoh-zi-yang/',
+				email: 's2787831@ed.ac.uk',
 			},
 			{
 				role: 'Head Venture Scout',
