@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 
 import { SectionDivider } from '@/components/ui';
 
-import { InteractiveContactButton } from './InteractiveContactButton';
+import { InteractiveContactButton } from '../interactive/InteractiveContactButton';
 
 interface ContactSectionProps {
 	image: string;

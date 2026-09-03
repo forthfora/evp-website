@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { FormField, PrimaryButton, WidgetCard } from '@/components/ui';
-import { inputVariants } from '@/components/ui/input';
+import { inputVariants } from '@/components/ui/interactive/Input';
 import { useSendAllEmail } from '@/features/auth/api/api';
 import type { SendAllEmailOut } from '@/features/auth/api/schemas';
 import { cn } from '@/utils/cn';

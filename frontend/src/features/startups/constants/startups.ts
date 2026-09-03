@@ -26,7 +26,7 @@ export const STARTUPS: Startup[] = [
 		name: 'KUMA',
 		tagline: 'Preserve the stories that matter.',
 		description: 'Preserving family stories with AI-powered memory capture.',
-		links: [{ type: 'Website', url: 'https://kumamemories.com/' }],
+		links: [],
 		accent: '#CD3A23',
 		img: kumaImg,
 	},
@@ -45,7 +45,7 @@ export const STARTUPS: Startup[] = [
 		tagline: 'The social network for creatives.',
 		description:
 			'A social platform built specifically for creative minds to share, connect, and grow.',
-		links: [{ type: 'Website', url: 'https://melangerecords.online/home' }],
+		links: [],
 		accent: '#1B278A',
 		img: melangeImg,
 	},
@@ -64,7 +64,7 @@ export const STARTUPS: Startup[] = [
 		tagline: 'Teachers in control of EdTech.',
 		description:
 			'Putting teachers back in control — EdTech that serves educators, not the other way around.',
-		links: [{ type: 'Website', url: 'https://services.eduba.io/' }],
+		links: [],
 		accent: '#099CB0',
 		img: edubaImg,
 	},

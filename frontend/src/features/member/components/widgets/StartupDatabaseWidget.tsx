@@ -2,9 +2,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
 import { WidgetCard } from '@/components/ui';
-import { buttonVariants } from '@/components/ui/button';
-import { inputVariants } from '@/components/ui/input';
-import { labelVariants } from '@/components/ui/label';
+import { buttonVariants } from '@/components/ui/interactive/Button';
+import { inputVariants } from '@/components/ui/interactive/Input';
+import { labelVariants } from '@/components/ui/labels/Label';
 import type { Role } from '@/features/auth/api/schemas';
 import { useAuth } from '@/features/auth/hooks/use-auth';
 import {
@@ -192,7 +192,10 @@ function StartupsSection({ username, role }: { username: string | undefined; rol
 										</button>
 										<button
 											type="button"
-											className={cn(buttonVariants({ intent: 'ghost', size: 'sm' }), 'hover:border-red-500/60 hover:text-red-500')}
+											className={cn(
+												buttonVariants({ intent: 'ghost', size: 'sm' }),
+												'hover:border-red-500/60 hover:text-red-500',
+											)}
 											disabled={deleteMut.isPending}
 											onClick={() => {
 												if (window.confirm(`Delete "${startup.name}"?`)) {
@@ -437,7 +440,12 @@ function StartupForm({
 				>
 					{isPending ? 'saving...' : initial ? 'Save changes' : 'Create startup'}
 				</button>
-				<button type="button" className={buttonVariants({ intent: 'ghost', size: 'sm' })} onClick={onCancel} disabled={isPending}>
+				<button
+					type="button"
+					className={buttonVariants({ intent: 'ghost', size: 'sm' })}
+					onClick={onCancel}
+					disabled={isPending}
+				>
 					Cancel
 				</button>
 			</div>
@@ -499,7 +507,11 @@ function FoundersSection({ username, role }: { username: string | undefined; rol
 				<p className="text-foreground/60 text-sm">
 					{founders.length} founder{founders.length === 1 ? '' : 's'}
 				</p>
-				<button type="button" className={buttonVariants({ intent: 'primary', size: 'sm' })} onClick={() => setEditing('new')}>
+				<button
+					type="button"
+					className={buttonVariants({ intent: 'primary', size: 'sm' })}
+					onClick={() => setEditing('new')}
+				>
 					Add founder
 				</button>
 			</div>
@@ -549,7 +561,10 @@ function FoundersSection({ username, role }: { username: string | undefined; rol
 										</button>
 										<button
 											type="button"
-											className={cn(buttonVariants({ intent: 'ghost', size: 'sm' }), 'hover:border-red-500/60 hover:text-red-500')}
+											className={cn(
+												buttonVariants({ intent: 'ghost', size: 'sm' }),
+												'hover:border-red-500/60 hover:text-red-500',
+											)}
 											disabled={deleteMut.isPending}
 											onClick={() => {
 												if (window.confirm(`Delete ${founder.first_name} ${founder.last_name}?`)) {
@@ -737,7 +752,12 @@ function FounderForm({
 				>
 					{isPending ? 'saving...' : initial ? 'Save changes' : 'Create founder'}
 				</button>
-				<button type="button" className={buttonVariants({ intent: 'ghost', size: 'sm' })} onClick={onCancel} disabled={isPending}>
+				<button
+					type="button"
+					className={buttonVariants({ intent: 'ghost', size: 'sm' })}
+					onClick={onCancel}
+					disabled={isPending}
+				>
 					Cancel
 				</button>
 			</div>

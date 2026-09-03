@@ -7,31 +7,17 @@ import { ReserveButton } from './ReserveButton';
  * Single event card with image, meta chips, description, highlights, and CTA.
  * Handles both upcoming and past event display variants.
  */
-export function EventCard({
-	event,
-	index,
-	isPast,
-}: {
-	event: EVPEvent;
-	index: number;
-	isPast?: boolean;
-}) {
+export function EventCard({ event, isPast }: { event: EVPEvent; isPast?: boolean }) {
 	const hasImage = !!event.image;
 
 	return (
 		<motion.div
-			initial={{ opacity: 0, y: 40 }}
+			initial={{ opacity: 0, y: 50 }}
 			whileInView={{ opacity: 1, y: 0 }}
-			viewport={{ once: true, margin: '-80px' }}
-			transition={{ duration: 0.55, ease: 'easeOut', delay: index * 0.1 }}
-			className={`glass-box group relative my-5 overflow-hidden rounded-xl transition-all duration-300 ${
-				isPast ? 'opacity-70 hover:opacity-90' : 'hover:border-accent/30'
-			}`}
+			viewport={{ once: true }}
+			transition={{ duration: 0.55, ease: 'easeIn' }}
+			className="glass-box group relative my-5 overflow-hidden rounded-xl"
 		>
-			{!isPast && (
-				<div className="from-accent absolute top-0 left-0 h-1 w-0 bg-linear-to-r to-blue-500 transition-all duration-500 group-hover:w-full" />
-			)}
-
 			<div className={`flex ${hasImage ? 'flex-col md:flex-row' : 'flex-col'}`}>
 				{/* Image */}
 				{hasImage && (

@@ -1,12 +1,12 @@
 import { RouterProvider } from 'react-router';
 
 import { AppProvider } from './provider';
-import { browserRouter } from './router';
+import { router } from './router';
 
 export default function App() {
 	return (
 		<AppProvider>
-			<RouterProvider router={browserRouter} />
+			<RouterProvider router={router} />
 		</AppProvider>
 	);
 }

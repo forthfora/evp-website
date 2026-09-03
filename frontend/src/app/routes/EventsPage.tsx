@@ -33,15 +33,26 @@ export function EventsPage() {
 						))}
 					</div>
 
-					<p className="mx-auto mt-10 max-w-4xl py-5 text-center text-3xl font-bold">
-						{
-							"We're a community of the boldest founders and innovators at The University of Edinburgh and across Scotland."
-						}
-					</p>
+					<motion.p
+						className="mx-auto mt-10 max-w-4xl py-5 text-center text-3xl font-bold"
+						initial={{ opacity: 0, y: -30 }}
+						whileInView={{ opacity: 1, y: 0 }}
+						viewport={{ once: true, amount: 1.0 }}
+						transition={{ duration: 0.5, delay: 0.2 }}
+					>
+						We're a community of the boldest founders and innovators at The University of Edinburgh
+						and across Scotland.
+					</motion.p>
 
-					<p className="py-5 text-center text-2xl">
+					<motion.p
+						className="py-5 text-center text-2xl"
+						initial={{ opacity: 0, y: 30 }}
+						whileInView={{ opacity: 1, y: 0 }}
+						viewport={{ once: true, amount: 1.0 }}
+						transition={{ duration: 0.5, delay: 0.5 }}
+					>
 						If you're building something amazing, let's meet up.
-					</p>
+					</motion.p>
 				</div>
 			</div>
 			<section className="mx-auto mt-50 w-full max-w-6xl px-4">
@@ -49,8 +60,8 @@ export function EventsPage() {
 
 				{UPCOMING_EVENTS.length > 0 ? (
 					<div className="mt-10 flex flex-col gap-6">
-						{UPCOMING_EVENTS.map((event, i) => (
-							<EventCard key={event.id} event={event} index={i} />
+						{UPCOMING_EVENTS.map((event) => (
+							<EventCard key={event.id} event={event} />
 						))}
 					</div>
 				) : (
@@ -77,8 +88,8 @@ export function EventsPage() {
 
 				{PAST_EVENTS.length > 0 ? (
 					<div className="mt-10 flex flex-col gap-6">
-						{PAST_EVENTS.map((event, i) => (
-							<EventCard key={event.id} event={event} index={i} isPast />
+						{PAST_EVENTS.map((event) => (
+							<EventCard key={event.id} event={event} isPast />
 						))}
 					</div>
 				) : (

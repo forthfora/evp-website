@@ -45,7 +45,7 @@ export function StartupBlock({ startup }: StartupBlockProps) {
 						src={img}
 						alt={`${name} background`}
 						className={`h-full w-full object-cover opacity-25 transition-all duration-500 will-change-transform md:group-hover:scale-105 md:group-hover:blur-sm ${
-							isRevealed ? 'scale-105 blur-sm' : 'blur-[5px]'
+							isRevealed ? 'scale-105 blur-sm' : 'blur-[1px]'
 						}`}
 					/>
 					<div

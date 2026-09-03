@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 
 import { cn } from '@/utils/cn';
 
-import { labelVariants } from './label';
+import { labelVariants } from '../labels/Label';
 
 interface FormFieldProps {
 	/** ID shared by the label's htmlFor and the control's id. */

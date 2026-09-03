@@ -1,4 +1,3 @@
-import campusXCapital2026Img from '@/assets/events/campus-x-capital.webp';
 import demoDay2026Img from '@/assets/events/demo-day.webp';
 import meetUpNight2026Img from '@/assets/events/meet-up-night.webp';
 import nextGenHack2026Img from '@/assets/events/next-gen-hack.webp';
@@ -20,15 +19,6 @@ export const UPCOMING_EVENTS: EVPEvent[] = [
 		location: 'TBC',
 		highlights: [],
 		image: meetUpNight2026Img,
-		spotStatus: 'coming-soon',
-	},
-	{
-		id: 'campus-x-capital-2026',
-		title: 'Campus X Capital',
-		date: 'TBC, Semester 1, 26/27',
-		location: 'TBC',
-		highlights: [],
-		image: campusXCapital2026Img,
 		spotStatus: 'coming-soon',
 	},
 ];
@@ -104,7 +94,7 @@ export const PAST_EVENTS: EVPEvent[] = [
 		title: 'Fireside Chat with Andrew Coleman',
 		date: 'Thursday, 12 February, 2026',
 		description:
-			"A fireside chat with Andrew Coleman, Director of Apollo Informal Investments and Honorary Chair of EVP. Discussions and Q&A on the UK's pre-seed & seed startups, Andrew’s investment philosophy, past experiences, and more.",
+			"A fireside chat with Andrew Coleman, Director of Apollo Informal Investments and Honorary Chair of EVP. Discussions and Q&A on the UK's pre-seed & seed startups, Andrew's investment philosophy, past experiences, and more.",
 		spotStatus: 'past',
 	},
 	{

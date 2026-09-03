@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 
-import { SectionDivider } from './SectionDivider';
+import { SectionDivider } from '../section/SectionDivider';
 
 interface UnderlinedTitleProps {
 	title: string;

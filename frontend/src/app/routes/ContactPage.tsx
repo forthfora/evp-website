@@ -1,7 +1,7 @@
 import networkImg from '@/assets/contact/promo-network.webp';
 import scoutImg from '@/assets/contact/promo-scout.webp';
 import { SectionDivider, UnderlinedTitle } from '@/components/ui';
-import { MediaTextSection } from '@/components/ui/media-text-section';
+import { MediaTextSection } from '@/components/ui/section/MediaTextSection';
 import { ContactFormSection, ContactHero, OfferCardsSection } from '@/features/contact';
 
 export function ContactPage() {

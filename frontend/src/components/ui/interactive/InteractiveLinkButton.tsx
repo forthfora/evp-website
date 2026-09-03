@@ -4,8 +4,6 @@ import { Link } from 'react-router';
 
 import { cn } from '@/utils/cn';
 
-import { BlobBackground } from './blob-background';
-
 interface InteractiveLinkButtonProps {
 	/** Route the button navigates to. */
 	to: string;
@@ -59,9 +57,6 @@ export function InteractiveLinkButton({
 			)}
 			style={{ backgroundColor: 'var(--color-accent)' }}
 		>
-			{/* Blobs */}
-			<BlobBackground />
-
 			{/* Spotlight */}
 			<span
 				className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"

@@ -17,7 +17,7 @@ export function ContactHero() {
 				whileInView={{ opacity: 1, y: 0 }}
 				viewport={{ once: true, amount: 1 }}
 				transition={{ duration: 0.5, ease: 'easeIn', delay: 0.15 }}
-				className="mx-auto max-w-4xl py-5 text-3xl font-bold italic"
+				className="mx-auto max-w-4xl py-5 text-center text-3xl font-bold italic"
 			>
 				Whether you're a founder, investor or just curious about what EVP can offer - we'd love to
 				hear from you.
@@ -30,7 +30,7 @@ export function ContactHero() {
 				transition={{ duration: 0.5, ease: 'easeIn', delay: 0.3 }}
 				className="mx-auto max-w-2xl pb-5 text-xl"
 			>
-				<p className="mb-5">Stay in the loop. Find us on:</p>
+				<p className="mb-5 text-center">Stay in the loop. Find us on:</p>
 				<Socials className="mx-2 h-11 w-11 md:h-9 md:w-9" />
 			</motion.div>
 		</HeroSection>

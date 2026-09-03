@@ -17,7 +17,6 @@ interface PromoCardProps {
 
 /**
  * Glass promo card with an image, title, body, and optional link.
- * Used in HomePage "What We Do" and ContactPage "What We Offer" sections.
  */
 export function PromoCard({ image, title, body, to, index = 0, className }: PromoCardProps) {
 	const content = (

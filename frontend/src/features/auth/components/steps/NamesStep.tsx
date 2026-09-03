@@ -1,5 +1,5 @@
-import { buttonVariants } from '@/components/ui/button';
-import { inputVariants } from '@/components/ui/input';
+import { buttonVariants } from '@/components/ui/interactive/Button';
+import { inputVariants } from '@/components/ui/interactive/Input';
 
 import { ErrorBanner } from '../ErrorBanner';
 

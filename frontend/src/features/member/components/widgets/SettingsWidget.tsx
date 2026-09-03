@@ -1,10 +1,10 @@
 import { useState } from 'react';
 
 import { WidgetCard } from '@/components/ui';
-import { AnimatedCheckbox } from '@/components/ui/AnimatedCheckbox';
-import { buttonVariants } from '@/components/ui/button';
-import { inputVariants } from '@/components/ui/input';
-import { labelVariants } from '@/components/ui/label';
+import { AnimatedCheckbox } from '@/components/ui/interactive/AnimatedCheckbox';
+import { buttonVariants } from '@/components/ui/interactive/Button';
+import { inputVariants } from '@/components/ui/interactive/Input';
+import { labelVariants } from '@/components/ui/labels/Label';
 import { useChangeEmail, useRequestOtp, useUpdateMe } from '@/features/auth/api/api';
 import { useAuth } from '@/features/auth/hooks/use-auth';
 import { cn } from '@/utils/cn';

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import { RadialGlowOverlay } from './RadialGlowOverlay';
+import { RadialGlowOverlay } from '../RadialGlowOverlay';
 
 interface HeroSectionProps {
 	/** Background image URL. */
@@ -29,7 +29,7 @@ export function HeroSection({
 }: HeroSectionProps) {
 	return (
 		<div
-			className={`relative flex w-full items-center justify-center overflow-hidden ${minHeight} ${className}`}
+			className={`relative flex w-full items-center justify-center overflow-hidden pt-30 ${minHeight} ${className}`}
 		>
 			<img
 				src={image}

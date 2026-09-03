@@ -7,8 +7,8 @@ import whatWeDoImg2 from '@/assets/homepage/promo-conf.webp';
 import whatWeDoImg1 from '@/assets/homepage/promo-present.webp';
 import contactImg from '@/assets/homepage/promo-tower.webp';
 import { ContactSection, EventsBanner, PageMeta, PromoCard, SectionDivider } from '@/components/ui';
-import { MediaTextSection } from '@/components/ui/media-text-section';
-import { TextLink } from '@/components/ui/text-link';
+import { TextLink } from '@/components/ui/interactive/TextLink';
+import { MediaTextSection } from '@/components/ui/section/MediaTextSection';
 import { HomePageHero } from '@/features/homepage';
 import { fadeUp } from '@/utils/motion';
 

@@ -57,6 +57,7 @@ export function ContactFormSection() {
 			<MediaTextSection
 				image={contactImg}
 				imageAlt="Cathedral tower with Scottish flag"
+				imageHeight="h-160"
 				className="md:flex-row md:items-start"
 			>
 				<h2 id="email" className="-scroll-mt-25 text-4xl font-bold md:text-5xl">
@@ -83,7 +84,7 @@ export function ContactFormSection() {
 							autoComplete="name"
 							value={fields.name}
 							onChange={handleChange}
-							placeholder="Your full name"
+							placeholder="Your full name."
 							disabled={isSubmitting || isSuccess}
 							className={inputVariants({ size: 'md' })}
 						/>
@@ -104,7 +105,7 @@ export function ContactFormSection() {
 							autoComplete="email"
 							value={fields.email}
 							onChange={handleChange}
-							placeholder="[EMAIL]"
+							placeholder="you@example.com"
 							disabled={isSubmitting || isSuccess}
 							className={inputVariants({ size: 'md' })}
 						/>

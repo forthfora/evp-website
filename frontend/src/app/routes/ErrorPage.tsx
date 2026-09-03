@@ -1,6 +1,6 @@
 import { isRouteErrorResponse, useRouteError } from 'react-router';
 
-import { TextLink } from '@/components/ui/text-link';
+import { TextLink } from '@/components/ui/interactive/TextLink';
 
 export function ErrorPage() {
 	const error = useRouteError();

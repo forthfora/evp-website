@@ -12,7 +12,7 @@ import { HomePage } from './routes/HomePage';
 import { MemberDashboardPage } from './routes/MemberDashboardPage';
 import { StartupsPage } from './routes/StartupsPage';
 
-export const browserRouter = createBrowserRouter([
+export const router = createBrowserRouter([
 	{
 		path: '/',
 		element: <AppLayout />,

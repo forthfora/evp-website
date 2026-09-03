@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components -- the useAuth hook must live with the provider */
 import { createContext, type ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 
-import { browserRouter } from '@/app/router';
+import { router } from '@/app/router';
 import { fetchMe, logout as logoutRequest } from '@/features/auth/api/api';
 import type { MeResponse } from '@/features/auth/api/schemas';
 import { setUnauthorizedHandler } from '@/lib/api/api';
@@ -60,8 +60,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 					await logoutRequest();
 				} finally {
 					setUser(null);
-					const currentPath = browserRouter.state.location.pathname;
-					browserRouter.navigate(currentPath, {
+					const currentPath = router.state.location.pathname;
+					router.navigate(currentPath, {
 						viewTransition: true,
 					});
 				}
