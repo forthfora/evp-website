@@ -5,7 +5,7 @@ import startupsBkg from '@/assets/startups/startups-bkg.webp';
 import { HeroSection, InteractiveContactButton, PageMeta, UnderlinedTitle } from '@/components/ui';
 import { generateColumns, PartnersSection, StartupBlock, STARTUPS } from '@/features/startups';
 
-export default function StartupsPage() {
+export default function Startups() {
 	const columns = useMemo(() => generateColumns(STARTUPS), []);
 
 	return (

@@ -9,7 +9,7 @@ import {
 	UPCOMING_EVENTS,
 } from '@/features/events';
 
-export default function EventsPage() {
+export default function Events() {
 	return (
 		<div className="mx-auto flex w-full flex-col py-50">
 			<PageMeta

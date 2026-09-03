@@ -12,7 +12,7 @@ import { MediaTextSection } from '@/components/ui/section/MediaTextSection';
 import { HomePageHero } from '@/features/homepage';
 import { fadeUp } from '@/utils/motion';
 
-export default function HomePage() {
+export default function Home() {
 	return (
 		<div className="flex w-full flex-col">
 			<PageMeta title="Edinburgh VenturePoint" description="Where students build and invest." />

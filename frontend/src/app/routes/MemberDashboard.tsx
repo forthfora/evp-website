@@ -7,7 +7,7 @@ import type { Role } from '@/features/auth/api/schemas';
 import { useAuth } from '@/features/auth/hooks/use-auth';
 import { DashboardNav, getAvailablePages, getWidgetsForPage } from '@/features/member';
 
-export default function MemberDashboardPage() {
+export default function MemberDashboard() {
 	const { user } = useAuth();
 	const role = (user?.role ?? 'member') as Role;
 	const location = useLocation();

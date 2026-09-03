@@ -2,7 +2,7 @@ import { isRouteErrorResponse, useRouteError } from 'react-router';
 
 import { TextLink } from '@/components/ui/interactive/TextLink';
 
-export default function ErrorPage() {
+export default function Error() {
 	const error = useRouteError();
 
 	let title = "We're sorry, something's gone wrong...";
@@ -43,7 +43,7 @@ export default function ErrorPage() {
 		}
 
 		devDetails = typeof error.data === 'string' ? error.data : JSON.stringify(error.data, null, 2);
-	} else if (error instanceof Error) {
+	} else if (error instanceof globalThis.Error) {
 		errorMessage = error.message;
 		devDetails = error.stack;
 	} else if (typeof error === 'string') {
