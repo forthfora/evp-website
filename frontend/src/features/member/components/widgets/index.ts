@@ -3,6 +3,7 @@ import type { Role } from '@/features/auth/api/schemas';
 import { AdminUpdatesWidget } from './AdminUpdatesWidget';
 import { MembersWidget } from './MembersWidget';
 import { SettingsWidget } from './SettingsWidget';
+import { StartupDatabaseWidget } from './StartupDatabaseWidget';
 import { WelcomeWidget } from './WelcomeWidget';
 
 export interface Widget {
@@ -21,12 +22,12 @@ export const widgetRegistry: Widget[] = [
 		visibleTo: ['member', 'scout', 'committee', 'admin'],
 		component: WelcomeWidget,
 	},
-	// {
-	// 	id: 'startup-db',
-	// 	title: 'startup database',
-	// 	visibleTo: ['scout', 'committee', 'admin'],
-	// 	component: StartupDatabaseWidget,
-	// },
+	{
+		id: 'startup-db',
+		title: 'startup database',
+		visibleTo: ['scout', 'committee', 'admin'],
+		component: StartupDatabaseWidget,
+	},
 	{
 		id: 'members',
 		title: 'Members',

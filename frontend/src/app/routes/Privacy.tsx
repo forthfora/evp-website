@@ -187,10 +187,9 @@ export default function Privacy() {
 				<PolicyDropdown id="retention" title="How long we keep information">
 					<p>We retain your information as long as you have an account.</p>
 					<p>
-						You can request account deletion at any time via the membership dashboard. This will
-						delete all data associated with your account.
+						You can request account deletion at any time by reaching out to us. This will delete all
+						data associated with your account.
 					</p>
-					<p>Alternatively, you can reach out to us directly to request account deletion.</p>
 				</PolicyDropdown>
 
 				<PolicyDropdown id="complain" title="How to complain">

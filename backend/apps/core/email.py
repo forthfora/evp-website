@@ -82,10 +82,42 @@ def _build_email_html(body_html: str, *, preheader: str = "") -> str:
           <!-- Footer -->
           <tr>
             <td style="background-color:#f4f4f7; padding:16px 32px; text-align:center;">
-              <p style="margin:0; font-size:11px; color:#999999;">
+              <p style="margin:0 0 8px; font-size:11px; color:#999999;">
                 Edinburgh VenturePoint is an entrepreneurship and venture capital society at The University of Edinburgh.
               </p>
-              <br>
+
+              <!-- Site + policy links -->
+              <p style="margin:0 0 10px; font-size:11px; color:#999999;">
+                <a href="https://www.edinburghventurepoint.com" style="color:#999999; text-decoration:underline;">edinburghventurepoint.com</a>
+                &nbsp;|&nbsp;
+                <a href="https://www.edinburghventurepoint.com/privacy" style="color:#999999; text-decoration:underline;">Privacy Policy</a>
+                &nbsp;|&nbsp;
+                <a href="https://www.edinburghventurepoint.com/terms" style="color:#999999; text-decoration:underline;">Terms of Service</a>
+              </p>
+
+              <!-- Socials -->
+              <p style="margin:0 0 10px; font-size:0; line-height:0;">
+                <a href="https://www.linkedin.com/company/edinburghventurepoint/" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">
+                  <img
+                    src="https://www.edinburghventurepoint.com/icons/linkedin.png"
+                    alt="LinkedIn"
+                    width="24"
+                    height="24"
+                    style="display:inline-block; border:0; outline:none; text-decoration:none; vertical-align:middle;"
+                  >
+                </a>
+                &nbsp;&nbsp;
+                <a href="https://www.instagram.com/edinburghventurepoint/" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">
+                  <img
+                    src="https://www.edinburghventurepoint.com/icons/instagram.png"
+                    alt="Instagram"
+                    width="24"
+                    height="24"
+                    style="display:inline-block; border:0; outline:none; text-decoration:none; vertical-align:middle;"
+                  >
+                </a>
+              </p>
+
               <p style="margin:0; font-size:11px; color:#999999;">
                 &copy; 2026 Edinburgh VenturePoint. All rights reserved.
               </p>
@@ -186,27 +218,4 @@ def send_otp_email(email: str, code: str):
         subject="Your EVP Verification Code",
         body=_build_otp_body(code),
         preheader="Your Edinburgh VenturePoint verification code is inside.",
-    )
-
-
-# TODO: send welcome email on signup.
-def _build_welcome_body(name: str) -> str:
-    """Build the inner body content for a welcome email."""
-    return f"""
-<p style="margin:0 0 16px; font-size:30px; color:#333333; line-height:1.5;">
-  <b>Welcome, {name}!</b>
-</p>
-<p style="margin:0 0 16px; font-size:15px; color:#333333; line-height:1.5;">
-  Your Edinburgh VenturePoint account is ready to go. We're glad to have you with us.
-</p>
-<hr>
-"""
-
-
-def send_welcome_email(email: str, name: str):
-    return send_email(
-        to=email,
-        subject="Welcome to Edinburgh VenturePoint",
-        body=_build_welcome_body(name),
-        preheader="Your account is setup and ready to go!",
     )
