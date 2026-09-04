@@ -71,6 +71,13 @@ class RequestOTPTests(TestCase):
         response = self._request_code("delivered+test@resend.dev")
         assert response.status_code == 500
 
+    def test_request_code_rejects_invalid_email(self) -> None:
+        """A malformed email is rejected with 422 and no OTP is stored."""
+        response = self._request_code("not-an-email")
+        assert response.status_code == 422
+        assert "email" in response.json()["errors"]
+        assert EmailOTP.objects.count() == 0
+
     @patch("apps.accounts.api.send_otp_email")
     def test_request_code_cleans_up_stale_otps(self, mock_send) -> None:
         """Requesting a code purges consumed/expired OTP records."""
@@ -215,6 +222,12 @@ class VerifyOTPTests(TestCase):
         """verify-code returns 401 when no OTP was requested."""
         response = self._verify("delivered+no_otp@resend.dev", "123456")
         assert response.status_code == 401
+
+    def test_verify_code_rejects_invalid_email(self) -> None:
+        """A malformed email is rejected with 422 before any OTP lookup."""
+        response = self._verify("not-an-email", "123456")
+        assert response.status_code == 422
+        assert "email" in response.json()["errors"]
 
     def test_verify_code_max_attempts_lockout(self) -> None:
         """After max failed attempts, even the correct code is rejected."""
@@ -412,9 +425,20 @@ class EmailChangeTests(TestCase):
         user.refresh_from_db()
         assert user.email == "delivered+old@resend.dev"
 
+    def test_change_email_rejects_invalid_email(self) -> None:
+        """A malformed new email is rejected with 422."""
+        user = User.objects.create_user("delivered+old@resend.dev")
+        self.client.force_login(user)
+
+        resp = self._change("not-an-email", "123456")
+        assert resp.status_code == 422
+        assert "email" in resp.json()["errors"]
+        user.refresh_from_db()
+        assert user.email == "delivered+old@resend.dev"
+
     def test_change_email_requires_auth(self) -> None:
         """Changing email without a session returns 401."""
-        resp = self._change("[EMAIL]", "123456")
+        resp = self._change("delivered+new@resend.dev", "123456")
         assert resp.status_code == 401
 
 
@@ -438,7 +462,9 @@ class RateLimitTests(TestCase):
     def test_request_otp_allows_five_requests(self) -> None:
         """The first 5 requests to request_otp from the same IP succeed."""
         for i in range(5):
-            resp = self._post(self.request_url, {"email": f"[EMAIL]{i}@[EMAIL]"})
+            resp = self._post(
+                self.request_url, {"email": f"delivered+rl{i}@resend.dev"}
+            )
             assert resp.status_code == 200, (
                 f"request {i + 1} returned {resp.status_code}"
             )
@@ -446,12 +472,14 @@ class RateLimitTests(TestCase):
     def test_request_otp_blocks_sixth_request(self) -> None:
         """The 6th request within the window is blocked (429) by django-ratelimit."""
         for i in range(5):
-            resp = self._post(self.request_url, {"email": f"[EMAIL]{i}@[EMAIL]"})
+            resp = self._post(
+                self.request_url, {"email": f"delivered+rl{i}@resend.dev"}
+            )
             assert resp.status_code == 200, (
                 f"request {i + 1} returned {resp.status_code}"
             )
 
-        resp = self._post(self.request_url, {"email": "[EMAIL]"})
+        resp = self._post(self.request_url, {"email": "delivered+rl@resend.dev"})
         assert resp.status_code == 429
         # The detail reports the exact time left on the limiter window.
         detail = resp.json()["detail"]
@@ -461,30 +489,34 @@ class RateLimitTests(TestCase):
     def test_request_otp_rate_limit_resets_after_cache_clear(self) -> None:
         """Clearing the cache resets the IP rate-limit counter."""
         for i in range(5):
-            resp = self._post(self.request_url, {"email": f"[EMAIL]{i}@[EMAIL]"})
+            resp = self._post(
+                self.request_url, {"email": f"delivered+rl{i}@resend.dev"}
+            )
             assert resp.status_code == 200, (
                 f"request {i + 1} returned {resp.status_code}"
             )
 
         cache.clear()
         # After clearing, the first request should succeed again.
-        resp = self._post(self.request_url, {"email": "[EMAIL]"})
+        resp = self._post(self.request_url, {"email": "delivered+rl@resend.dev"})
         assert resp.status_code == 200
 
     def test_request_otp_different_emails_share_ip_counter(self) -> None:
         """The rate limit is per IP, not per email — different emails aren't isolated."""  # noqa: E501
         for i in range(4):
-            resp = self._post(self.request_url, {"email": f"[EMAIL]{i}@[EMAIL]"})
+            resp = self._post(
+                self.request_url, {"email": f"delivered+rl{i}@resend.dev"}
+            )
             assert resp.status_code == 200, (
                 f"request {i + 1} returned {resp.status_code}"
             )
 
         # The 5th request (any email) still succeeds.
-        resp = self._post(self.request_url, {"email": "[EMAIL]"})
+        resp = self._post(self.request_url, {"email": "delivered+rl@resend.dev"})
         assert resp.status_code == 200
 
         # The 6th request is blocked.
-        resp = self._post(self.request_url, {"email": "[EMAIL]"})
+        resp = self._post(self.request_url, {"email": "delivered+rl@resend.dev"})
         assert resp.status_code == 429
 
     def test_verify_otp_allows_ten_requests(self) -> None:
@@ -492,7 +524,7 @@ class RateLimitTests(TestCase):
         for _ in range(10):
             resp = self._post(
                 self.verify_url,
-                {"email": "[EMAIL]", "code": "000000"},
+                {"email": "delivered+rl@resend.dev", "code": "000000"},
             )
             # The view returns 401 (bad code) but the rate-limiter lets it through.
             assert resp.status_code == 401
@@ -502,13 +534,13 @@ class RateLimitTests(TestCase):
         for _ in range(10):
             resp = self._post(
                 self.verify_url,
-                {"email": "[EMAIL]", "code": "000000"},
+                {"email": "delivered+rl@resend.dev", "code": "000000"},
             )
             assert resp.status_code == 401
 
         resp = self._post(
             self.verify_url,
-            {"email": "[EMAIL]", "code": "000000"},
+            {"email": "delivered+rl@resend.dev", "code": "000000"},
         )
         assert resp.status_code == 429
         # The detail reports the exact time left on the limiter window.
@@ -519,8 +551,14 @@ class RateLimitTests(TestCase):
     def test_verify_otp_rate_limit_resets_after_cache_clear(self) -> None:
         """Clearing the cache resets the IP rate-limit counter for verify_otp."""
         for _ in range(10):
-            self._post(self.verify_url, {"email": "[EMAIL]", "code": "000000"})
+            self._post(
+                self.verify_url,
+                {"email": "delivered+rl@resend.dev", "code": "000000"},
+            )
 
         cache.clear()
-        resp = self._post(self.verify_url, {"email": "[EMAIL]", "code": "000000"})
+        resp = self._post(
+            self.verify_url,
+            {"email": "delivered+rl@resend.dev", "code": "000000"},
+        )
         assert resp.status_code == 401  # view rejects the code, but rate-limit is OK

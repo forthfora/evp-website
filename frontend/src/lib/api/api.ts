@@ -97,7 +97,8 @@ async function toApiRequestError(res: Response): Promise<ApiRequestError> {
 
 	if (body && typeof body === 'object' && 'errors' in body) {
 		const errors = (body as { errors: Record<string, string[]> }).errors;
-		return new ApiRequestError(res.status, null, errors);
+		const detail = 'email' in errors ? 'Sorry, the email provided is invalid.' : null;
+		return new ApiRequestError(res.status, detail, errors);
 	}
 
 	if (body && typeof body === 'object' && 'detail' in body) {

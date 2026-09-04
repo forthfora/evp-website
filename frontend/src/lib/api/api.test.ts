@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { z } from 'zod';
 
-import { apiFetch, resetCsrfToken, setUnauthorizedHandler } from './api';
+import { apiFetch, requestJson, resetCsrfToken, setUnauthorizedHandler } from './api';
+import { ApiRequestError } from './errors';
 
 function jsonResponse(body: unknown, status = 200): Response {
 	return new Response(JSON.stringify(body), {
@@ -105,5 +107,61 @@ describe('apiFetch', () => {
 		await apiFetch('/api/accounts/me');
 
 		expect(handler).toHaveBeenCalledTimes(1);
+	});
+});
+
+describe('requestJson error normalisation', () => {
+	const fetchMock = vi.fn();
+
+	beforeEach(() => {
+		fetchMock.mockReset();
+		vi.stubGlobal('fetch', fetchMock);
+		resetCsrfToken();
+	});
+
+	afterEach(() => {
+		vi.unstubAllGlobals();
+	});
+
+	it('shows a friendly message for invalid-email validation errors', async () => {
+		fetchMock.mockImplementation((url: string) =>
+			url === '/api/csrf'
+				? Promise.resolve(jsonResponse({ csrftoken: 'tok-1' }))
+				: Promise.resolve(
+						jsonResponse({ errors: { email: ['value is not a valid email address'] } }, 422),
+					),
+		);
+
+		const err: unknown = await requestJson('/api/accounts/otp/request', z.void(), {
+			method: 'POST',
+			body: '{}',
+		}).then(
+			() => null,
+			(e: unknown) => e,
+		);
+
+		expect(err).toBeInstanceOf(ApiRequestError);
+		const apiErr = err as ApiRequestError;
+		expect(apiErr.message).toBe('Sorry, the email provided is invalid.');
+		expect(apiErr.status).toBe(422);
+		expect(apiErr.fieldErrors).toEqual({
+			email: ['value is not a valid email address'],
+		});
+	});
+
+	it('keeps the generic fallback for other field errors', async () => {
+		fetchMock.mockImplementation(() =>
+			Promise.resolve(jsonResponse({ errors: { resource: ['not found'] } }, 404)),
+		);
+
+		const err: unknown = await requestJson('/api/nope', z.void()).then(
+			() => null,
+			(e: unknown) => e,
+		);
+
+		expect(err).toBeInstanceOf(ApiRequestError);
+		const apiErr = err as ApiRequestError;
+		expect(apiErr.message).toBe('Request failed.');
+		expect(apiErr.status).toBe(404);
 	});
 });

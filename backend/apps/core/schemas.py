@@ -1,4 +1,5 @@
 from ninja import Schema
+from pydantic import EmailStr
 
 
 class CSRFOut(Schema):
@@ -7,5 +8,5 @@ class CSRFOut(Schema):
 
 class ContactIn(Schema):
     name: str
-    email: str
+    email: EmailStr
     message: str

@@ -105,3 +105,16 @@ class ContactEndpointTests(TestCase):
 
         assert response.status_code == 500
         assert "detail" in response.json()
+
+    def test_contact_rejects_invalid_email(self) -> None:
+        """A malformed email is rejected with 422 and nothing is sent."""
+        response = self._post(
+            {
+                "name": "Alice Smith",
+                "email": "not-an-email",
+                "message": "Hello",
+            }
+        )
+
+        assert response.status_code == 422
+        assert "email" in response.json()["errors"]

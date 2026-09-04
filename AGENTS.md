@@ -147,14 +147,11 @@ npm run test:watch # Vitest (watch mode)
 
 ## Known Issues & Discrepancies
 
-Findings from the 2026-09 project-wide review. Previously listed items (Python 3.12 Dockerfile, missing `MEDIA_URL`/`MEDIA_ROOT`, unused `PyJWT`/`django-redis`, SMTP dead code, `docs/adr/` references, unused `/admin/` Nginx proxy, contact-form HTML injection, per-process rate limits, OTP codes stored plaintext, unsanitised Markdown in admin update emails) have been resolved and removed.
+Findings from the 2026-09 project-wide review. Previously listed items (Python 3.12 Dockerfile, missing `MEDIA_URL`/`MEDIA_ROOT`, unused `PyJWT`/`django-redis`, SMTP dead code, `docs/adr/` references, unused `/admin/` Nginx proxy, contact-form HTML injection, per-process rate limits, OTP codes stored plaintext, unsanitised Markdown in admin update emails, email schemas accepting any string) have been resolved and removed.
 
 ### Security
 
 - **No HSTS** (`SECURE_HSTS_SECONDS` unset in Django) and **no security headers in Nginx** (no CSP, `X-Content-Type-Options`, `Referrer-Policy`, etc.).
-- **User enumeration by design**: `POST /api/accounts/otp/request` returns `{exists}` — an accepted trade-off for the unified login/signup UX, but it lets anyone probe for registered emails.
-- **Email schemas accept any string**: `RequestOTPIn.email`, `VerifyOTPIn.email`, `EmailChangeIn.email`, `ContactIn.email` are plain `str`, not `EmailStr`.
-- **OTP request rate-limited per IP only** — no per-recipient cooldown, so a rotating-IP attacker can email-bomb any inbox.
 
 ### Correctness / robustness
 

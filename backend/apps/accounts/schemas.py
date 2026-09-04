@@ -1,8 +1,9 @@
 from ninja import Schema
+from pydantic import EmailStr
 
 
 class RequestOTPIn(Schema):
-    email: str
+    email: EmailStr
 
 
 class RequestOTPOut(Schema):
@@ -10,7 +11,7 @@ class RequestOTPOut(Schema):
 
 
 class VerifyOTPIn(Schema):
-    email: str
+    email: EmailStr
     code: str
 
 
@@ -35,7 +36,7 @@ class MePatchIn(Schema):
 
 
 class EmailChangeIn(Schema):
-    email: str
+    email: EmailStr
     code: str
 
 
