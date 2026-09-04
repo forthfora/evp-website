@@ -24,14 +24,11 @@ SECRET_KEY = config("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DEBUG", default=False, cast=bool)
 
-ALLOWED_HOSTS = [
-    "www.edinburghventurepoint.com",
-    "edinburghventurepoint.com",
-    "localhost",
-    "127.0.0.1",
-    "backend",
-    "tardis.ac",
-]
+ALLOWED_HOSTS = config(
+    "ALLOWED_HOSTS",
+    default="",
+    cast=lambda v: [s.strip() for s in v.split(",") if s.strip()],
+)
 
 # Security Settings for Production
 if not DEBUG:
@@ -41,25 +38,13 @@ if not DEBUG:
     CSRF_COOKIE_SECURE = True
 
 # CORS & CSRF Origins
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:16017",
-    "http://127.0.0.1:16017",
-    # "https://tardis.ac",
-    "https://edinburghventurepoint.com",
-    "https://www.edinburghventurepoint.com",
-]
-
-if DEBUG:
-    CSRF_TRUSTED_ORIGINS += [
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-    ]
-
-CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS.copy()
+CSRF_TRUSTED_ORIGINS = config(
+    "CSRF_TRUSTED_ORIGINS",
+    default="",
+    cast=lambda v: [s.strip() for s in v.split(",") if s.strip()],
+)
+CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS
 CORS_ALLOW_CREDENTIALS = True
-
-# Frontend URL (used for cookie domain logic and redirects)
-FRONTEND_URL = config("FRONTEND_URL", default="http://localhost:16017")
 
 # Email Configuration
 TO_EMAILS = config(
@@ -67,7 +52,7 @@ TO_EMAILS = config(
     default="",
     cast=lambda v: [s.strip() for s in v.split(",") if s.strip()],
 )
-FROM_EMAIL = "noreply@mail.edinburghventurepoint.com"
+FROM_EMAIL = config("FROM_EMAIL", default="noreply@mail.edinburghventurepoint.com")
 RESEND_API_KEY = config("RESEND_API_KEY", default=None)
 
 RESEND_ENABLED = config("RESEND_ENABLED", default=False, cast=bool)

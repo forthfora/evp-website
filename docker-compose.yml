@@ -1,5 +1,6 @@
 services:
   frontend:
+    image: ghcr.io/forthfora/evp-website/frontend:latest
     container_name: evp-frontend
     depends_on:
       - backend
@@ -13,6 +14,7 @@ services:
       dockerfile: Dockerfile
 
   backend:
+    image: ghcr.io/forthfora/evp-website/backend:latest
     container_name: evp-backend
     command: >
       sh -c "uv run python manage.py migrate --noinput &&
