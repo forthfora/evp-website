@@ -147,12 +147,11 @@ npm run test:watch # Vitest (watch mode)
 
 ## Known Issues & Discrepancies
 
-Findings from the 2026-09 project-wide review. Previously listed items (Python 3.12 Dockerfile, missing `MEDIA_URL`/`MEDIA_ROOT`, unused `PyJWT`/`django-redis`, SMTP dead code, `docs/adr/` references, unused `/admin/` Nginx proxy) have been resolved and removed.
+Findings from the 2026-09 project-wide review. Previously listed items (Python 3.12 Dockerfile, missing `MEDIA_URL`/`MEDIA_ROOT`, unused `PyJWT`/`django-redis`, SMTP dead code, `docs/adr/` references, unused `/admin/` Nginx proxy, contact-form HTML injection) have been resolved and removed.
 
 ### Security
 
 - **Rate limits are per-process, not shared**: no cache backend is configured, so `django-ratelimit` falls back to Django's `LocMemCache`. With multiple Gunicorn workers, every limit is effectively multiplied by the worker count — including the OTP brute-force limits. Fix: configure a shared cache (e.g. Redis/Memcached) for `django-ratelimit`.
-- **Contact-form HTML injection**: `send_contact_email` interpolates user-supplied `name`/`email`/`message` into the shared HTML email template without escaping (`apps/core/api.py` → `apps/core/email.py`). A submitter can inject arbitrary HTML/links into emails received by the EVP team (phishing vector). Escape the values or send the body as plain text.
 - **Unsanitised Markdown HTML**: `AdminUpdatesWidget` renders `marked.parse()` output via `dangerouslySetInnerHTML` without sanitisation, and the same HTML is emailed to all opted-in members. Input is admin-only (low practical risk), but a compromised admin account could script-inject member inboxes. Consider DOMPurify.
 - **OTP codes stored in plaintext** in `EmailOTP.code` and compared non-constant-time (`apps/accounts/models.py`). A DB leak exposes live codes. Hash the code (e.g. SHA-256) and compare with `secrets.compare_digest`.
 - **No HSTS** (`SECURE_HSTS_SECONDS` unset in Django) and **no security headers in Nginx** (no CSP, `X-Content-Type-Options`, `Referrer-Policy`, etc.).

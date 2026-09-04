@@ -100,7 +100,7 @@ class EmailServiceTests(TestCase):
         )
         mock_send.assert_called_once()
         params = mock_send.call_args[1]["params"]
-        assert "Hi there," in params["html"]
+        assert "Hi EVP Member," in params["html"]
 
     @override_settings(RESEND_ENABLED=True)
     @patch("apps.core.email.resend.Emails.send")
@@ -115,4 +115,4 @@ class EmailServiceTests(TestCase):
         )
         mock_send.assert_called_once()
         params = mock_send.call_args[1]["params"]
-        assert "Hi there," in params["html"]
+        assert "Hi EVP Member," in params["html"]

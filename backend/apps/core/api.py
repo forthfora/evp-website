@@ -1,3 +1,4 @@
+import html as html_lib
 import logging
 
 from django.conf import settings
@@ -34,8 +35,24 @@ def get_csrf(request):
 )
 @ratelimit(key="ip", rate="5/10m", block=True)
 def send_contact_email(request, data: ContactIn):
-    email_subject = f"EVP Contact: {data.name}"
-    email_body = f"Name: {data.name}\nEmail: {data.email}\n\nMessage:\n{data.message}"
+    # Collapse all whitespace in the subject-line name so line breaks in a
+    # submitter's name cannot smuggle extra headers past the mail API.
+    name_oneline = " ".join(data.name.split())
+    email_subject = f"EVP Contact: {name_oneline}"
+
+    # The body is interpolated into the shared HTML email template, so every
+    # user-supplied value must be HTML-escaped: unescaped input would let a
+    # submitter inject arbitrary HTML/links into emails the EVP team receives.
+    safe_name = html_lib.escape(name_oneline)
+    safe_email = html_lib.escape(data.email)
+    safe_message = html_lib.escape(data.message).replace("\n", "<br>")
+
+    email_body = (
+        f"<p><b>Name:</b> {safe_name}</p>"
+        f"<p><b>Email:</b> {safe_email}</p>"
+        f"<p><b>Message:</b></p>"
+        f"<p>{safe_message}</p>"
+    )
 
     try:
         send_email(
