@@ -85,7 +85,7 @@ export function CodeStep({
 						type="button"
 						onClick={onResend}
 						disabled={isResending}
-						className={buttonVariants({ intent: 'link', size: 'sm' })}
+						className="text-foreground/50 hover:text-foreground button-underline mx-auto mt-2 cursor-pointer text-center text-sm underline-offset-2 transition-colors"
 					>
 						{isResending ? 'resending...' : "Didn't receive anything? Request a new code."}
 					</button>
@@ -94,7 +94,7 @@ export function CodeStep({
 						type="button"
 						onClick={onBack}
 						disabled={isVerifying}
-						className={buttonVariants({ intent: 'link', size: 'sm' })}
+						className="text-foreground/50 hover:text-foreground button-underline mx-auto mt-2 cursor-pointer text-center text-sm underline-offset-2 transition-colors"
 					>
 						Use a different email.
 					</button>

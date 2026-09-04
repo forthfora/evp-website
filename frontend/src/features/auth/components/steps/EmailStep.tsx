@@ -1,9 +1,12 @@
 import { motion } from 'framer-motion';
+import { useState } from 'react';
 
 import joinImage from '@/assets/homepage/promo-bar.webp';
 import { SectionDivider } from '@/components/ui';
+import { AnimatedCheckbox } from '@/components/ui/interactive/AnimatedCheckbox';
 import { buttonVariants } from '@/components/ui/interactive/button/button-variants';
 import { inputVariants } from '@/components/ui/interactive/input/input-variants';
+import { TextLink } from '@/components/ui/interactive/TextLink';
 
 import { ErrorBanner } from '../ErrorBanner';
 
@@ -24,6 +27,8 @@ export function EmailStep({
 	error,
 	playIntro,
 }: EmailStepProps) {
+	const [agreed, setAgreed] = useState(false);
+
 	return (
 		<div className="mx-auto flex w-full max-w-5xl items-center justify-center gap-14">
 			<motion.img
@@ -50,19 +55,19 @@ export function EmailStep({
 				</motion.p>
 
 				<motion.div
-					className="glass-box rounded-2xl p-8 shadow-xl md:p-10"
+					className="glass-box rounded-2xl p-8 shadow-xl md:p-8"
 					initial={playIntro ? { opacity: 0, x: 40 } : false}
 					animate={{ opacity: 1, x: 0 }}
 					transition={{ duration: 0.6, delay: 0.5, ease: 'easeOut' }}
 				>
-					<p className="text-foreground mb-8 text-center text-3xl">
+					<p className="text-foreground mb-4 text-center text-3xl">
 						<b>Just enter your email below.</b>
 					</p>
 					<p className="text-foreground mb-2 text-center text-xl">
 						We'll send you a one-time code to get you setup.
 					</p>
 
-					<p className="text-foreground-muted text-md mb-4 text-center">
+					<p className="text-foreground-muted text-md text-center">
 						Or if you're already a member, we'll sign you in.
 					</p>
 
@@ -74,7 +79,7 @@ export function EmailStep({
 							value={email}
 							onChange={(e) => onEmailChange(e.target.value)}
 							onKeyDown={(e) => {
-								if (e.key === 'Enter') onSubmit();
+								if (e.key === 'Enter' && agreed) onSubmit();
 							}}
 							placeholder="you@example.com"
 							autoComplete="email"
@@ -82,10 +87,18 @@ export function EmailStep({
 							className={inputVariants({ size: 'md' })}
 						/>
 
+						<div className="flex items-start gap-3">
+							<AnimatedCheckbox checked={agreed} onChange={setAgreed} disabled={isSubmitting} />
+							<span className="text-foreground-muted text-left text-sm">
+								I have read and agree to EVP's <TextLink to="/terms">Terms of Service</TextLink> and{' '}
+								<TextLink to="/privacy">Privacy Policy</TextLink>.
+							</span>
+						</div>
+
 						<button
 							type="button"
 							onClick={onSubmit}
-							disabled={isSubmitting || !email.trim()}
+							disabled={isSubmitting || !email.trim() || !agreed}
 							className={buttonVariants({ intent: 'primary', size: 'md' })}
 						>
 							{isSubmitting ? 'sending...' : 'send code'}
