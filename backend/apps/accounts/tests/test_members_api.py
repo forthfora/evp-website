@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 import hypothesis.strategies as st
+from django.core.cache import cache
 from django.test import TestCase
 from hypothesis import given, settings
 from hypothesis.extra.django import TestCase as HypothesisTestCase
@@ -117,6 +118,10 @@ class SendAllEmailsTests(TestCase):
     """Tests for the admin-only /api/accounts/sendall endpoint."""
 
     def setUp(self) -> None:
+        # Clear the (per-process) rate-limit cache: sendall is limited to
+        # 3/10m and counts would otherwise leak between tests.
+        cache.clear()
+
         self.url = "/api/accounts/sendall"
 
         self.admin = User.objects.create_user(
@@ -188,3 +193,35 @@ class SendAllEmailsTests(TestCase):
         assert data["sent"] == 0
         assert data["skipped"] == 1
         assert data["failed"] == 3
+
+    @patch("apps.accounts.api.send_email")
+    def test_sendall_sanitises_html_body(self, mock_send) -> None:
+        """Script tags, event handlers, and javascript: URLs are stripped
+        from the body before any email is sent."""
+        self.client.force_login(self.admin)
+
+        resp = self.client.post(
+            self.url,
+            {
+                "subject": "Test",
+                "body": '<p>Hi</p><script>alert("xss")</script>'
+                '<img src="x.png" onerror="alert(1)">'
+                '<a href="javascript:alert(2)">click</a>',
+            },
+            content_type="application/json",
+        )
+        assert resp.status_code == 200
+
+        # Every sent email carries the sanitised body only.
+        assert mock_send.call_count == 3
+        for call in mock_send.call_args_list:
+            body = call.kwargs["body"]
+            assert "<script>" not in body
+            assert "alert(" not in body
+            assert "onerror" not in body
+            assert "javascript:" not in body
+            assert "<p>Hi</p>" in body
+
+        # The echoed body in the response is the sanitised one too.
+        assert "<script>" not in resp.json()["body"]
+        assert "<p>Hi</p>" in resp.json()["body"]

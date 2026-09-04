@@ -1,4 +1,3 @@
-import { marked } from 'marked';
 import { useMemo, useState } from 'react';
 
 import { Button, FormField, PrimaryButton, WidgetCard } from '@/components/ui';
@@ -7,12 +6,9 @@ import { useMembers, useSendAllEmail } from '@/features/auth/api/api';
 import type { SendAllEmailOut } from '@/features/auth/api/schemas';
 import { cn } from '@/utils/cn';
 
-const CONFIRM_PHRASE = 'CONFIRM';
+import { renderMarkdown } from './render-markdown';
 
-/** Render the admin's Markdown to the HTML that is injected into the email. */
-function renderMarkdown(src: string): string {
-	return marked.parse(src, { async: false, breaks: true, gfm: true });
-}
+const CONFIRM_PHRASE = 'CONFIRM';
 
 /** Styling for the rendered Markdown preview, mirroring the email's look. */
 const PREVIEW_STYLES = [

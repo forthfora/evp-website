@@ -1,3 +1,4 @@
+import nh3
 from django.contrib.auth import login, logout
 from django.http import HttpRequest, HttpResponse
 from ninja import Router
@@ -196,6 +197,12 @@ def list_members(request: HttpRequest):
 )
 @ratelimit(key="user_or_ip", rate="3/10m", block=True)
 def send_all_members_email(request: HttpRequest, payload: SendAllEmailIn):
+    # The body is admin-authored HTML (rendered from Markdown in the admin
+    # UI and sanitised there with DOMPurify). Sanitise server-side anyway:
+    # the API can be called directly, and a compromised admin account must
+    # not be able to inject scripts/unsafe markup into member inboxes.
+    safe_body = nh3.clean(payload.body)
+
     sent = 0
     skipped = 0
     failed = 0
@@ -209,7 +216,7 @@ def send_all_members_email(request: HttpRequest, payload: SendAllEmailIn):
             send_email(
                 to=user.email,
                 subject=payload.subject,
-                body=payload.body,
+                body=safe_body,
             )
             sent += 1
 
@@ -219,7 +226,7 @@ def send_all_members_email(request: HttpRequest, payload: SendAllEmailIn):
 
     return SendAllEmailOut(
         subject=payload.subject,
-        body=payload.body,
+        body=safe_body,
         sent=sent,
         skipped=skipped,
         failed=failed,
