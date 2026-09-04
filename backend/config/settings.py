@@ -135,6 +135,23 @@ else:
         }
     }
 
+# Cache Configuration
+CACHE_URL = config("CACHE_URL", default=None)
+
+if CACHE_URL:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": CACHE_URL,
+        }
+    }
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        }
+    }
+
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {

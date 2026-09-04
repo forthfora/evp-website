@@ -30,7 +30,7 @@ router = Router(tags=["Accounts"])
     response={200: RequestOTPOut, 429: None, 500: None},
     summary="Sends an OTP and reports whether an account exists.",
 )
-@ratelimit(key="ip", rate="5/3m", block=True)
+@ratelimit(key="ip", rate="5/10m", block=True)
 def request_otp(request, payload: RequestOTPIn):
     email = payload.email
 

@@ -148,14 +148,14 @@ change; the rule lives in a single backend permission function.
 - **Performance**: static assets served via Nginx; frontend built and minified by Vite.
 - **SEO**: `robots.txt` and `sitemap.xml` served from `frontend/public/`.
 - **Reliability**: fully containerized (Docker Compose); production deploys automated via GitHub Actions (CI test job → matrix build → GHCR → SSH rolling update); images tagged with both `latest` and commit SHA for rollback capability.
-- **Security**: environment-based secrets (`backend/.env` in dev; a root-level `.env` via compose `env_file` in prod), CORS restricted to explicit origins, session + CSRF auth, no committed credentials. All API endpoints rate-limited via `django-ratelimit` (per-IP or per-user-or-IP; counts are currently per-process, so limits scale with the Gunicorn worker count). Nginx also applies rate limiting (`limit_req_zone`: global 20r/s, API 5r/s). Known gaps (see AGENTS.md Known Issues): no HSTS or Nginx security headers, OTP codes stored plaintext, and unescaped contact-form content interpolated into HTML emails.
+- **Security**: environment-based secrets (`backend/.env` in dev; a root-level `.env` via compose `env_file` in prod), CORS restricted to explicit origins, session + CSRF auth, no committed credentials. All API endpoints rate-limited via `django-ratelimit` (per-IP or per-user-or-IP), with counts stored in a shared Redis cache so limits are enforced across all Gunicorn workers (per-process `LocMemCache` fallback for single-process local dev/tests). Nginx also applies rate limiting (`limit_req_zone`: global 20r/s, API 5r/s). Known gaps (see AGENTS.md Known Issues): no HSTS or Nginx security headers, and OTP codes stored plaintext.
 - **Maintainability**: TypeScript + ESLint/Prettier on the frontend; type-hinted Python + Pydantic schemas on the backend. Frontend tests via Vitest + @testing-library/react; backend tests via Django's test runner.
 
 ## 7. Technical Architecture
 
 - **Frontend**: React 19 + Vite 8 + TypeScript 6, React Router 7, Tailwind CSS 4, three.js, framer-motion. Path aliases `@/`. Served by Nginx on port 16017.
 - **Backend**: Django 6 + Django Ninja, Gunicorn (port 17017), MySQL in production.
-- **Infra**: Docker Compose orchestration; images in GHCR at `ghcr.io/forthfora/evp-website/<service>`; CI/CD on push to `main` (test → build-and-push → deploy) and on PRs (test + build only). GHA layer caching (type=gha) used for faster builds.
+- **Infra**: Docker Compose orchestration (frontend, backend, Redis cache); images in GHCR at `ghcr.io/forthfora/evp-website/<service>`; CI/CD on push to `main` (test → build-and-push → deploy) and on PRs (test + build only). GHA layer caching (type=gha) used for faster builds.
 - See `AGENTS.md` at the repo root for detailed developer/agent guidance.
 
 ## 8. Success Metrics

@@ -36,8 +36,8 @@ evp-website/
 │   └── Dockerfile            # node:24-alpine build stage → nginx:alpine
 ├── docs/                     # Documentation (specs.md PRD)
 ├── .github/workflows/deploy.yml  # CI/CD: test → build → GHCR → SSH deploy
-├── docker-compose.yml        # Local dev orchestration
-├── docker-compose.prod.yml   # Prod: pulls pre-built GHCR images (env_file: .env at repo root)
+├── docker-compose.yml        # Local dev orchestration (frontend, backend, redis)
+├── docker-compose.prod.yml   # Prod: pulls pre-built GHCR images + redis (env_file: .env at repo root)
 ├── evp-website.code-workspace
 ├── package.json              # ⚠️ Vestigial root manifest (only class-variance-authority) — not a workspace
 └── README.md
@@ -50,7 +50,7 @@ evp-website/
 - **Python ≥ 3.13** (`pyproject.toml`, `backend/Dockerfile`, and CI are all aligned on 3.13), **Django 6.0.5**, **Django Ninja 1.6.2** (REST API, Pydantic validation)
 - **Gunicorn** (WSGI server in prod), **uv** for dependency management
 - **Ruff** (linter, configured in `backend/pyproject.toml`); dev deps also include **pytest**, **pytest-django**, **hypothesis**, **freezegun** (though tests currently run via `manage.py test`)
-- **django-ratelimit** — all API endpoints are rate-limited (per-IP or per-user-or-IP); see decorators on each route. ⚠️ No cache backend is configured, so counts live in per-process `LocMemCache` and every limit is effectively multiplied by the Gunicorn worker count (see Known Issues)
+- **django-ratelimit** — all API endpoints are rate-limited (per-IP or per-user-or-IP); see decorators on each route. Counts live in the default Django cache: **Redis** (shared across Gunicorn workers) when `CACHE_URL` is set — both compose files set `CACHE_URL=redis://redis:6379/0` against a `redis:7-alpine` service — falling back to per-process `LocMemCache` when unset (single-process local dev/tests only)
 - **django-jazzmin** — admin theme (using default config, no custom `JAZZMIN_SETTINGS`)
 - DB: MySQL/PyMySQL in prod (psycopg also available as a dep); SQLite (`db.sqlite3`) locally
 - Custom `User` model in `apps/accounts/models.py` — email is `USERNAME_FIELD`; `first_name`/`last_name`; **`username` is an auto-generated, globally-unique, immutable user ID** (UUID hex, never the email, never shown in the UI) that keeps a user's activity attributable even if their email changes. Four roles (`member` default, `scout`, `committee`, `admin`), elevated manually via the Django admin. Passwordless **session-based** OTP auth for members: `POST /api/accounts/otp/request` (returns `{exists}` — drives the unified login/signup flow) + `/otp/verify` (returns `{created}`; sets a Django session cookie, no JWT), `POST /api/accounts/logout`, profile `GET /api/accounts/me`, profile update `PATCH /api/accounts/me`, OTP-verified email change `POST /api/accounts/email/change`, member list `GET /api/accounts/members` (admin/committee only), admin send-all-email `POST /api/accounts/sendall`, CSRF bootstrap at `GET /api/csrf`
@@ -141,17 +141,16 @@ npm run test:watch # Vitest (watch mode)
 - **Frontend features**: each feature lives in `src/features/<name>/` (components, hooks, API clients); thin route wrappers live in `src/app/routes/` and are registered in `src/app/router.tsx` under `AppLayout`; unknown paths throw a 404 `Response` from the catch-all loader.
 - **Styling**: Tailwind utility classes preferred; merge classes with `clsx` + `tailwind-merge` via the `cn()` utility at `src/utils/cn.ts`. Use `cva` (class-variance-authority) for component variants. No new CSS files — extract repeated Tailwind patterns into React components in `src/components/ui/`. No `@apply` in CSS. Route files should contain only composition and data assembly, not inline component definitions.
 - **Lint/format before committing**: `npm run lint` and `npm run format` must pass.
-- **Env vars**: in local dev the backend reads from `backend/.env` (python-decouple; the dev compose mounts `./backend` to `/app` so the file is found there). In production, `docker-compose.prod.yml` uses `env_file: .env` at the **repo root** on the server. Never commit `.env` (note: there is no root `.gitignore` — see Known Issues).
+- **Env vars**: in local dev the backend reads from `backend/.env` (python-decouple; the dev compose mounts `./backend` to `/app` so the file is found there). In production, `docker-compose.prod.yml` uses `env_file: .env` at the **repo root** on the server. Both compose files additionally set `CACHE_URL=redis://redis:6379/0` directly in the backend service `environment:` (not a secret). Never commit `.env` (note: there is no root `.gitignore` — see Known Issues).
 - **Static files**: backend `collectstatic` output goes to the shared `django_static` Docker volume; Nginx serves it — don't change the volume wiring without updating both `docker-compose.yml` and `frontend/nginx.conf`.
 - Don't edit `backend/staticfiles/` (generated artifacts).
 
 ## Known Issues & Discrepancies
 
-Findings from the 2026-09 project-wide review. Previously listed items (Python 3.12 Dockerfile, missing `MEDIA_URL`/`MEDIA_ROOT`, unused `PyJWT`/`django-redis`, SMTP dead code, `docs/adr/` references, unused `/admin/` Nginx proxy, contact-form HTML injection) have been resolved and removed.
+Findings from the 2026-09 project-wide review. Previously listed items (Python 3.12 Dockerfile, missing `MEDIA_URL`/`MEDIA_ROOT`, unused `PyJWT`/`django-redis`, SMTP dead code, `docs/adr/` references, unused `/admin/` Nginx proxy, contact-form HTML injection, per-process rate limits) have been resolved and removed.
 
 ### Security
 
-- **Rate limits are per-process, not shared**: no cache backend is configured, so `django-ratelimit` falls back to Django's `LocMemCache`. With multiple Gunicorn workers, every limit is effectively multiplied by the worker count — including the OTP brute-force limits. Fix: configure a shared cache (e.g. Redis/Memcached) for `django-ratelimit`.
 - **Unsanitised Markdown HTML**: `AdminUpdatesWidget` renders `marked.parse()` output via `dangerouslySetInnerHTML` without sanitisation, and the same HTML is emailed to all opted-in members. Input is admin-only (low practical risk), but a compromised admin account could script-inject member inboxes. Consider DOMPurify.
 - **OTP codes stored in plaintext** in `EmailOTP.code` and compared non-constant-time (`apps/accounts/models.py`). A DB leak exposes live codes. Hash the code (e.g. SHA-256) and compare with `secrets.compare_digest`.
 - **No HSTS** (`SECURE_HSTS_SECONDS` unset in Django) and **no security headers in Nginx** (no CSP, `X-Content-Type-Options`, `Referrer-Policy`, etc.).

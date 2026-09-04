@@ -80,7 +80,8 @@ The local development server will be available at: `http://localhost:16017`
 * **Ruff:** Python linter.
 
 ### Infrastructure & Deployment
-* **Docker & Docker Compose:** Complete containerization of frontend, backend, and database environments.
+* **Docker & Docker Compose:** Complete containerization of frontend, backend, Redis cache, and database environments.
+* **Redis:** Shared cache backing `django-ratelimit`, so rate-limit counts are enforced globally across all Gunicorn workers.
 * **Nginx:** Reverse proxy server handling incoming requests, rate limiting, legacy URL redirects, and serving static files.
 * **Gunicorn:** Python WSGI HTTP Server for UNIX, serving the Django application in production.
 * **GitHub Actions (CI/CD):** Automated test → build → push to GHCR → SSH deploy on push to `main`.
@@ -96,7 +97,7 @@ The local development server will be available at: `http://localhost:16017`
 * **Internal startup database:** Scouts and above can create/edit founders and startups; admins can manage all entries.
 * **Admin communications:** Admins can send update emails to all opted-in members.
 * **Django admin panel:** Jazzmin-themed admin at `/evp-dev/` for managing users, roles, and content.
-* **Rate limiting:** Both Nginx and Django (`django-ratelimit`) apply per-endpoint rate limits.
+* **Rate limiting:** Both Nginx and Django (`django-ratelimit`) apply per-endpoint rate limits, with counts shared across workers via Redis.
 
 <br/>
 

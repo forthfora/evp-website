@@ -16,6 +16,8 @@ services:
   backend:
     image: ghcr.io/forthfora/evp-website/backend:latest
     container_name: evp-backend
+    depends_on:
+      - redis
     command: >
       sh -c "uv run python manage.py migrate --noinput &&
              uv run python manage.py collectstatic --noinput &&
@@ -28,5 +30,13 @@ services:
       context: ./backend
       dockerfile: Dockerfile
 
+  redis:
+    image: redis:7-alpine
+    container_name: evp-redis
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+
 volumes:
   django_static:
+  redis_data:
