@@ -3,6 +3,7 @@ from unittest.mock import patch
 from django.conf import settings
 from django.test import TestCase, override_settings
 
+from apps.accounts.models import User
 from apps.core.email import send_email, send_otp_email
 
 
@@ -65,3 +66,53 @@ class EmailServiceTests(TestCase):
         assert params["to"] == ["delivered+user3@resend.dev"]
         assert params["subject"] == "Hello"
         assert "This is the body." in params["html"]
+
+    @override_settings(RESEND_ENABLED=True)
+    @patch("apps.core.email.resend.Emails.send")
+    def test_send_email_greets_known_recipient_by_first_name(self, mock_send) -> None:
+        """The greeting is personalised from the recipient's database record."""
+        User.objects.create_user(
+            email="delivered+named@resend.dev",
+            first_name="Ada",
+            last_name="Lovelace",
+        )
+        send_email(
+            to="delivered+named@resend.dev",
+            subject="Hello",
+            body="This is the body.",
+        )
+        mock_send.assert_called_once()
+        params = mock_send.call_args[1]["params"]
+        assert "Hi Ada," in params["html"]
+        # The greeting comes before the body content.
+        assert params["html"].index("Hi Ada,") < params["html"].index(
+            "This is the body."
+        )
+
+    @override_settings(RESEND_ENABLED=True)
+    @patch("apps.core.email.resend.Emails.send")
+    def test_send_email_falls_back_when_recipient_unknown(self, mock_send) -> None:
+        """Unknown recipients (no account) get a generic greeting."""
+        send_email(
+            to="delivered+unknown@resend.dev",
+            subject="Hello",
+            body="This is the body.",
+        )
+        mock_send.assert_called_once()
+        params = mock_send.call_args[1]["params"]
+        assert "Hi there," in params["html"]
+
+    @override_settings(RESEND_ENABLED=True)
+    @patch("apps.core.email.resend.Emails.send")
+    def test_send_email_falls_back_for_multiple_recipients(self, mock_send) -> None:
+        """Emails addressed to several recipients get a generic greeting."""
+        User.objects.create_user(email="delivered+one@resend.dev", first_name="One")
+        User.objects.create_user(email="delivered+two@resend.dev", first_name="Two")
+        send_email(
+            to=["delivered+one@resend.dev", "delivered+two@resend.dev"],
+            subject="Hello",
+            body="This is the body.",
+        )
+        mock_send.assert_called_once()
+        params = mock_send.call_args[1]["params"]
+        assert "Hi there," in params["html"]

@@ -81,8 +81,8 @@ export function AdminUpdatesWidget() {
 
 	return (
 		<WidgetCard
-			title="Send email to all members"
-			description="Send an email update to all members of EVP (who haven't opted out)."
+			title="Send Email to All Members"
+			description="Send an email update to all members of EVP (excluding those who have opted out)."
 		>
 			{step === 'compose' ? (
 				<form className="mt-5 flex flex-col gap-3" onSubmit={reviewDraft}>
@@ -117,8 +117,8 @@ export function AdminUpdatesWidget() {
 					)}
 
 					{result && (
-						<div className="rounded-lg border border-green-400 p-3 text-sm" role="status">
-							<p className="text-3xl font-semibold text-green-400">
+						<div className="rounded-lg border border-green-600 p-3 text-sm" role="status">
+							<p className="text-3xl font-semibold text-green-600">
 								Sent to {result.sent} member{result.sent === 1 ? '' : 's'}
 							</p>
 							<p className="text-foreground/60 mt-1">
@@ -171,7 +171,11 @@ export function AdminUpdatesWidget() {
 						{/* The HTML here is the admin's own Markdown, rendered for preview. */}
 						<div className="border-accent/20 rounded-lg border bg-[#f4f4f7] p-4">
 							<div className="mx-auto w-full max-w-120 overflow-hidden rounded-lg bg-white">
-								<div className={PREVIEW_STYLES} dangerouslySetInnerHTML={{ __html: bodyHtml }} />
+								<div className={PREVIEW_STYLES}>
+									{/* Greeting is filled in per-recipient on the backend. */}
+									<p className="text-[15px] text-[#333333]">Hi [First Name],</p>
+									<div dangerouslySetInnerHTML={{ __html: bodyHtml }} />
+								</div>
 								{/* Signature + logo, mirroring the shared email template. */}
 								<div className="px-6 pb-6 text-[#333333]">
 									<p className="mt-6 text-sm font-bold">
@@ -238,7 +242,7 @@ export function AdminUpdatesWidget() {
 							</div>
 						</div>
 						<p className="text-foreground/50 text-xs">
-							Preview of content. Signature and footer are added automatically.
+							Preview of content. Greeting, signature and footer are added automatically.
 						</p>
 					</div>
 

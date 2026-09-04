@@ -28,11 +28,6 @@ import {
 
 export { ApiRequestError };
 
-/**
- * Typed API client for the session-auth accounts endpoints.
- * See `docs/todo.md` for the authoritative endpoint reference.
- */
-
 export async function requestOtp(email: string): Promise<RequestOTPOut> {
 	return requestJson('/api/accounts/otp/request', RequestOTPOutSchema, {
 		method: 'POST',

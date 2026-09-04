@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 
 import { WidgetCard } from '@/components/ui';
 import { useMembers } from '@/features/auth/api/api';
-import { type MemberOut,RoleColors } from '@/features/auth/api/schemas';
+import { type MemberOut, RoleColors } from '@/features/auth/api/schemas';
 import { cn } from '@/utils/cn';
 
 type SortField = keyof Pick<
@@ -19,12 +19,12 @@ interface Column {
 }
 
 const COLUMNS: Column[] = [
-	{ field: 'email', label: 'email' },
-	{ field: 'first_name', label: 'first name' },
-	{ field: 'last_name', label: 'last name' },
-	{ field: 'role', label: 'role' },
-	{ field: 'date_joined', label: 'joined' },
-	{ field: 'receives_update_emails', label: 'email updates' },
+	{ field: 'email', label: 'Email' },
+	{ field: 'first_name', label: 'First Name' },
+	{ field: 'last_name', label: 'Last Name' },
+	{ field: 'role', label: 'Role' },
+	{ field: 'date_joined', label: 'Joined' },
+	{ field: 'receives_update_emails', label: 'Email Updates' },
 ];
 
 function compareMembers(a: MemberOut, b: MemberOut, field: SortField): number {
@@ -63,10 +63,7 @@ export function MembersWidget() {
 	}
 
 	return (
-		<WidgetCard
-			title="Member List"
-			description="All members of EVP registered to the site. Only visible to committee members."
-		>
+		<WidgetCard title="Member List" description="All members of EVP registered to the site.">
 			<div className="mt-5">
 				{isLoading && <p className="text-foreground/60 text-sm">Loading members...</p>}
 

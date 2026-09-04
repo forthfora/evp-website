@@ -1,3 +1,4 @@
+import html as html_lib
 import logging
 
 from django.conf import settings
@@ -134,6 +135,34 @@ def _build_email_html(body_html: str, *, preheader: str = "") -> str:
 """  # noqa: E501
 
 
+def _build_greeting(recipients: list[str]) -> str:
+    """Build the personalised greeting line prepended to every email.
+
+    Looks up the recipient in the database and uses their first name.
+    Falls back to ``Hi there,`` when the recipient is unknown (e.g. an
+    email address that has no account yet) or when the email is addressed
+    to multiple recipients.
+    """
+    name = ""
+    if len(recipients) == 1:
+        # Local import: keeps apps.core free of a hard accounts dependency
+        # at import time (accounts imports this module in its API).
+        from apps.accounts.models import User
+
+        name = (
+            User.objects.filter(email__iexact=recipients[0])
+            .values_list("first_name", flat=True)
+            .first()
+            or ""
+        )
+
+    display = html_lib.escape(name.strip()) if name.strip() else "there"
+    return (
+        '<p style="margin:0 0 24px; font-size:15px; color:#333333; line-height:1.5;">'
+        f"Hi {display},</p>"
+    )
+
+
 def send_email(
     to: str | list[str],
     subject: str,
@@ -155,7 +184,8 @@ def send_email(
     sender = from_email or settings.FROM_EMAIL
     recipients = [to] if isinstance(to, str) else to
 
-    html = _build_email_html(body, preheader=preheader)
+    greeting = _build_greeting(recipients)
+    html = _build_email_html(greeting + body, preheader=preheader)
 
     if not settings.RESEND_ENABLED:
         logger.info(
