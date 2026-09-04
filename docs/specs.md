@@ -5,7 +5,7 @@
 | **Product**      | Edinburgh VenturePoint (EVP) Website      |
 | **Status**       | Live — https://edinburghventurepoint.com  |
 | **Hosting**      | Tardis servers (https://tardisproject.uk) |
-| **Last updated** | 2026-08-27                                |
+| **Last updated** | 2026-09-04                                |
 
 ## 1. Overview
 
@@ -45,6 +45,8 @@ society communications.
 | Startups | `/startups` | Showcase of society-affiliated startups and partner organisations |
 | Events   | `/events`   | Upcoming and past events                                          |
 | Contact  | `/contact`  | Contact form / enquiry details                                    |
+| Privacy  | `/privacy`  | Privacy Policy (static legal copy)                                |
+| Terms    | `/terms`    | Terms of Service (static legal copy)                              |
 | Join     | `/join`     | Unified login/signup (email → OTP code → names if new)            |
 | Member   | `/member`   | Member dashboard (protected, role-based widgets)                  |
 | Error    | `*` (404)   | Friendly not-found / error page                                   |
@@ -137,14 +139,16 @@ change; the rule lives in a single backend permission function.
     with hash-based navigation (e.g. `/member#startups`). Widgets are registered
     in a central registry and shown/hidden based on the user's role. Pages:
     Home (welcome + account settings), Startup Database (scout+), Member List
-    (committee+), Admin (admin only).
+    (committee+), Admin (admin only). The Startup Database page is currently
+    disabled in the dashboard UI pending reimplementation; the `/api/startupdb`
+    endpoints remain live.
 
 ## 6. Non-Functional Requirements
 
 - **Performance**: static assets served via Nginx; frontend built and minified by Vite.
 - **SEO**: `robots.txt` and `sitemap.xml` served from `frontend/public/`.
 - **Reliability**: fully containerized (Docker Compose); production deploys automated via GitHub Actions (CI test job → matrix build → GHCR → SSH rolling update); images tagged with both `latest` and commit SHA for rollback capability.
-- **Security**: environment-based secrets (`backend/.env`), CORS restricted, session + CSRF auth, no committed credentials. All API endpoints rate-limited via `django-ratelimit` (per-IP or per-user-or-IP). Nginx also applies rate limiting (`limit_req_zone`: global 20r/s, API 5r/s).
+- **Security**: environment-based secrets (`backend/.env` in dev; a root-level `.env` via compose `env_file` in prod), CORS restricted to explicit origins, session + CSRF auth, no committed credentials. All API endpoints rate-limited via `django-ratelimit` (per-IP or per-user-or-IP; counts are currently per-process, so limits scale with the Gunicorn worker count). Nginx also applies rate limiting (`limit_req_zone`: global 20r/s, API 5r/s). Known gaps (see AGENTS.md Known Issues): no HSTS or Nginx security headers, OTP codes stored plaintext, and unescaped contact-form content interpolated into HTML emails.
 - **Maintainability**: TypeScript + ESLint/Prettier on the frontend; type-hinted Python + Pydantic schemas on the backend. Frontend tests via Vitest + @testing-library/react; backend tests via Django's test runner.
 
 ## 7. Technical Architecture

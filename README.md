@@ -81,7 +81,7 @@ The local development server will be available at: `http://localhost:16017`
 
 ### Infrastructure & Deployment
 * **Docker & Docker Compose:** Complete containerization of frontend, backend, and database environments.
-* **Nginx:** Reverse proxy server handling incoming requests, rate limiting, legacy URL redirects, and serving static/media files.
+* **Nginx:** Reverse proxy server handling incoming requests, rate limiting, legacy URL redirects, and serving static files.
 * **Gunicorn:** Python WSGI HTTP Server for UNIX, serving the Django application in production.
 * **GitHub Actions (CI/CD):** Automated test → build → push to GHCR → SSH deploy on push to `main`.
 
@@ -89,10 +89,10 @@ The local development server will be available at: `http://localhost:16017`
 
 # Key Features
 
-* **Public-facing pages:** Home, About, Startups showcase, Events, and Contact form.
+* **Public-facing pages:** Home, About, Startups showcase, Events, Contact form, Privacy Policy, and Terms of Service.
 * **Passwordless authentication:** Email-based one-time code (OTP) login with Django session cookies — no passwords for members.
 * **Role-based access control:** Four roles (`member`, `scout`, `committee`, `admin`) with a permission matrix governing startup database access, member list visibility, and admin communications.
-* **Member dashboard:** Protected area with role-filtered widgets — account settings, startup database, member list, and admin email tools.
+* **Member dashboard:** Protected area with role-filtered widgets: account settings, member list, and admin email tools.
 * **Internal startup database:** Scouts and above can create/edit founders and startups; admins can manage all entries.
 * **Admin communications:** Admins can send update emails to all opted-in members.
 * **Django admin panel:** Jazzmin-themed admin at `/evp-dev/` for managing users, roles, and content.
@@ -111,9 +111,9 @@ Browser → Nginx (port 16017) → React SPA (static files)
                            └── /static/ → Django collectstatic output
 ```
 
-* **Frontend** (`frontend/`): React 19 SPA built by Vite, served as static files by Nginx. All API calls go through a central `apiFetch` wrapper that handles CSRF tokens and session credentials. Routes are defined in `src/app/browser-router.tsx`.
+* **Frontend** (`frontend/`): React 19 SPA built by Vite, served as static files by Nginx. All API calls go through a central `apiFetch` wrapper that handles CSRF tokens and session credentials. Routes are defined in `src/app/router.tsx`, with thin page wrappers in `src/app/routes/` and feature modules in `src/features/`.
 * **Backend** (`backend/`): Django 6 + Django Ninja REST API. Custom `User` model with email-based login and four roles. Apps: `accounts` (auth, profiles, members), `core` (CSRF, contact, email service, permissions), `startupdb` (founder/startup CRUD).
 * **Infrastructure**: Docker Compose orchestrates frontend and backend containers. A shared `django_static` volume connects backend `collectstatic` output to Nginx. CI/CD builds images, pushes to GHCR, and deploys via SSH.
 
-See `AGENTS.md` at the repo root for detailed developer/agent guidance, and `docs/specs.md` for the full PRD.
+See `AGENTS.md` at the repo root for detailed developer/agent guidance (including known issues and security notes), and `docs/specs.md` for the full PRD.
 
