@@ -5,7 +5,7 @@
 | **Product**      | Edinburgh VenturePoint (EVP) Website      |
 | **Status**       | Live — https://edinburghventurepoint.com  |
 | **Hosting**      | Tardis servers (https://tardisproject.uk) |
-| **Last updated** | 2026-09-04                                |
+| **Last updated** | 2026-09-05                                |
 
 ## 1. Overview
 
@@ -148,8 +148,8 @@ change; the rule lives in a single backend permission function.
 
 - **Performance**: static assets served via Nginx; frontend built and minified by Vite.
 - **SEO**: `robots.txt` and `sitemap.xml` served from `frontend/public/`.
-- **Reliability**: fully containerized (Docker Compose); production deploys automated via GitHub Actions (CI test job → matrix build → GHCR → SSH rolling update); images tagged with both `latest` and commit SHA for rollback capability.
-- **Security**: environment-based secrets (`backend/.env` in dev; a root-level `.env` via compose `env_file` in prod), CORS restricted to explicit origins, session + CSRF auth, no committed credentials. All API endpoints rate-limited via `django-ratelimit` (per-IP or per-user-or-IP), with counts stored in a shared Redis cache so limits are enforced across all Gunicorn workers (per-process `LocMemCache` fallback for single-process local dev/tests). Nginx also applies rate limiting (`limit_req_zone`: global 20r/s, API 5r/s). Known gap (see AGENTS.md Known Issues): no HSTS or Nginx security headers.
+- **Reliability**: fully containerized (Docker Compose); production deploys automated via GitHub Actions (CI test job → matrix build → GHCR → SSH rolling update); images tagged with both `latest` and commit SHA (note: the prod compose currently pulls `:latest` only, so SHA-tag rollback requires manual retagging — see AGENTS.md).
+- **Security**: environment-based secrets (`backend/.env` in dev; a root-level `.env` via compose `env_file` in prod), CORS restricted to explicit origins, session + CSRF auth, no committed credentials. All API endpoints rate-limited via `django-ratelimit` (per-IP or per-user-or-IP), with counts stored in a shared Redis cache so limits are enforced across all Gunicorn workers when `CACHE_URL` is set (per-process `LocMemCache` fallback otherwise — note that neither compose file currently sets `CACHE_URL`; see AGENTS.md Known Issues). Nginx also applies rate limiting (`limit_req_zone`: global 20r/s, API 5r/s). Security headers (HSTS, CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy) are enforced at the Nginx edge (see AGENTS.md for the full list and rationale).
 - **Maintainability**: TypeScript + ESLint/Prettier on the frontend; type-hinted Python + Pydantic schemas on the backend. Frontend tests via Vitest + @testing-library/react; backend tests via Django's test runner.
 
 ## 7. Technical Architecture

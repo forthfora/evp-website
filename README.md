@@ -81,7 +81,7 @@ The local development server will be available at: `http://localhost:16017`
 
 ### Infrastructure & Deployment
 * **Docker & Docker Compose:** Complete containerization of frontend, backend, Redis cache, and database environments.
-* **Redis:** Shared cache backing `django-ratelimit`, so rate-limit counts are enforced globally across all Gunicorn workers.
+* **Redis:** Cache backing `django-ratelimit` — when `CACHE_URL` is enabled, rate-limit counts are shared globally across all Gunicorn workers (per-process cache fallback otherwise; see AGENTS.md Known Issues).
 * **Nginx:** Reverse proxy server handling incoming requests, rate limiting, legacy URL redirects, and serving static files.
 * **Gunicorn:** Python WSGI HTTP Server for UNIX, serving the Django application in production.
 * **GitHub Actions (CI/CD):** Automated test → build → push to GHCR → SSH deploy on push to `main`.
