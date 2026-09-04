@@ -10,6 +10,8 @@ import { cn } from '@/utils/cn';
 interface AuthSectionProps {
 	/** Size of the Join EVP button. */
 	size?: 'default' | 'large';
+	/** Extra Tailwind classes for the Join EVP button (e.g. width on mobile). */
+	className?: string;
 }
 
 /**
@@ -17,7 +19,7 @@ interface AuthSectionProps {
  * authenticated, or the "Join EVP" button when not. Used by both
  * `HeaderActions` and `HeroActions`.
  */
-export function AuthSection({ size = 'default' }: AuthSectionProps) {
+export function AuthSection({ size = 'default', className }: AuthSectionProps) {
 	const { isAuthenticated, user, logout } = useAuth();
 	const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 	const logoutButtonRef = useRef<HTMLButtonElement>(null);
@@ -68,6 +70,7 @@ export function AuthSection({ size = 'default' }: AuthSectionProps) {
 					className={cn(
 						'tracking-widest uppercase',
 						size === 'large' ? 'px-8 py-3 text-base' : 'px-6 py-2 text-sm',
+						className,
 					)}
 					ariaLabel="Join EVP"
 				>
