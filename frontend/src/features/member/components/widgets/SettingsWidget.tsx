@@ -50,10 +50,23 @@ export function SettingsWidget() {
 
 	async function handleSendEmailCode() {
 		setEmailMsg(null);
-		if (!newEmail.trim()) return;
+		const trimmed = newEmail.trim();
+		if (!trimmed) return;
+
+		if (trimmed.toLowerCase() === user?.email?.toLowerCase()) {
+			setEmailMsg({ ok: false, text: 'This is already your email address.' });
+			return;
+		}
 
 		try {
-			await requestOtpMut.mutateAsync({ email: newEmail.trim() });
+			const out = await requestOtpMut.mutateAsync({ email: trimmed });
+			if (out.exists) {
+				setEmailMsg({
+					ok: false,
+					text: 'An account with this email already exists. Please use a different email address.',
+				});
+				return;
+			}
 			setEmailStep('code');
 		} catch (err) {
 			setEmailMsg({ ok: false, text: err instanceof Error ? err.message : 'Failed to send code.' });

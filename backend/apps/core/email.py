@@ -136,13 +136,7 @@ def _build_email_html(body_html: str, *, preheader: str = "") -> str:
 
 
 def _build_greeting(recipients: list[str]) -> str:
-    """Build the personalised greeting line prepended to every email.
-
-    Looks up the recipient in the database and uses their first name.
-    Falls back to ``Hi there,`` when the recipient is unknown (e.g. an
-    email address that has no account yet) or when the email is addressed
-    to multiple recipients.
-    """
+    """Build the personalised greeting line prepended to every email."""
     name = ""
     if len(recipients) == 1:
         # Local import: keeps apps.core free of a hard accounts dependency
@@ -156,7 +150,7 @@ def _build_greeting(recipients: list[str]) -> str:
             or ""
         )
 
-    display = html_lib.escape(name.strip()) if name.strip() else "there"
+    display = html_lib.escape(name.strip()) if name.strip() else "EVP Member"
     return (
         '<p style="margin:0 0 24px; font-size:15px; color:#333333; line-height:1.5;">'
         f"Hi {display},</p>"
@@ -217,9 +211,6 @@ def send_email(
 def _build_otp_body(code: str) -> str:
     """Build the inner body content for an OTP verification email."""
     return f"""
-<p style="margin:0 0 16px; font-size:30px; color:#333333; line-height:1.5;">
-  <b>Hello!</b>
-</p>
 <p style="margin:0 0 16px; font-size:15px; color:#333333; line-height:1.5;">
   We're sending you this because you requested a verification code for your Edinburgh VenturePoint account.
 </p>
