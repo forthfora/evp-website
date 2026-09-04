@@ -54,7 +54,8 @@ society communications.
 ### 4.2 Backend Capabilities
 
 - **Accounts**: custom email-based user model, **passwordless authentication**
-  (one-time email code → Django **session** cookie, CSRF-protected — no JWT).
+  (one-time email code → Django **session** cookie, CSRF-protected — no JWT;
+  codes are stored hashed (SHA-256) and compared constant-time).
   Every user has an auto-generated, globally-unique, immutable `username` ID
   (created on account creation, never shown in the UI) so activity stays
   attributable if the email changes. Unified login/signup: `POST
@@ -148,7 +149,7 @@ change; the rule lives in a single backend permission function.
 - **Performance**: static assets served via Nginx; frontend built and minified by Vite.
 - **SEO**: `robots.txt` and `sitemap.xml` served from `frontend/public/`.
 - **Reliability**: fully containerized (Docker Compose); production deploys automated via GitHub Actions (CI test job → matrix build → GHCR → SSH rolling update); images tagged with both `latest` and commit SHA for rollback capability.
-- **Security**: environment-based secrets (`backend/.env` in dev; a root-level `.env` via compose `env_file` in prod), CORS restricted to explicit origins, session + CSRF auth, no committed credentials. All API endpoints rate-limited via `django-ratelimit` (per-IP or per-user-or-IP), with counts stored in a shared Redis cache so limits are enforced across all Gunicorn workers (per-process `LocMemCache` fallback for single-process local dev/tests). Nginx also applies rate limiting (`limit_req_zone`: global 20r/s, API 5r/s). Known gaps (see AGENTS.md Known Issues): no HSTS or Nginx security headers, and OTP codes stored plaintext.
+- **Security**: environment-based secrets (`backend/.env` in dev; a root-level `.env` via compose `env_file` in prod), CORS restricted to explicit origins, session + CSRF auth, no committed credentials. All API endpoints rate-limited via `django-ratelimit` (per-IP or per-user-or-IP), with counts stored in a shared Redis cache so limits are enforced across all Gunicorn workers (per-process `LocMemCache` fallback for single-process local dev/tests). Nginx also applies rate limiting (`limit_req_zone`: global 20r/s, API 5r/s). Known gap (see AGENTS.md Known Issues): no HSTS or Nginx security headers.
 - **Maintainability**: TypeScript + ESLint/Prettier on the frontend; type-hinted Python + Pydantic schemas on the backend. Frontend tests via Vitest + @testing-library/react; backend tests via Django's test runner.
 
 ## 7. Technical Architecture

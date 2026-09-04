@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.utils import timezone
 from freezegun import freeze_time
 
-from apps.accounts.models import EmailOTP, User
+from apps.accounts.models import EmailOTP, User, hash_otp_code
 from apps.core.email import EmailSendError
 
 
@@ -77,8 +77,10 @@ class RequestOTPTests(TestCase):
         with freeze_time(timezone.now() - timedelta(minutes=30)):
             EmailOTP.objects.create(email="delivered+stale@resend.dev")
 
-        used = EmailOTP.objects.create(email="delivered+stale@resend.dev")
-        assert used.try_consume(used.code) is True
+        used = EmailOTP.objects.create(
+            email="delivered+stale@resend.dev", code=hash_otp_code("654321")
+        )
+        assert used.try_consume("654321") is True
 
         assert self._request_code("delivered+fresh@resend.dev").status_code == 200
 

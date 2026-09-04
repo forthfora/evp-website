@@ -39,10 +39,10 @@ def request_otp(request, payload: RequestOTPIn):
     EmailOTP.cleanup()
 
     exists = User.objects.filter(email=email).exists()
-    otp = EmailOTP.objects.create(email=email)
+    _, code = EmailOTP.issue(email)
 
     try:
-        send_otp_email(email, otp.code)
+        send_otp_email(email, code)
 
     except EmailSendError as err:
         logger.exception("Failed to send OTP email")

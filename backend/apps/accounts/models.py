@@ -1,3 +1,4 @@
+import hashlib
 import secrets
 import uuid
 from datetime import timedelta
@@ -15,6 +16,20 @@ def get_otp_expiry():
 def generate_otp_code() -> str:
     """Generate a random 6-digit numeric OTP code."""
     return f"{secrets.randbelow(1_000_000):06d}"
+
+
+def hash_otp_code(code: str) -> str:
+    """Hash an OTP code for at-rest storage (SHA-256 hex digest).
+
+    Codes are persisted only in hashed form so that a database leak does
+    not expose live (unconsumed, unexpired) codes.
+    """
+    return hashlib.sha256(code.encode()).hexdigest()
+
+
+def generate_hashed_otp_code() -> str:
+    """Default for EmailOTP.code: a hashed random code (never plaintext)."""
+    return hash_otp_code(generate_otp_code())
 
 
 def generate_username() -> str:
@@ -111,9 +126,10 @@ class User(AbstractUser):
 
 class EmailOTP(models.Model):
     email = models.EmailField()
+    # SHA-256 hex digest of the 6-digit code — never the plaintext code.
     code = models.CharField(
-        default=generate_otp_code,
-        max_length=6,
+        default=generate_hashed_otp_code,
+        max_length=64,
         editable=False,
     )
 
@@ -152,11 +168,24 @@ class EmailOTP(models.Model):
             models.Q(consumed=True) | models.Q(expires_at__lt=timezone.now())
         ).delete()[0]
 
+    @classmethod
+    def issue(cls, email: str) -> "tuple[EmailOTP, str]":
+        """Create a new OTP for `email`; returns (record, plaintext code).
+
+        The plaintext code is returned exactly once, for delivery (email);
+        only its SHA-256 hash is persisted.
+        """
+        code = generate_otp_code()
+        otp = cls.objects.create(email=email, code=hash_otp_code(code))
+        return otp, code
+
     def try_consume(self, code: str) -> bool:
         self.attempts += 1
         self.save(update_fields=["attempts"])
 
-        if code != self.code:
+        # Constant-time comparison of the hashed candidate against the
+        # stored hash (which is itself the SHA-256 digest of the real code).
+        if not secrets.compare_digest(hash_otp_code(code), self.code):
             return False
 
         if not self.is_valid:
