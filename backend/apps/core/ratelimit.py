@@ -14,6 +14,13 @@ if TYPE_CHECKING:
     from django.http import HttpRequest, HttpResponse
 
 
+def client_ip(request: HttpRequest) -> str:
+    forwarded = request.META.get("HTTP_X_FORWARDED_FOR", "")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.META["REMOTE_ADDR"]
+
+
 def _format_time_left(seconds: int) -> str:
     """Format a wait as e.g. '45 seconds' or '9 minutes and 30 seconds'."""
     minutes, seconds = divmod(seconds, 60)

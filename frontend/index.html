@@ -24,18 +24,8 @@
         <meta name="twitter:title" content="Edinburgh VenturePoint" />
         <meta name="twitter:description" content="Where students build and invest." />
 
-		<!-- Handles theme before the page loads, prevents flicker on refresh -->
-		<script>
-			(function () {
-				const savedTheme = localStorage.getItem('app-theme');
-				if (savedTheme === 'dark' || savedTheme === 'light') {
-					document.documentElement.setAttribute('data-theme', savedTheme);
-				} else {
-					const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-					document.documentElement.setAttribute('data-theme', systemPrefersDark ? 'dark' : 'light');
-				}
-			})();
-		</script>
+		<!-- Handles theme before the page loads, prevents flicker on refresh. -->
+		<script src="/theme-init.js"></script>
 	</head>
 	<body>
 		<noscript>This website relies on JavaScript to run. Please enable it to access the content.</noscript>

@@ -152,6 +152,8 @@ else:
         }
     }
 
+RATELIMIT_IP_META_KEY = "apps.core.ratelimit.client_ip"
+
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {

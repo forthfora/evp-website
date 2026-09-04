@@ -456,8 +456,35 @@ class RateLimitTests(TestCase):
         self.send_patch.start()
         self.addCleanup(self.send_patch.stop)
 
-    def _post(self, url: str, payload: dict):
-        return self.client.post(url, payload, content_type="application/json")
+    def _post(self, url: str, payload: dict, **extra):
+        return self.client.post(url, payload, content_type="application/json", **extra)
+
+    def test_rate_limits_are_per_client_ip_via_x_forwarded_for(self) -> None:
+        """Anonymous limits key on X-Forwarded-For (overwritten by nginx with
+        the real client IP), so different clients get separate buckets."""
+        for _ in range(5):
+            resp = self._post(
+                self.request_url,
+                {"email": "delivered+xff1@resend.dev"},
+                HTTP_X_FORWARDED_FOR="203.0.113.1",
+            )
+            assert resp.status_code == 200
+
+        # Same client IP: the 6th request within the window is blocked.
+        resp = self._post(
+            self.request_url,
+            {"email": "delivered+xff1@resend.dev"},
+            HTTP_X_FORWARDED_FOR="203.0.113.1",
+        )
+        assert resp.status_code == 429
+
+        # A different client IP has its own bucket and is not blocked.
+        resp = self._post(
+            self.request_url,
+            {"email": "delivered+xff2@resend.dev"},
+            HTTP_X_FORWARDED_FOR="203.0.113.2",
+        )
+        assert resp.status_code == 200
 
     def test_request_otp_allows_five_requests(self) -> None:
         """The first 5 requests to request_otp from the same IP succeed."""

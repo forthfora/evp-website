@@ -87,6 +87,7 @@ evp-website/
 
 - Docker + Docker Compose; Nginx serves frontend on port **16017** and proxies to backend (Gunicorn on **17017**)
 - Nginx also rate-limits (`limit_req_zone`: global 20r/s, API 5r/s) and handles legacy URL redirects (`/investing` → `/contact#scout-programme`, `/meet-the-team` → `/about#meet-the-team`, `/partners` → `/contact#network`)
+- **Nginx security headers** (server-level, `always`): `Strict-Transport-Security` (1 year, includeSubDomains, preload), `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy`, and a CSP for the SPA (`script-src 'self'` — the theme bootstrap is the external `/theme-init.js`, not inline; `style-src 'unsafe-inline'` for React style props/framer-motion; `img-src ... https:` for admin email previews). HSTS is enforced at the edge (not via Django's `SECURE_HSTS_*`) so it covers static files and nginx error pages too, and to avoid duplicate headers. The **Django admin (`/evp-dev/`) is exempt from the CSP** (it needs inline scripts/styles) — that location repeats the other headers because any `add_header` in a location drops the server-level set. Both proxy locations `proxy_hide_header` the headers Django's middleware also sends (`X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`) so each appears exactly once
 - Images pushed to GHCR (repo-scoped): `ghcr.io/forthfora/evp-website/frontend`, `ghcr.io/forthfora/evp-website/backend`
 - CI/CD (`.github/workflows/deploy.yml`): on push to `main` → matrix test (frontend lint+build, backend tests) → matrix build-and-push to GHCR (tagged `latest` + commit SHA) → SSH deploy. The deploy script starts the rootless Podman socket, sets `DOCKER_HOST`, logs into GHCR with the `GHCR_DEPLOY_TOKEN` PAT, runs `docker-compose pull && docker-compose up -d --remove-orphans`, then `docker image prune -f`. On PRs: test + build only (no push/deploy). GHA layer caching (`type=gha`) used for faster builds.
 - CI uses **Node 24** for frontend, **Python 3.13** for backend (note: the frontend `Dockerfile` builds with `node:24-alpine`)
@@ -147,11 +148,7 @@ npm run test:watch # Vitest (watch mode)
 
 ## Known Issues & Discrepancies
 
-Findings from the 2026-09 project-wide review. Previously listed items (Python 3.12 Dockerfile, missing `MEDIA_URL`/`MEDIA_ROOT`, unused `PyJWT`/`django-redis`, SMTP dead code, `docs/adr/` references, unused `/admin/` Nginx proxy, contact-form HTML injection, per-process rate limits, OTP codes stored plaintext, unsanitised Markdown in admin update emails, email schemas accepting any string) have been resolved and removed.
-
-### Security
-
-- **No HSTS** (`SECURE_HSTS_SECONDS` unset in Django) and **no security headers in Nginx** (no CSP, `X-Content-Type-Options`, `Referrer-Policy`, etc.).
+Findings from the 2026-09 project-wide review. Previously listed items (Python 3.12 Dockerfile, missing `MEDIA_URL`/`MEDIA_ROOT`, unused `PyJWT`/`django-redis`, SMTP dead code, `docs/adr/` references, unused `/admin/` Nginx proxy, contact-form HTML injection, per-process rate limits, OTP codes stored plaintext, unsanitised Markdown in admin update emails, email schemas accepting any string, missing HSTS/security headers) have been resolved and removed.
 
 ### Correctness / robustness
 
