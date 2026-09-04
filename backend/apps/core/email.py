@@ -18,7 +18,9 @@ class EmailSendError(Exception):
     """Raised when an email fails to send, for any reason."""
 
 
-def _build_email_html(body_html: str, *, preheader: str = "") -> str:
+def _build_email_html(
+    body_html: str, *, preheader: str = "", include_signature: bool = True
+) -> str:
     """Wrap a chunk of body HTML in the standard EVP header/footer shell.
 
     Args:
@@ -26,10 +28,23 @@ def _build_email_html(body_html: str, *, preheader: str = "") -> str:
             ``_build_otp_body``). Should be a series of table rows / p tags
             that fit inside the shared content cell.
         preheader: Short hidden preview text shown in inbox clients.
+        include_signature: Whether to include the "Kind Regards" sign-off text.
 
     Returns:
         A complete, standalone HTML document ready to send.
     """
+
+    signature_html = ""
+    if include_signature:
+        signature_html = """
+              <!-- Signature -->
+              <p style="margin:24px 0 0; font-size:15px; color:#333333;">
+                <b>
+                Kind Regards,<br>
+                The Edinburgh VenturePoint team
+                </b>
+              </p>"""
+
     return f"""
 <!DOCTYPE html>
 <html>
@@ -54,14 +69,7 @@ def _build_email_html(body_html: str, *, preheader: str = "") -> str:
           <tr>
             <td style="padding:50px;">
               {body_html}
-
-              <!-- Signature -->
-              <p style="margin:24px 0 0; font-size:15px; color:#333333;">
-                <b>
-                Kind Regards,<br>
-                The Edinburgh VenturePoint team
-                </b>
-              </p>
+{signature_html}
 
               <!-- Image after signature -->
               <table role="presentation" cellpadding="0" cellspacing="0" style="margin-top:32px;">
@@ -85,38 +93,6 @@ def _build_email_html(body_html: str, *, preheader: str = "") -> str:
             <td style="background-color:#f4f4f7; padding:16px 32px; text-align:center;">
               <p style="margin:0 0 8px; font-size:11px; color:#999999;">
                 Edinburgh VenturePoint is an entrepreneurship and venture capital society at The University of Edinburgh.
-              </p>
-
-              <!-- Site + policy links -->
-              <p style="margin:0 0 10px; font-size:11px; color:#999999;">
-                <a href="https://www.edinburghventurepoint.com" style="color:#999999; text-decoration:underline;">edinburghventurepoint.com</a>
-                &nbsp;|&nbsp;
-                <a href="https://www.edinburghventurepoint.com/privacy" style="color:#999999; text-decoration:underline;">Privacy Policy</a>
-                &nbsp;|&nbsp;
-                <a href="https://www.edinburghventurepoint.com/terms" style="color:#999999; text-decoration:underline;">Terms of Service</a>
-              </p>
-
-              <!-- Socials -->
-              <p style="margin:0 0 10px; font-size:0; line-height:0;">
-                <a href="https://www.linkedin.com/company/edinburghventurepoint/" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">
-                  <img
-                    src="https://www.edinburghventurepoint.com/icons/linkedin.png"
-                    alt="LinkedIn"
-                    width="24"
-                    height="24"
-                    style="display:inline-block; border:0; outline:none; text-decoration:none; vertical-align:middle;"
-                  >
-                </a>
-                &nbsp;&nbsp;
-                <a href="https://www.instagram.com/edinburghventurepoint/" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">
-                  <img
-                    src="https://www.edinburghventurepoint.com/icons/instagram.png"
-                    alt="Instagram"
-                    width="24"
-                    height="24"
-                    style="display:inline-block; border:0; outline:none; text-decoration:none; vertical-align:middle;"
-                  >
-                </a>
               </p>
 
               <p style="margin:0; font-size:11px; color:#999999;">
@@ -164,6 +140,7 @@ def send_email(
     *,
     preheader: str = "",
     from_email: str | None = None,
+    include_signature: bool = True,
 ):
     """Send an email via Resend, or log it when sending is disabled.
     Args:
@@ -179,7 +156,9 @@ def send_email(
     recipients = [to] if isinstance(to, str) else to
 
     greeting = _build_greeting(recipients)
-    html = _build_email_html(greeting + body, preheader=preheader)
+    html = _build_email_html(
+        greeting + body, preheader=preheader, include_signature=include_signature
+    )
 
     if not settings.RESEND_ENABLED:
         logger.info(
