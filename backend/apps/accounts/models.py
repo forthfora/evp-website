@@ -1,4 +1,3 @@
-import math
 import secrets
 import uuid
 from datetime import timedelta
@@ -146,38 +145,12 @@ class EmailOTP(models.Model):
         """Maximum number of failed verification attempts before lockout."""
         return 5
 
-    THROTTLE_WINDOW = timedelta(minutes=10)
-    THROTTLE_TIERS = (5, 15, 30, 60, 300)
-    THROTTLE_MAX_WAIT = 3600
-
     @classmethod
-    def throttle_wait_seconds(cls, email: str) -> int:
-        """Seconds the next request for `email` must wait, based on recent ones."""
-        since = timezone.now() - cls.THROTTLE_WINDOW
-        count = cls.objects.filter(email=email, created_at__gte=since).count()
-        if count < len(cls.THROTTLE_TIERS):
-            return cls.THROTTLE_TIERS[count]
-        wait = 600
-        for _ in range(count - len(cls.THROTTLE_TIERS)):
-            wait *= 2
-        return min(wait, cls.THROTTLE_MAX_WAIT)
-
-    @classmethod
-    def remaining_cooldown(cls, email: str) -> int:
-        """Seconds until the next request for `email` is allowed (0 = allowed)."""
-        last = cls.objects.filter(email=email).order_by("-created_at").first()
-        if last is None:
-            return 0
-        wait = cls.throttle_wait_seconds(email)
-        elapsed = (timezone.now() - last.created_at).total_seconds()
-        if elapsed >= wait:
-            return 0
-        return math.ceil(wait - elapsed)
-
-    @classmethod
-    def reset_throttle(cls, email: str) -> None:
-        """Clear the request throttle for `email` (after login/logout)."""
-        cls.objects.filter(email=email).delete()
+    def cleanup(cls) -> int:
+        """Delete consumed and expired OTP records; returns rows deleted."""
+        return cls.objects.filter(
+            models.Q(consumed=True) | models.Q(expires_at__lt=timezone.now())
+        ).delete()[0]
 
     def try_consume(self, code: str) -> bool:
         self.attempts += 1

@@ -31,10 +31,6 @@ export default function Contact() {
 							start-ups across Scotland.
 						</p>
 						<p>
-							Scouts produce investment memoranda on the most promising start-ups they identify,
-							which are shared with our wider investor network at our annual Demo Day.
-						</p>
-						<p>
 							Scouts gain access to free educational sessions with real early-stage investors,
 							experiences at exclusive investment meetings, and much more!
 						</p>

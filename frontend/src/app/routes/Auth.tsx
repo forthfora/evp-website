@@ -8,7 +8,7 @@ export default function Auth() {
 	const playIntro = !flow.hasNavigated;
 
 	return (
-		<div className="flex w-full items-center justify-center overflow-hidden px-4 pt-35">
+		<div className="flex w-full items-center justify-center overflow-hidden px-4 pt-35 pb-20">
 			<PageMeta
 				title="Join EVP"
 				description="Become a member of EVP, the premier VC society at the University of Edinburgh."

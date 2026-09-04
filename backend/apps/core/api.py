@@ -3,11 +3,11 @@ import logging
 from django.conf import settings
 from django.http import HttpResponse
 from django.middleware.csrf import get_token
-from django_ratelimit.decorators import ratelimit
 from ninja import Router
 from ninja.errors import HttpError
 
 from apps.core.email import EmailSendError, send_email
+from apps.core.ratelimit import ratelimit
 from apps.core.schemas import ContactIn, CSRFOut
 
 logger = logging.getLogger(__name__)

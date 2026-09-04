@@ -61,7 +61,7 @@ export function ContactSection({
 							{heading}
 						</h1>
 						{body.map((line, i) => (
-							<p key={i} className="mx-auto max-w-2xl py-3 text-xl">
+							<p key={i} className="mx-auto max-w-sm py-3 text-xl md:max-w-2xl">
 								{line}
 							</p>
 						))}

@@ -2,11 +2,11 @@ from typing import TYPE_CHECKING
 
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
-from django_ratelimit.decorators import ratelimit
 from ninja import Router
 from ninja.errors import HttpError
 
 from apps.core.permissions import RoleAuth, can_manage_entry
+from apps.core.ratelimit import ratelimit
 from apps.startupdb.models import Founder, StartupEntry
 from apps.startupdb.schemas import (
     FounderIn,

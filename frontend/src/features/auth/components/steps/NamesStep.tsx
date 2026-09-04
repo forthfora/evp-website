@@ -25,7 +25,7 @@ export function NamesStep({
 	return (
 		<div className="mx-auto w-full max-w-md">
 			<div className="glass-box rounded-2xl p-8 shadow-xl md:p-12">
-				<h1 className="mb-2 text-center text-4xl font-bold">One last step...</h1>
+				<h1 className="mb-4 text-center text-4xl font-bold">One last step...</h1>
 				<p className="text-foreground mb-4 text-center text-2xl">
 					Your account is almost ready, we'd just like some details.
 				</p>

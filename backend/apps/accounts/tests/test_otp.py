@@ -87,67 +87,19 @@ class EmailOTPModelTests(HypothesisTestCase):
                 expected.timestamp(), abs=1
             )
 
-    def test_throttle_starts_low_and_escalates(self) -> None:
-        """The wait starts at the first tier and escalates per request."""
-        assert EmailOTP.throttle_wait_seconds("delivered+throttle@resend.dev") == 5
-        EmailOTP.objects.create(email="delivered+throttle@resend.dev")
-        assert EmailOTP.throttle_wait_seconds("delivered+throttle@resend.dev") == 15
-        EmailOTP.objects.create(email="delivered+throttle@resend.dev")
-        assert EmailOTP.throttle_wait_seconds("delivered+throttle@resend.dev") == 30
+    def test_cleanup_deletes_consumed_and_expired(self) -> None:
+        """cleanup() removes consumed and expired records, keeps live ones."""
+        EmailOTP.objects.create(email="delivered+live@resend.dev")
 
-    def test_throttle_escalates_after_three_requests(self) -> None:
-        """The 4th request waits 60s, the 5th 5 minutes, then it escalates."""
-        for _ in range(3):
-            EmailOTP.objects.create(email="delivered+throttle@resend.dev")
-        assert EmailOTP.throttle_wait_seconds("delivered+throttle@resend.dev") == 60
-        EmailOTP.objects.create(email="delivered+throttle@resend.dev")
-        assert EmailOTP.throttle_wait_seconds("delivered+throttle@resend.dev") == 300
-        EmailOTP.objects.create(email="delivered+throttle@resend.dev")
-        assert EmailOTP.throttle_wait_seconds("delivered+throttle@resend.dev") == 600
-        EmailOTP.objects.create(email="delivered+throttle@resend.dev")
-        assert EmailOTP.throttle_wait_seconds("delivered+throttle@resend.dev") == 1200
+        used = EmailOTP.objects.create(email="delivered+used@resend.dev")
+        assert used.try_consume(used.code) is True
 
-    def test_throttle_is_capped(self) -> None:
-        """The wait never exceeds the configured maximum."""
-        for _ in range(12):
-            EmailOTP.objects.create(email="delivered+throttle@resend.dev")
-        assert EmailOTP.throttle_wait_seconds("delivered+throttle@resend.dev") == (
-            EmailOTP.THROTTLE_MAX_WAIT
-        )
+        with freeze_time(timezone.now() - timedelta(minutes=30)):
+            EmailOTP.objects.create(email="delivered+old@resend.dev")
 
-    def test_remaining_cooldown_zero_without_requests(self) -> None:
-        """No prior requests means no cooldown."""
-        assert EmailOTP.remaining_cooldown("delivered+throttle@resend.dev") == 0
-
-    def test_remaining_cooldown_positive_after_request(self) -> None:
-        """A fresh request is throttled for the tier's wait."""
-        EmailOTP.objects.create(email="delivered+throttle@resend.dev")
-        assert EmailOTP.remaining_cooldown("delivered+throttle@resend.dev") > 0
-
-    def test_remaining_cooldown_clears_after_wait(self) -> None:
-        """Once the tier's wait elapses, the next request is allowed."""
-        with freeze_time(timezone.now()):
-            EmailOTP.objects.create(email="delivered+throttle@resend.dev")
-        with freeze_time(timezone.now() + timedelta(seconds=16)):
-            assert EmailOTP.remaining_cooldown("delivered+throttle@resend.dev") == 0
-
-    def test_throttle_window_decays_old_requests(self) -> None:
-        """Requests older than the window stop counting (reset after some time)."""
-        with freeze_time(
-            timezone.now() - EmailOTP.THROTTLE_WINDOW - timedelta(minutes=1)
-        ):
-            for _ in range(6):
-                EmailOTP.objects.create(email="delivered+throttle@resend.dev")
-        assert EmailOTP.throttle_wait_seconds("delivered+throttle@resend.dev") == 5
-
-    def test_reset_throttle_clears_requests(self) -> None:
-        """reset_throttle removes the request history for an email."""
-        EmailOTP.objects.create(email="delivered+throttle@resend.dev")
-        EmailOTP.reset_throttle("delivered+throttle@resend.dev")
-        assert (
-            EmailOTP.objects.filter(email="delivered+throttle@resend.dev").count() == 0
-        )
-        assert EmailOTP.remaining_cooldown("delivered+throttle@resend.dev") == 0
+        assert EmailOTP.cleanup() == 2
+        assert EmailOTP.objects.count() == 1
+        assert EmailOTP.objects.filter(email="delivered+live@resend.dev").exists()
 
     def test_default_code_is_six_digits(self) -> None:
         """A freshly created OTP gets a 6-digit numeric code."""

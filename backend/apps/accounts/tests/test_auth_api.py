@@ -4,6 +4,7 @@ from unittest.mock import patch
 from django.core.cache import cache
 from django.test import TestCase
 from django.utils import timezone
+from freezegun import freeze_time
 
 from apps.accounts.models import EmailOTP, User
 from apps.core.email import EmailSendError
@@ -70,55 +71,47 @@ class RequestOTPTests(TestCase):
         response = self._request_code("delivered+test@resend.dev")
         assert response.status_code == 500
 
-    def _age_otps(self, seconds: int) -> None:
-        """Backdate all OTP rows so the throttling window elapses."""
-        EmailOTP.objects.update(created_at=timezone.now() - timedelta(seconds=seconds))
+    @patch("apps.accounts.api.send_otp_email")
+    def test_request_code_cleans_up_stale_otps(self, mock_send) -> None:
+        """Requesting a code purges consumed/expired OTP records."""
+        with freeze_time(timezone.now() - timedelta(minutes=30)):
+            EmailOTP.objects.create(email="delivered+stale@resend.dev")
+
+        used = EmailOTP.objects.create(email="delivered+stale@resend.dev")
+        assert used.try_consume(used.code) is True
+
+        assert self._request_code("delivered+fresh@resend.dev").status_code == 200
+
+        stale = EmailOTP.objects.exclude(email="delivered+fresh@resend.dev")
+        assert stale.count() == 0
+        # The freshly created OTP is kept.
+        assert EmailOTP.objects.filter(email="delivered+fresh@resend.dev").exists()
 
     @patch("apps.accounts.api.send_otp_email")
-    def test_immediate_second_request_is_throttled(self, mock_send) -> None:
-        """A second request within the 15s leniency is rejected with 429."""
-        assert self._request_code("delivered+throttle@resend.dev").status_code == 200
+    def test_sixth_request_within_window_is_rate_limited(self, mock_send) -> None:
+        """The 6th request within the 10-minute window is rejected with 429."""
+        for _ in range(5):
+            resp = self._request_code("delivered+throttle@resend.dev")
+            assert resp.status_code == 200
+
         resp = self._request_code("delivered+throttle@resend.dev")
         assert resp.status_code == 429
-        assert "seconds" in resp.json()["detail"]
+        # The detail reports the exact time left on the limiter window.
+        detail = resp.json()["detail"]
+        assert detail.startswith("Too many requests. Please try again")
+        assert "shortly" in detail or "minute" in detail or "second" in detail
 
     @patch("apps.accounts.api.send_otp_email")
-    def test_request_allowed_after_wait(self, mock_send) -> None:
-        """After the leniency window passes, the next request is allowed."""
-        assert self._request_code("delivered+throttle@resend.dev").status_code == 200
-        self._age_otps(16)
-        assert self._request_code("delivered+throttle@resend.dev").status_code == 200
+    def test_requests_allowed_again_after_window_resets(self, mock_send) -> None:
+        """Once the 10-minute window rolls over, requests are allowed again."""
+        for _ in range(5):
+            resp = self._request_code("delivered+throttle@resend.dev")
+            assert resp.status_code == 200
+        assert self._request_code("delivered+throttle@resend.dev").status_code == 429
 
-    @patch("apps.accounts.api.send_otp_email")
-    def test_cooldown_escalates_after_three_requests(self, mock_send) -> None:
-        """The 4th request within a burst is throttled harder (60s tier)."""
-        assert self._request_code("delivered+throttle@resend.dev").status_code == 200
-        self._age_otps(16)
-        assert self._request_code("delivered+throttle@resend.dev").status_code == 200
-        self._age_otps(31)
-        assert self._request_code("delivered+throttle@resend.dev").status_code == 200
-        # The 4th request now sits in the 60s tier -> throttled immediately.
-        resp = self._request_code("delivered+throttle@resend.dev")
-        assert resp.status_code == 429
-        assert "60 seconds" in resp.json()["detail"]
-        # After the 60s tier elapses, the next request is allowed again.
-        self._age_otps(61)
-        assert self._request_code("delivered+throttle@resend.dev").status_code == 200
-
-    @patch("apps.accounts.api.send_otp_email")
-    def test_successful_login_resets_throttle(self, mock_send) -> None:
-        """Logging in clears the request throttle for that email."""
-        email = "delivered+reset@resend.dev"
-        assert self._request_code(email).status_code == 200
-        assert self._request_code(email).status_code == 429
-        code = EmailOTP.objects.get(email=email).code
-        resp = self.client.post(
-            "/api/accounts/otp/verify",
-            {"email": email, "code": code},
-            content_type="application/json",
-        )
-        assert resp.status_code == 200
-        assert self._request_code(email).status_code == 200
+        with freeze_time(timezone.now() + timedelta(minutes=11)):
+            resp = self._request_code("delivered+throttle@resend.dev")
+            assert resp.status_code == 200
 
 
 class VerifyOTPTests(TestCase):
@@ -302,25 +295,6 @@ class LogoutTests(TestCase):
         response = self.client.post(self.url)
         assert response.status_code == 401
 
-    def _request_code(self, email: str):
-        with patch("apps.accounts.api.send_otp_email"):
-            return self.client.post(
-                "/api/accounts/otp/request",
-                {"email": email},
-                content_type="application/json",
-            )
-
-    def test_logout_resets_otp_throttle(self) -> None:
-        """Logging out clears the request throttle for the user's email."""
-        user = User.objects.create_user("delivered+logout@resend.dev")
-        self.client.force_login(user)
-        assert self._request_code("delivered+logout@resend.dev").status_code == 200
-        assert self._request_code("delivered+logout@resend.dev").status_code == 429
-
-        resp = self.client.post(self.url)
-        assert resp.status_code == 204
-        assert self._request_code("delivered+logout@resend.dev").status_code == 200
-
 
 class UpdateMeTests(TestCase):
     """Tests for PATCH /api/accounts/me."""
@@ -468,7 +442,7 @@ class RateLimitTests(TestCase):
             )
 
     def test_request_otp_blocks_sixth_request(self) -> None:
-        """The 6th request within the window is blocked (403) by django-ratelimit."""
+        """The 6th request within the window is blocked (429) by django-ratelimit."""
         for i in range(5):
             resp = self._post(self.request_url, {"email": f"[EMAIL]{i}@[EMAIL]"})
             assert resp.status_code == 200, (
@@ -476,7 +450,11 @@ class RateLimitTests(TestCase):
             )
 
         resp = self._post(self.request_url, {"email": "[EMAIL]"})
-        assert resp.status_code == 403
+        assert resp.status_code == 429
+        # The detail reports the exact time left on the limiter window.
+        detail = resp.json()["detail"]
+        assert detail.startswith("Too many requests. Please try again")
+        assert "shortly" in detail or "minute" in detail or "second" in detail
 
     def test_request_otp_rate_limit_resets_after_cache_clear(self) -> None:
         """Clearing the cache resets the IP rate-limit counter."""
@@ -505,7 +483,7 @@ class RateLimitTests(TestCase):
 
         # The 6th request is blocked.
         resp = self._post(self.request_url, {"email": "[EMAIL]"})
-        assert resp.status_code == 403
+        assert resp.status_code == 429
 
     def test_verify_otp_allows_ten_requests(self) -> None:
         """The first 10 requests to verify_otp from the same IP succeed."""
@@ -518,7 +496,7 @@ class RateLimitTests(TestCase):
             assert resp.status_code == 401
 
     def test_verify_otp_blocks_eleventh_request(self) -> None:
-        """The 11th request within the window is blocked (403) by django-ratelimit."""
+        """The 11th request within the window is blocked (429) by django-ratelimit."""
         for _ in range(10):
             resp = self._post(
                 self.verify_url,
@@ -530,7 +508,11 @@ class RateLimitTests(TestCase):
             self.verify_url,
             {"email": "[EMAIL]", "code": "000000"},
         )
-        assert resp.status_code == 403
+        assert resp.status_code == 429
+        # The detail reports the exact time left on the limiter window.
+        detail = resp.json()["detail"]
+        assert detail.startswith("Too many requests. Please try again")
+        assert "shortly" in detail or "minute" in detail or "second" in detail
 
     def test_verify_otp_rate_limit_resets_after_cache_clear(self) -> None:
         """Clearing the cache resets the IP rate-limit counter for verify_otp."""

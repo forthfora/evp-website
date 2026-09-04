@@ -1,6 +1,5 @@
 from django.contrib.auth import login, logout
 from django.http import HttpRequest, HttpResponse
-from django_ratelimit.decorators import ratelimit
 from ninja import Router
 from ninja.errors import HttpError, logger
 from ninja.security import django_auth
@@ -20,6 +19,7 @@ from apps.accounts.schemas import (
 )
 from apps.core.email import EmailSendError, send_email, send_otp_email
 from apps.core.permissions import RoleAuth
+from apps.core.ratelimit import ratelimit
 
 router = Router(tags=["Accounts"])
 
@@ -30,16 +30,13 @@ router = Router(tags=["Accounts"])
     response={200: RequestOTPOut, 429: None, 500: None},
     summary="Sends an OTP and reports whether an account exists.",
 )
-@ratelimit(key="ip", rate="5/10m", block=True)
+@ratelimit(key="ip", rate="5/3m", block=True)
 def request_otp(request, payload: RequestOTPIn):
     email = payload.email
-    wait = EmailOTP.remaining_cooldown(email)
-    if wait > 0:
-        raise HttpError(
-            429,
-            f"Please wait {wait} second{'s' if wait != 1 else ''} "
-            "before requesting another code.",
-        )
+
+    # Opportunistically purge consumed/expired records so the table
+    # doesn't grow forever (no scheduled job needed).
+    EmailOTP.cleanup()
 
     exists = User.objects.filter(email=email).exists()
     otp = EmailOTP.objects.create(email=email)
@@ -89,8 +86,6 @@ def verify_otp(request, payload: VerifyOTPIn):
         user.save(update_fields=["password"])
     login(request, user)
 
-    EmailOTP.reset_throttle(payload.email)
-
     return VerifyOTPOut(created=created)
 
 
@@ -102,8 +97,6 @@ def verify_otp(request, payload: VerifyOTPIn):
 )
 @ratelimit(key="user_or_ip", rate="60/m", block=True)
 def logout_view(request):
-    user: User = request.user  # type: ignore
-    EmailOTP.reset_throttle(user.email)
     logout(request)
     return HttpResponse(status=204)
 
