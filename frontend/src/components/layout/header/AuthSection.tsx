@@ -28,13 +28,9 @@ export function AuthSection({ size = 'default', className }: AuthSectionProps) {
 		<>
 			{isAuthenticated && user ? (
 				<>
-					<Link
-						to="member"
-						className="button-underline hidden items-center gap-2 md:flex"
-						viewTransition
-					>
+					<Link to="member" className="button-underline flex items-center gap-2" viewTransition>
 						<p
-							className="text-foreground button-underline max-w-32 truncate text-sm"
+							className="text-foreground button-underline max-w-48 truncate text-lg md:max-w-32"
 							title={user.email}
 						>
 							<b>
@@ -57,11 +53,11 @@ export function AuthSection({ size = 'default', className }: AuthSectionProps) {
 					<button
 						ref={logoutButtonRef}
 						onClick={() => setShowLogoutConfirm(true)}
-						className="button-underline flex cursor-pointer items-center gap-1 px-2 py-1.5 text-sm"
+						className="button-underline flex cursor-pointer items-center gap-1 px-2 py-1.5 text-lg md:text-sm"
 						aria-label="log out"
 					>
 						<LogOut size={20} />
-						<span className="hidden md:inline">Log out</span>
+						<span>Log out</span>
 					</button>
 				</>
 			) : (
