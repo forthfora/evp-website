@@ -64,5 +64,5 @@ def send_contact_email(request, data: ContactIn):
         logger.exception("Unexpected error calling send_email")
         raise HttpError(
             500,
-            "An unexpected error occured. Our email server may be down. Please try again later.",  # noqa: E501
+            "An unexpected error occurred. Our email server may be down. Please try again later.",  # noqa: E501
         ) from err

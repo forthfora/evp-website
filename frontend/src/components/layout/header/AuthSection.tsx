@@ -28,7 +28,7 @@ export function AuthSection({ size = 'default', className }: AuthSectionProps) {
 		<>
 			{isAuthenticated && user ? (
 				<>
-					<Link to="member" className="button-underline flex items-center gap-2" viewTransition>
+					<Link to="/member" className="button-underline flex items-center gap-2" viewTransition>
 						<p
 							className="text-foreground button-underline max-w-48 truncate text-lg md:max-w-32"
 							title={user.email}

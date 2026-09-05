@@ -95,6 +95,38 @@ def _build_email_html(
                 Edinburgh VenturePoint is an entrepreneurship and venture capital society at The University of Edinburgh.
               </p>
 
+              <!-- Site + policy links -->
+              <p style="margin:0 0 10px; font-size:11px; color:#999999;">
+                <a href="https://www.edinburghventurepoint.com" style="color:#999999; text-decoration:underline;">edinburghventurepoint.com</a>
+                &nbsp;|&nbsp;
+                <a href="https://www.edinburghventurepoint.com/privacy" style="color:#999999; text-decoration:underline;">Privacy Policy</a>
+                &nbsp;|&nbsp;
+                <a href="https://www.edinburghventurepoint.com/terms" style="color:#999999; text-decoration:underline;">Terms of Service</a>
+              </p>
+
+              <!-- Socials -->
+              <p style="margin:0 0 10px; font-size:0; line-height:0;">
+                <a href="https://www.linkedin.com/company/edinburghventurepoint/" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">
+                  <img
+                    src="https://www.edinburghventurepoint.com/icons/linkedin.png"
+                    alt="LinkedIn"
+                    width="24"
+                    height="24"
+                    style="display:inline-block; border:0; outline:none; text-decoration:none; vertical-align:middle;"
+                  >
+                </a>
+                &nbsp;&nbsp;
+                <a href="https://www.instagram.com/edinburghventurepoint/" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">
+                  <img
+                    src="https://www.edinburghventurepoint.com/icons/instagram.png"
+                    alt="Instagram"
+                    width="24"
+                    height="24"
+                    style="display:inline-block; border:0; outline:none; text-decoration:none; vertical-align:middle;"
+                  >
+                </a>
+              </p>
+
               <p style="margin:0; font-size:11px; color:#999999;">
                 &copy; 2026 Edinburgh VenturePoint. All rights reserved.
               </p>

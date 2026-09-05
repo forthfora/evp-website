@@ -65,8 +65,10 @@ society communications.
   /api/accounts/me` (names, update-email opt-in), OTP-verified email change
   `POST /api/accounts/email/change`, `POST /api/accounts/logout`, member list
   `GET /api/accounts/members` (admin/committee only), admin send-all-emails at
-  `POST /api/accounts/sendall`, CSRF bootstrap at `GET /api/csrf`.
-  Admin management.
+  `POST /api/accounts/sendall` (delivery runs asynchronously in a background
+  thread — the response is `{queued, skipped, job_id}` and progress/results
+  are pollable at `GET /api/accounts/sendall/jobs[/{id}]`, admin only), CSRF
+  bootstrap at `GET /api/csrf`. Admin management.
 - **Roles**: every account has one of four roles — `member` (default),
   `scout`, `committee`, `admin` — elevated manually via the Django admin.
   See §4.3 for the capability matrix.
@@ -148,8 +150,8 @@ change; the rule lives in a single backend permission function.
 
 - **Performance**: static assets served via Nginx; frontend built and minified by Vite.
 - **SEO**: `robots.txt` and `sitemap.xml` served from `frontend/public/`.
-- **Reliability**: fully containerized (Docker Compose); production deploys automated via GitHub Actions (CI test job → matrix build → GHCR → SSH rolling update); images tagged with both `latest` and commit SHA (note: the prod compose currently pulls `:latest` only, so SHA-tag rollback requires manual retagging — see AGENTS.md).
-- **Security**: environment-based secrets (`backend/.env` in dev; a root-level `.env` via compose `env_file` in prod), CORS restricted to explicit origins, session + CSRF auth, no committed credentials. All API endpoints rate-limited via `django-ratelimit` (per-IP or per-user-or-IP), with counts stored in a shared Redis cache so limits are enforced across all Gunicorn workers when `CACHE_URL` is set (per-process `LocMemCache` fallback otherwise — note that neither compose file currently sets `CACHE_URL`; see AGENTS.md Known Issues). Nginx also applies rate limiting (`limit_req_zone`: global 20r/s, API 5r/s). Security headers (HSTS, CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy) are enforced at the Nginx edge (see AGENTS.md for the full list and rationale).
+- **Reliability**: fully containerized (Docker Compose); production deploys automated via GitHub Actions (CI test job → matrix build → GHCR → SSH rolling update); images tagged with both `latest` and commit SHA (the prod compose pins `IMAGE_TAG` — the CI deploy exports the commit's short SHA, and rollback on the server is `IMAGE_TAG=<old sha> docker-compose up -d`; see AGENTS.md).
+- **Security**: environment-based secrets (`backend/.env` in dev; a root-level `.env` via compose `env_file` in prod), CORS restricted to explicit origins, session + CSRF auth, no committed credentials. All API endpoints rate-limited via `django-ratelimit` (per-IP or per-user-or-IP), with counts stored in a shared Redis cache so limits are enforced across all Gunicorn workers when `CACHE_URL` is set (per-process `LocMemCache` fallback otherwise — dev is Redis-backed by default via `backend/.env`; prod depends on the server's root `.env`; see AGENTS.md Known Issues). Nginx also applies rate limiting (`limit_req_zone`: global 20r/s, API 5r/s). Security headers (HSTS, CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy) are enforced at the Nginx edge (see AGENTS.md for the full list and rationale).
 - **Maintainability**: TypeScript + ESLint/Prettier on the frontend; type-hinted Python + Pydantic schemas on the backend. Frontend tests via Vitest + @testing-library/react; backend tests via Django's test runner.
 
 ## 7. Technical Architecture
@@ -170,7 +172,7 @@ change; the rule lives in a single backend permission function.
 
 - Password-based login as an additional auth mechanism (extension point open).
 - Elevated Committee permissions on the startup database (single-function change in `can_manage_entry`).
-- Async/queued delivery for admin update emails if membership grows.
+- Resume-on-restart for interrupted admin update email sends (delivery is already async with job tracking, but a worker restart mid-send drops the tail of the send).
 - Event RSVP/ticketing integration.
 - Public startup directory surfacing `StartupEntry` data, with submissions via the API.
 - Member profile pages (avatars, bios) — would require adding an image field to the `User` model (one does not currently exist).

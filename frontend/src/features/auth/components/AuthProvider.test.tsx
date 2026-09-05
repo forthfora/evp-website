@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { AuthProvider, useAuth } from '@/features/auth/components/AuthProvider';
 
@@ -9,7 +9,11 @@ const { mockFetchMe, mockLogout } = vi.hoisted(() => ({
 	mockLogout: vi.fn(),
 }));
 
-vi.mock('@/lib/auth/api', () => ({
+// Mock the real API module path (the previous mock targeted `@/lib/auth/api`,
+// which no longer exists — the mocks were no-ops and every test only passed
+// via a global fetch stub).
+vi.mock('@/features/auth/api/api', async (importOriginal) => ({
+	...(await importOriginal<typeof import('@/features/auth/api/api')>()),
 	fetchMe: mockFetchMe,
 	logout: mockLogout,
 }));
@@ -52,46 +56,12 @@ function renderAuth() {
 
 describe('AuthProvider', () => {
 	beforeEach(() => {
-		vi.stubGlobal(
-			'fetch',
-			vi.fn(async (url: string) => {
-				if (url === '/api/accounts/me') {
-					return new Response(
-						JSON.stringify({
-							email: 'member@test.com',
-							username: 'testmember',
-							role: 'member',
-							date_joined: '2026-01-01T00:00:00Z',
-							first_name: 'Test',
-							last_name: 'User',
-							receives_update_emails: true,
-						}),
-						{
-							status: 200,
-							headers: { 'Content-Type': 'application/json' },
-						},
-					);
-				}
-
-				if (url === '/api/accounts/logout' || url.includes('logout')) {
-					return new Response(null, { status: 204 });
-				}
-
-				// Mock CSRF token fetch if your API client requests it during tests
-				if (url === '/api/csrf') {
-					return new Response(JSON.stringify({ csrftoken: 'fake-token' }), {
-						status: 200,
-						headers: { 'Content-Type': 'application/json' },
-					});
-				}
-
-				return new Response(null, { status: 404 });
-			}),
-		);
+		mockFetchMe.mockReset();
+		mockLogout.mockReset();
 	});
 
 	afterEach(() => {
-		vi.unstubAllGlobals();
+		vi.clearAllMocks();
 	});
 
 	it('hydrates the user from fetchMe on mount when a session exists', async () => {
@@ -107,16 +77,8 @@ describe('AuthProvider', () => {
 		expect(screen.getByTestId('loading')).toHaveTextContent('false');
 	});
 
-	test('stays unauthenticated when there is no active session', async () => {
-		vi.mocked(fetch).mockImplementationOnce(async (url) => {
-			if (url === '/api/accounts/me') {
-				return new Response(JSON.stringify({ detail: 'Not authenticated' }), {
-					status: 401,
-					headers: { 'Content-Type': 'application/json' },
-				});
-			}
-			return new Response(null, { status: 404 });
-		});
+	it('stays unauthenticated when there is no active session', async () => {
+		mockFetchMe.mockRejectedValue(new Error('Not authenticated'));
 
 		renderAuth();
 
@@ -126,7 +88,7 @@ describe('AuthProvider', () => {
 	});
 
 	it('login() re-fetches the profile and authenticates', async () => {
-		mockFetchMe.mockRejectedValue(new Error('401'));
+		mockFetchMe.mockRejectedValueOnce(new Error('401'));
 
 		renderAuth();
 		await waitFor(() => expect(screen.getByTestId('loading')).toHaveTextContent('false'));
@@ -150,10 +112,7 @@ describe('AuthProvider', () => {
 
 		await waitFor(() => expect(screen.getByTestId('email')).toHaveTextContent('none'));
 
-		expect(vi.mocked(fetch)).toHaveBeenCalledWith(
-			expect.stringMatching('/api/accounts/logout'),
-			expect.objectContaining({ method: 'POST' }),
-		);
+		expect(mockLogout).toHaveBeenCalledTimes(1);
 		expect(screen.getByTestId('auth')).toHaveTextContent('false');
 	});
 });

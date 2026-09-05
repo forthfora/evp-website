@@ -44,14 +44,8 @@ class EmailChangeIn(Schema):
     code: str
 
 
-class MemberOut(Schema):
-    username: str
-    email: str
-    first_name: str
-    last_name: str
-    role: str
-    date_joined: str
-    receives_update_emails: bool
+class MemberOut(MeOut):
+    """Member list item — identical shape to the profile (`MeOut`)."""
 
 
 class SendAllEmailIn(Schema):

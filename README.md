@@ -81,7 +81,7 @@ The local development server will be available at: `http://localhost:16017`
 
 ### Infrastructure & Deployment
 * **Docker & Docker Compose:** Complete containerization of frontend, backend, Redis cache, and database environments.
-* **Redis:** Cache backing `django-ratelimit` — when `CACHE_URL` is enabled, rate-limit counts are shared globally across all Gunicorn workers (per-process cache fallback otherwise; see AGENTS.md Known Issues).
+* **Redis:** Cache backing `django-ratelimit` — rate-limit counts are shared across all Gunicorn workers when `CACHE_URL` is set (active by default in local dev via `backend/.env`; per-process cache fallback otherwise — see AGENTS.md Known Issues).
 * **Nginx:** Reverse proxy server handling incoming requests, rate limiting, legacy URL redirects, and serving static files.
 * **Gunicorn:** Python WSGI HTTP Server for UNIX, serving the Django application in production.
 * **GitHub Actions (CI/CD):** Automated test → build → push to GHCR → SSH deploy on push to `main`.
@@ -97,7 +97,34 @@ The local development server will be available at: `http://localhost:16017`
 * **Internal startup database:** Scouts and above can create/edit founders and startups; admins can manage all entries.
 * **Admin communications:** Admins can send update emails to all opted-in members.
 * **Django admin panel:** Jazzmin-themed admin at `/evp-dev/` for managing users, roles, and content.
-* **Rate limiting:** Both Nginx and Django (`django-ratelimit`) apply per-endpoint rate limits, with counts shared across workers via Redis.
+* **Rate limiting:** Both Nginx and Django (`django-ratelimit`) apply per-endpoint rate limits, with counts shared across workers via Redis when `CACHE_URL` is enabled.
+
+<br/>
+
+# Development
+
+To work on the frontend or backend outside Docker:
+
+**Frontend** (Node ≥ 22):
+```sh
+cd frontend
+npm install
+npm run dev        # Vite dev server (proxies /api to http://127.0.0.1:16017)
+npm run test       # Vitest (run once)
+npm run lint       # ESLint
+npm run format     # Prettier
+```
+
+**Backend** (Python ≥ 3.13, managed with [uv](https://docs.astral.sh/uv/)):
+```sh
+cd backend
+uv sync                                 # install deps
+uv run python manage.py migrate
+uv run python manage.py runserver
+uv run python manage.py createsuperuser # admin panel access (/evp-dev/)
+uv run python manage.py test            # run tests
+uv run ruff check                       # lint
+```
 
 <br/>
 

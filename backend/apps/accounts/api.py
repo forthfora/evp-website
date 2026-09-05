@@ -58,7 +58,7 @@ def request_otp(request, payload: RequestOTPIn):
         logger.exception("Failed to send OTP email")
         raise HttpError(
             500,
-            "An unexpected error occured. Our email server may be down. Please try again later.",  # noqa: E501
+            "An unexpected error occurred. Our email server may be down. Please try again later.",  # noqa: E501
         ) from err
 
     return RequestOTPOut(exists=exists)
@@ -139,18 +139,6 @@ def _me_out(user: User) -> MeOut:
     )
 
 
-def _member_out(user: User) -> MemberOut:
-    return MemberOut(
-        username=user.username,
-        email=user.email,
-        first_name=user.first_name,
-        last_name=user.last_name,
-        role=user.role,
-        date_joined=user.date_joined.isoformat(),
-        receives_update_emails=user.receives_update_emails,
-    )
-
-
 @router.get(
     "/me",
     auth=django_auth,
@@ -212,7 +200,7 @@ def change_email(request: HttpRequest, payload: EmailChangeIn):
 @ratelimit(key="user_or_ip", rate="120/m", block=True)
 def list_members(request: HttpRequest):
     users = User.objects.all().order_by("email")
-    return [_member_out(u) for u in users]
+    return [_me_out(u) for u in users]
 
 
 def _dispatch_update_emails(

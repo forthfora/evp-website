@@ -21,7 +21,7 @@ export {
 } from './api/api';
 export type * from './api/schemas';
 export { AuthProvider, useAuth } from './components/AuthProvider';
-export { ProtectedRoute, RoleRoute } from './components/ProtectedRoute';
+export { ProtectedRoute } from './components/ProtectedRoute';
 export { CodeStep } from './components/steps/CodeStep';
 export { EmailStep } from './components/steps/EmailStep';
 export { NamesStep } from './components/steps/NamesStep';
