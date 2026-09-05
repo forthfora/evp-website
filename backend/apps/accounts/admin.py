@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from apps.accounts.models import User
+from apps.accounts.models import SendAllJob, User
 
 
 # admin.register tells django to show a section for this model
@@ -54,3 +54,35 @@ class UserAdmin(BaseUserAdmin):
             },
         ),
     )
+
+
+@admin.register(SendAllJob)
+class SendAllJobAdmin(admin.ModelAdmin):
+    """View-only admin for send-all delivery history.
+
+    Job rows are written by the background dispatch thread; admins can
+    inspect results here but not create/edit them through the admin.
+    """
+
+    list_display = (
+        "id",
+        "subject",
+        "created_by",
+        "total",
+        "sent",
+        "failed",
+        "created_at",
+        "finished_at",
+    )
+    list_filter = ("created_at",)
+    search_fields = ("subject",)
+    ordering = ("-created_at",)
+
+    def has_add_permission(self, request) -> bool:
+        return False
+
+    def has_change_permission(self, request, obj=None) -> bool:
+        return False
+
+    def has_delete_permission(self, request, obj=None) -> bool:
+        return False

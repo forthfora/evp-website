@@ -70,7 +70,10 @@ def _startup_out(entry: StartupEntry) -> StartupOut:
 )
 @ratelimit(key="user_or_ip", rate="120/m", block=True)
 def list_founders(request: HttpRequest):
-    return [_founder_out(f) for f in Founder.objects.all()]
+    # select_related: serialising `created_by.username` must not cost one
+    # extra query per founder.
+    founders = Founder.objects.select_related("created_by")
+    return [_founder_out(f) for f in founders]
 
 
 @router.post(
@@ -145,7 +148,12 @@ def delete_founder(
 )
 @ratelimit(key="user_or_ip", rate="120/m", block=True)
 def list_entries(request: HttpRequest):
-    entries = StartupEntry.objects.prefetch_related("founders")
+    # select_related + prefetch_related: serialising `created_by.username`
+    # and each entry's founders (and *their* creators) must not cost one
+    # extra query per row.
+    entries = StartupEntry.objects.select_related("created_by").prefetch_related(
+        "founders__created_by"
+    )
     return [_startup_out(e) for e in entries]
 
 

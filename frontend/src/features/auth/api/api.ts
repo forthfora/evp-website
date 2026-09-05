@@ -12,6 +12,7 @@ import type {
 	RequestOTPOut,
 	SendAllEmailInput,
 	SendAllEmailOut,
+	SendAllJob,
 	UpdateMeInput,
 	VerifyOTPInput,
 	VerifyOTPOut,
@@ -22,6 +23,7 @@ import {
 	MeResponseSchema,
 	RequestOTPOutSchema,
 	SendAllEmailOutSchema,
+	SendAllJobSchema,
 	UpdateMeInputSchema,
 	VerifyOTPOutSchema,
 } from './schemas';
@@ -82,6 +84,14 @@ export async function sendAllEmail(subject: string, body: string): Promise<SendA
 	});
 }
 
+export async function fetchSendAllJob(jobId: number): Promise<SendAllJob> {
+	return requestJson(`/api/accounts/sendall/jobs/${jobId}`, SendAllJobSchema);
+}
+
+export async function fetchSendAllJobs(): Promise<SendAllJob[]> {
+	return requestJson('/api/accounts/sendall/jobs', z.array(SendAllJobSchema));
+}
+
 export function useRequestOtp() {
 	return useMutation({
 		mutationFn: (input: RequestOTPInput) => requestOtp(input.email),
@@ -134,5 +144,12 @@ export function useMembers() {
 export function useSendAllEmail() {
 	return useMutation({
 		mutationFn: (input: SendAllEmailInput) => sendAllEmail(input.subject, input.body),
+	});
+}
+
+export function useSendAllJobs() {
+	return useQuery({
+		queryKey: ['sendall-jobs'],
+		queryFn: fetchSendAllJobs,
 	});
 }

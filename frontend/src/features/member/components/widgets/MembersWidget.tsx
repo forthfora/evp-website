@@ -86,7 +86,7 @@ export function MembersWidget() {
 												<button
 													type="button"
 													onClick={() => toggleSort(column.field)}
-													className="hover:text-foreground inline-flex cursor-pointer items-center gap-1"
+													className="hover:text-foreground inline-flex cursor-pointer items-center gap-1 uppercase"
 													aria-sort={
 														active ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'
 													}

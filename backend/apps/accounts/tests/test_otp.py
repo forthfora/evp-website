@@ -8,7 +8,12 @@ from freezegun import freeze_time
 from hypothesis import given
 from hypothesis.extra.django import TestCase as HypothesisTestCase
 
-from apps.accounts.models import EmailOTP, generate_otp_code, hash_otp_code
+from apps.accounts.models import (
+    EmailOTP,
+    generate_otp_code,
+    hash_otp_code,
+    normalize_email,
+)
 
 # Strategy for generating valid 6-digit numeric codes (as strings)
 valid_code = st.text(alphabet=string.digits, min_size=6, max_size=6)
@@ -134,6 +139,42 @@ class EmailOTPModelTests(HypothesisTestCase):
         assert otp.code == hash_otp_code(plaintext)
         assert otp.code != plaintext
         assert otp.try_consume(plaintext) is True
+
+    def test_issue_invalidates_prior_unconsumed_codes(self) -> None:
+        """A new issue() marks older unconsumed codes as consumed, so only
+        the newest code is valid at any time."""
+        otp1, code1 = EmailOTP.issue("delivered+reissue@resend.dev")
+        otp2, code2 = EmailOTP.issue("delivered+reissue@resend.dev")
+
+        otp1.refresh_from_db()
+        assert otp1.consumed is True
+        assert not otp1.is_valid
+
+        # The older code no longer verifies; the newest does.
+        assert otp1.try_consume(code1) is False
+        assert otp2.try_consume(code2) is True
+
+    def test_issue_only_invalidates_same_email(self) -> None:
+        """Re-issuing for one address leaves other addresses' codes alone."""
+        _, other_code = EmailOTP.issue("delivered+other@resend.dev")
+        EmailOTP.issue("delivered+reissue@resend.dev")
+
+        other = (
+            EmailOTP.objects.filter(email="delivered+other@resend.dev", consumed=False)
+            .order_by("-created_at")
+            .first()
+        )
+        assert other is not None
+        assert other.try_consume(other_code) is True
+
+    def test_issue_normalizes_email(self) -> None:
+        """issue() stores the address in canonical (lowercase, trimmed) form."""
+        otp, _ = EmailOTP.issue("  Delivered+Case@Resend.dev ")
+        assert otp.email == "delivered+case@resend.dev"
+
+    def test_normalize_email(self) -> None:
+        """normalize_email trims and lowercases."""
+        assert normalize_email("  User@Example.COM ") == "user@example.com"
 
     def test_codes_are_random_per_instance(self) -> None:
         """Each OTP instance gets a distinct stored hash (random per-instance

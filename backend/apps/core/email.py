@@ -111,6 +111,15 @@ def _build_email_html(
 """  # noqa: E501
 
 
+def _build_greeting_from_name(name: str) -> str:
+    """Build the greeting line for a known recipient first name."""
+    display = html_lib.escape(name.strip()) if name.strip() else "EVP Member"
+    return (
+        '<p style="margin:0 0 24px; font-size:15px; color:#333333; line-height:1.5;">'
+        f"Hi {display},</p>"
+    )
+
+
 def _build_greeting(recipients: list[str]) -> str:
     """Build the personalised greeting line prepended to every email."""
     name = ""
@@ -126,11 +135,7 @@ def _build_greeting(recipients: list[str]) -> str:
             or ""
         )
 
-    display = html_lib.escape(name.strip()) if name.strip() else "EVP Member"
-    return (
-        '<p style="margin:0 0 24px; font-size:15px; color:#333333; line-height:1.5;">'
-        f"Hi {display},</p>"
-    )
+    return _build_greeting_from_name(name)
 
 
 def send_email(
@@ -141,6 +146,7 @@ def send_email(
     preheader: str = "",
     from_email: str | None = None,
     include_signature: bool = True,
+    greeting_name: str | None = None,
 ):
     """Send an email via Resend, or log it when sending is disabled.
     Args:
@@ -148,6 +154,9 @@ def send_email(
         subject: Email subject line.
         body: Plain-text or HTML body content.
         from_email: Sender address (defaults to ``settings.FROM_EMAIL``).
+        greeting_name: Pre-resolved recipient first name. When given, no
+            per-recipient database lookup is performed — used by bulk sends,
+            which resolve all names in a single query up front.
 
     Raises:
         EmailSendError: If the email API fails to load or send the email.
@@ -155,7 +164,11 @@ def send_email(
     sender = from_email or settings.FROM_EMAIL
     recipients = [to] if isinstance(to, str) else to
 
-    greeting = _build_greeting(recipients)
+    if greeting_name is None:
+        greeting = _build_greeting(recipients)
+    else:
+        greeting = _build_greeting_from_name(greeting_name)
+
     html = _build_email_html(
         greeting + body, preheader=preheader, include_signature=include_signature
     )

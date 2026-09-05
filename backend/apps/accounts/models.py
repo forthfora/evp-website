@@ -3,9 +3,21 @@ import secrets
 import uuid
 from datetime import timedelta
 
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser, BaseUserManager
-from django.db import models
+from django.db import models, transaction
 from django.utils import timezone
+
+
+def normalize_email(email: str) -> str:
+    """Canonicalise an email address (trim + lowercase).
+
+    Emails are case-insensitive in practice. Storing and comparing them
+    in a canonical form keeps SQLite (case-sensitive UNIQUE) consistent
+    with MySQL's default case-insensitive collation, so dev and prod
+    can't disagree about whether two addresses are the same account.
+    """
+    return email.strip().lower()
 
 
 def get_otp_expiry():
@@ -46,6 +58,8 @@ class UserManager(BaseUserManager):
     ) -> "User":
         if not email:
             raise ValueError("Accounts must have an email.")
+
+        email = normalize_email(email)
 
         fields: dict = {
             "email": email,
@@ -172,11 +186,19 @@ class EmailOTP(models.Model):
     def issue(cls, email: str) -> "tuple[EmailOTP, str]":
         """Create a new OTP for `email`; returns (record, plaintext code).
 
+        Any prior unconsumed codes for the address are marked consumed, so
+        only the newest code is valid at any time — a re-request can never
+        leave an older, already-delivered code usable (login-DoS/shadowing
+        vector).
+
         The plaintext code is returned exactly once, for delivery (email);
         only its SHA-256 hash is persisted.
         """
+        email = normalize_email(email)
         code = generate_otp_code()
-        otp = cls.objects.create(email=email, code=hash_otp_code(code))
+        with transaction.atomic():
+            cls.objects.filter(email=email, consumed=False).update(consumed=True)
+            otp = cls.objects.create(email=email, code=hash_otp_code(code))
         return otp, code
 
     def try_consume(self, code: str) -> bool:
@@ -194,3 +216,31 @@ class EmailOTP(models.Model):
         self.consumed = True
         self.save(update_fields=["consumed"])
         return True
+
+
+class SendAllJob(models.Model):
+    """A tracked "send email to all members" run (see apps/accounts/api.py).
+
+    The dispatch thread updates ``sent``/``failed`` as it delivers, then
+    sets ``finished_at``. The admin UI polls this record so delivery
+    failures are visible instead of being server-side logs only.
+    """
+
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+    )
+    subject = models.CharField(max_length=255)
+    total = models.IntegerField(default=0)
+    sent = models.IntegerField(default=0)
+    failed = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    finished_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Update Email Job"
+        verbose_name_plural = "Update Email Jobs"
+        ordering = ("-created_at",)
+
+    def __str__(self) -> str:
+        return f"Send-all job #{self.pk}: {self.subject} ({self.sent}/{self.total})"

@@ -1,5 +1,7 @@
 import hypothesis.strategies as st
+from django.db import connection
 from django.test import TestCase
+from django.test.utils import CaptureQueriesContext
 from hypothesis import given, settings
 from hypothesis.extra.django import TestCase as HypothesisTestCase
 
@@ -160,6 +162,66 @@ class StartupAPITests(TestCase):
             content_type="application/json",
         )
         assert resp.status_code == 403
+
+    def test_update_entry_rejects_explicit_null(self) -> None:
+        """An explicit `null` for a non-nullable field is a 422, not a 500
+        (it used to be assigned to the CharField and raise IntegrityError)."""
+        self._login(self.scout1)
+        resp = self.client.patch(
+            self._entry_url(self.scout1_entry),
+            {"name": None},
+            content_type="application/json",
+        )
+        assert resp.status_code == 422
+        self.scout1_entry.refresh_from_db()
+        assert self.scout1_entry.name == "Scout 1 Entry"
+
+    def test_update_entry_rejects_null_founder_ids(self) -> None:
+        """`founder_ids: null` is rejected — send `[]` to clear instead."""
+        self._login(self.scout1)
+        resp = self.client.patch(
+            self._entry_url(self.scout1_entry),
+            {"founder_ids": None},
+            content_type="application/json",
+        )
+        assert resp.status_code == 422
+
+    def test_update_entry_allows_null_founding_date(self) -> None:
+        """`founding_date` is genuinely nullable: an explicit null clears it."""
+        entry = StartupEntry.objects.create(
+            name="Dated Entry",
+            founding_date="2020-01-01",
+            created_by=self.scout1,
+        )
+        self._login(self.scout1)
+        resp = self.client.patch(
+            self._entry_url(entry),
+            {"founding_date": None},
+            content_type="application/json",
+        )
+        assert resp.status_code == 200
+        entry.refresh_from_db()
+        assert entry.founding_date is None
+
+    def test_list_entries_has_no_n_plus_one(self) -> None:
+        """Serialising entries uses a constant number of queries regardless
+        of row count (no per-row lookups on created_by/founders)."""
+        founder = Founder.objects.create(
+            first_name="Ada", last_name="Lovelace", created_by=self.scout1
+        )
+        self.scout1_entry.founders.add(founder)
+
+        self._login(self.scout1)
+        with CaptureQueriesContext(connection) as ctx:
+            assert self.client.get(self.list_url).status_code == 200
+        baseline = len(ctx.captured_queries)
+
+        for i in range(5):
+            StartupEntry.objects.create(name=f"Extra Entry {i}", created_by=self.scout1)
+
+        with CaptureQueriesContext(connection) as ctx:
+            assert self.client.get(self.list_url).status_code == 200
+        assert len(ctx.captured_queries) == baseline
 
     def test_delete_own_entry_as_scout(self) -> None:
         self._login(self.scout1)
@@ -390,6 +452,36 @@ class FounderAPITests(TestCase):
             content_type="application/json",
         )
         assert resp.status_code == 403
+
+    def test_update_founder_rejects_explicit_null(self) -> None:
+        """An explicit `null` for a non-nullable field is a 422, not a 500."""
+        self._login(self.scout1)
+        original = self.scout1_founder.first_name
+        resp = self.client.patch(
+            self._founder_url(self.scout1_founder),
+            {"first_name": None},
+            content_type="application/json",
+        )
+        assert resp.status_code == 422
+        self.scout1_founder.refresh_from_db()
+        assert self.scout1_founder.first_name == original
+
+    def test_list_founders_has_no_n_plus_one(self) -> None:
+        """Serialising founders uses a constant number of queries regardless
+        of row count (no per-row lookup on created_by)."""
+        self._login(self.scout1)
+        with CaptureQueriesContext(connection) as ctx:
+            assert self.client.get(self.founders_url).status_code == 200
+        baseline = len(ctx.captured_queries)
+
+        for i in range(5):
+            Founder.objects.create(
+                first_name="Extra", last_name=f"Founder {i}", created_by=self.scout1
+            )
+
+        with CaptureQueriesContext(connection) as ctx:
+            assert self.client.get(self.founders_url).status_code == 200
+        assert len(ctx.captured_queries) == baseline
 
     def test_delete_own_founder_as_scout(self) -> None:
         self._login(self.scout1)

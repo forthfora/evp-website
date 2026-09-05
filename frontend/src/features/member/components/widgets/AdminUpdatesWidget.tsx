@@ -2,8 +2,13 @@ import { useMemo, useState } from 'react';
 
 import { Button, FormField, PrimaryButton, WidgetCard } from '@/components/ui';
 import { inputVariants } from '@/components/ui/interactive/input/input-variants';
-import { useMembers, useSendAllEmail } from '@/features/auth/api/api';
-import type { SendAllEmailOut } from '@/features/auth/api/schemas';
+import {
+	fetchSendAllJob,
+	useMembers,
+	useSendAllEmail,
+	useSendAllJobs,
+} from '@/features/auth/api/api';
+import type { SendAllEmailOut, SendAllJob } from '@/features/auth/api/schemas';
 import { cn } from '@/utils/cn';
 
 import { renderMarkdown } from './render-markdown';
@@ -29,15 +34,55 @@ const PREVIEW_STYLES = [
 	'[&_ul]:my-3 [&_ul]:list-disc [&_ul]:pl-5',
 ].join(' ');
 
+const POLL_INTERVAL_MS = 1500;
+const POLL_TIMEOUT_MS = 120_000;
+const POLL_MAX_ERRORS = 3;
+
+/** A job unfinished for this long was probably interrupted (worker restart). */
+const STALE_JOB_MS = 10 * 60_000;
+
+async function pollSendAllJob(
+	jobId: number,
+	onProgress: (job: SendAllJob) => void,
+): Promise<SendAllJob | null> {
+	const deadline = Date.now() + POLL_TIMEOUT_MS;
+	let errors = 0;
+
+	while (Date.now() < deadline) {
+		await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
+		try {
+			const job = await fetchSendAllJob(jobId);
+			errors = 0;
+			onProgress(job);
+			if (job.finished_at) return job;
+		} catch {
+			errors += 1;
+			if (errors >= POLL_MAX_ERRORS) return null;
+		}
+	}
+	return null;
+}
+
+function isJobStale(job: SendAllJob): boolean {
+	return job.finished_at === null && Date.now() - new Date(job.created_at).getTime() > STALE_JOB_MS;
+}
+
+function formatJobDate(iso: string): string {
+	return new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+}
+
 export function AdminUpdatesWidget() {
 	const sendMut = useSendAllEmail();
 	const { data: members = [], isLoading: membersLoading, error: membersError } = useMembers();
+	const { data: recentJobs = [], refetch: refetchRecentJobs } = useSendAllJobs();
 
 	const [step, setStep] = useState<'compose' | 'confirm'>('compose');
 	const [subject, setSubject] = useState('');
 	const [body, setBody] = useState('');
 	const [confirmation, setConfirmation] = useState('');
 	const [result, setResult] = useState<SendAllEmailOut | null>(null);
+	const [job, setJob] = useState<SendAllJob | null>(null);
+	const [statusError, setStatusError] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
 
 	const recipients = members.filter((member) => member.receives_update_emails);
@@ -62,6 +107,8 @@ export function AdminUpdatesWidget() {
 		e.preventDefault();
 		setError(null);
 		setResult(null);
+		setJob(null);
+		setStatusError(null);
 
 		try {
 			const out = await sendMut.mutateAsync({ subject: subject.trim(), body: bodyHtml });
@@ -70,6 +117,16 @@ export function AdminUpdatesWidget() {
 			setBody('');
 			setConfirmation('');
 			setStep('compose');
+
+			// Poll the job until delivery finishes so failures are reported.
+			const finished = await pollSendAllJob(out.job_id, setJob);
+			if (finished) {
+				void refetchRecentJobs();
+			} else {
+				setStatusError(
+					'Delivery status unavailable — the server may have restarted mid-send. Check recent sends or server logs.',
+				);
+			}
 		} catch (err) {
 			setError(err instanceof Error ? err.message : 'Failed to send the update.');
 		}
@@ -113,16 +170,49 @@ export function AdminUpdatesWidget() {
 					)}
 
 					{result && (
-						<div className="rounded-lg border border-green-600 p-3 text-sm" role="status">
-							<p className="text-3xl font-semibold text-green-600">
-								Sent to {result.sent} member{result.sent === 1 ? '' : 's'}
-							</p>
-							<p className="text-foreground/60 mt-1">
-								{result.skipped} skipped (opted out) · {result.failed} failed
-							</p>
+						<div
+							className={cn(
+								'rounded-lg border p-3 text-sm',
+								job?.finished_at && job.failed > 0 ? 'border-red-500' : 'border-green-600',
+							)}
+							role="status"
+						>
+							{job?.finished_at ? (
+								<>
+									<p
+										className={cn(
+											'text-3xl font-semibold',
+											job.sent > 0 ? 'text-green-600' : 'text-red-500',
+										)}
+									>
+										{job.sent > 0
+											? `Sent to ${job.sent} member${job.sent === 1 ? '' : 's'}`
+											: 'Delivery failed'}
+									</p>
+									<p className="text-foreground/60 mt-1">
+										{result.skipped} skipped (opted out)
+										{job.failed > 0 && (
+											<span className="font-medium text-red-500">
+												{' '}
+												· {job.failed} failed — check server logs
+											</span>
+										)}
+									</p>
+								</>
+							) : job ? (
+								<p className="text-foreground/60">
+									Sending… {job.sent + job.failed}/{job.total} delivered
+								</p>
+							) : (
+								<p className="text-foreground/60">
+									Queued for {result.queued} member{result.queued === 1 ? '' : 's'} ·{' '}
+									{result.skipped} skipped (opted out)
+								</p>
+							)}
+
+							{statusError && <p className="mt-1 text-red-500">{statusError}</p>}
 						</div>
 					)}
-
 					<PrimaryButton type="submit" disabled={!subject.trim() || !body.trim()}>
 						review & confirm
 					</PrimaryButton>
@@ -272,6 +362,35 @@ export function AdminUpdatesWidget() {
 						</PrimaryButton>
 					</div>
 				</form>
+			)}
+
+			{recentJobs.length > 0 && (
+				<div className="border-foreground/10 mt-6 border-t pt-4">
+					<h3 className="text-foreground/50 text-xs font-semibold tracking-widest uppercase">
+						recent sends
+					</h3>
+					<ul className="mt-2 flex flex-col gap-1.5 text-sm">
+						{recentJobs.map((j) => (
+							<li key={j.id} className="flex items-baseline justify-between gap-3">
+								<span className="min-w-0 truncate">
+									{j.subject}
+									<span className="text-foreground/40"> · {formatJobDate(j.created_at)}</span>
+									{!j.finished_at && (
+										<span className="text-foreground/50">
+											{isJobStale(j) ? ' · interrupted?' : ' · in progress'}
+										</span>
+									)}
+								</span>
+								<span
+									className={cn('shrink-0', j.failed > 0 ? 'text-red-500' : 'text-foreground/60')}
+								>
+									{j.sent}/{j.total} sent
+									{j.failed > 0 && ` · ${j.failed} failed`}
+								</span>
+							</li>
+						))}
+					</ul>
+				</div>
 			)}
 		</WidgetCard>
 	);

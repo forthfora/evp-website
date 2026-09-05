@@ -1,5 +1,9 @@
+from datetime import datetime
+
 from ninja import Schema
-from pydantic import EmailStr
+from pydantic import EmailStr, Field
+
+from apps.core.schemas import PatchSchema
 
 
 class RequestOTPIn(Schema):
@@ -29,7 +33,7 @@ class MeOut(Schema):
     receives_update_emails: bool
 
 
-class MePatchIn(Schema):
+class MePatchIn(PatchSchema):
     first_name: str | None = None
     last_name: str | None = None
     receives_update_emails: bool | None = None
@@ -51,13 +55,25 @@ class MemberOut(Schema):
 
 
 class SendAllEmailIn(Schema):
-    subject: str
+    # Bounded to match SendAllJob.subject — an oversized subject would
+    # otherwise surface as a database DataError (500).
+    subject: str = Field(max_length=255)
     body: str
 
 
 class SendAllEmailOut(Schema):
     subject: str
     body: str
-    sent: int
+    queued: int
     skipped: int
+    job_id: int
+
+
+class SendAllJobOut(Schema):
+    id: int
+    subject: str
+    total: int
+    sent: int
     failed: int
+    created_at: datetime
+    finished_at: datetime | None

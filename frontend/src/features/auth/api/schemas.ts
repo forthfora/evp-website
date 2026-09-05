@@ -79,12 +79,24 @@ export const SendAllEmailInputSchema = z.object({
 	body: z.string().min(1),
 });
 
+/** `POST /api/accounts/sendall` — delivery runs in the background. */
 export const SendAllEmailOutSchema = z.object({
 	subject: z.string(),
 	body: z.string(),
-	sent: z.number(),
+	queued: z.number(),
 	skipped: z.number(),
+	job_id: z.number(),
+});
+
+/** `GET /api/accounts/sendall/jobs[/{id}]` — delivery progress/results. */
+export const SendAllJobSchema = z.object({
+	id: z.number(),
+	subject: z.string(),
+	total: z.number(),
+	sent: z.number(),
 	failed: z.number(),
+	created_at: z.string(),
+	finished_at: z.string().nullable(),
 });
 
 export type RequestOTPInput = z.infer<typeof RequestOTPInputSchema>;
@@ -97,3 +109,4 @@ export type ChangeEmailInput = z.infer<typeof ChangeEmailInputSchema>;
 export type MemberOut = z.infer<typeof MemberOutSchema>;
 export type SendAllEmailInput = z.infer<typeof SendAllEmailInputSchema>;
 export type SendAllEmailOut = z.infer<typeof SendAllEmailOutSchema>;
+export type SendAllJob = z.infer<typeof SendAllJobSchema>;

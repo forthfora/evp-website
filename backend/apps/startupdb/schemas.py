@@ -1,6 +1,9 @@
 from datetime import date, datetime
+from typing import ClassVar
 
 from ninja import Schema
+
+from apps.core.schemas import PatchSchema
 
 
 class FounderOut(Schema):
@@ -28,7 +31,7 @@ class FounderIn(Schema):
     notes: str = ""
 
 
-class FounderPatchIn(Schema):
+class FounderPatchIn(PatchSchema):
     first_name: str | None = None
     last_name: str | None = None
     location: str | None = None
@@ -67,7 +70,7 @@ class StartupIn(Schema):
     founder_ids: list[int] = []  # noqa: RUF012
 
 
-class StartupPatchIn(Schema):
+class StartupPatchIn(PatchSchema):
     name: str | None = None
     description: str | None = None
     website: str | None = None
@@ -77,3 +80,5 @@ class StartupPatchIn(Schema):
     notes: str | None = None
     founding_date: date | None = None
     founder_ids: list[int] | None = None
+
+    nullable_fields: ClassVar[frozenset[str]] = frozenset({"founding_date"})

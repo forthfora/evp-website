@@ -65,6 +65,15 @@ class RequestOTPTests(TestCase):
         assert response.json() == {"exists": False}
 
     @patch("apps.accounts.api.send_otp_email")
+    def test_request_code_mixed_case_matches_existing_account(self, mock_send) -> None:
+        """Emails are case-insensitive: a mixed-case request still reports
+        exists=True for the lowercased account."""
+        User.objects.create_user("delivered+existing@resend.dev")
+        response = self._request_code("Delivered+Existing@resend.dev")
+        assert response.status_code == 200
+        assert response.json() == {"exists": True}
+
+    @patch("apps.accounts.api.send_otp_email")
     def test_request_code_returns_500_when_email_fails(self, mock_send) -> None:
         """If sending the OTP email fails, a 500 is returned."""
         mock_send.side_effect = EmailSendError("smtp down")
@@ -241,6 +250,30 @@ class VerifyOTPTests(TestCase):
         response = self._verify(email, code)
         assert response.status_code == 401
 
+    def test_verify_code_with_mixed_case_email(self) -> None:
+        """A mixed-case address maps to a single lowercased account
+        (consistent behaviour between SQLite and MySQL)."""
+        email = "Delivered+Case@Resend.dev"
+        code = self._request_code(email)
+
+        response = self._verify(email, code)
+        assert response.status_code == 200
+        assert response.json() == {"created": True}
+
+        # Exactly one account, stored in canonical (lowercase) form.
+        assert User.objects.filter(email="delivered+case@resend.dev").count() == 1
+        assert User.objects.filter(email__iexact=email).count() == 1
+
+    def test_reissue_invalidates_previous_code(self) -> None:
+        """Requesting a new code invalidates prior unconsumed codes: only
+        the newest code is valid at any time."""
+        email = "delivered+reissue@resend.dev"
+        first_code = self._request_code(email)
+        second_code = self._request_code(email)
+
+        assert self._verify(email, first_code).status_code == 401
+        assert self._verify(email, second_code).status_code == 200
+
 
 class MeEndpointTests(TestCase):
     """Tests for GET /api/accounts/me."""
@@ -352,6 +385,28 @@ class UpdateMeTests(TestCase):
         user.refresh_from_db()
         assert user.first_name == "New"
         assert user.last_name == ""
+        assert user.receives_update_emails is True
+
+    def test_update_rejects_explicit_null(self) -> None:
+        """An explicit `null` is rejected with 422 instead of being assigned
+        to a non-nullable field (which would surface as a 500)."""
+        user = User.objects.create_user("delivered+me@resend.dev", first_name="Ada")
+        self.client.force_login(user)
+
+        resp = self._patch({"first_name": None})
+        assert resp.status_code == 422
+
+        user.refresh_from_db()
+        assert user.first_name == "Ada"
+
+    def test_update_rejects_explicit_null_opt_in(self) -> None:
+        """`receives_update_emails: null` is likewise rejected with 422."""
+        user = User.objects.create_user("delivered+me@resend.dev")
+        self.client.force_login(user)
+
+        resp = self._patch({"receives_update_emails": None})
+        assert resp.status_code == 422
+        user.refresh_from_db()
         assert user.receives_update_emails is True
 
     def test_update_requires_auth(self) -> None:

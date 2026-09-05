@@ -51,3 +51,9 @@ class UserModelTests(HypothesisTestCase):
         """Member accounts are passwordless (OTP login)."""
         user = User.objects.create_user("delivered+member@resend.dev")
         assert not user.has_usable_password()
+
+    def test_create_user_normalizes_email(self) -> None:
+        """Emails are stored in canonical (lowercase, trimmed) form so
+        SQLite and MySQL agree on uniqueness."""
+        user = User.objects.create_user("  Delivered+Case@Resend.dev ")
+        assert user.email == "delivered+case@resend.dev"
