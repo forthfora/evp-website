@@ -13,28 +13,33 @@ Live site: https://edinburghventurepoint.com — hosted on Tardis servers (https
 evp-website/
 ├── backend/                  # Django + Django Ninja API
 │   ├── apps/
-│   │   ├── accounts/         # Custom User model, auth API
-│   │   └── core/             # Shared API/schemas
+│   │   ├── accounts/         # Custom User model (4 roles), passwordless OTP auth API
+│   │   ├── core/             # Shared API/schemas, permissions, email service, rate limiting
+│   │   └── startupdb/        # StartupEntry + Founder models, startup database API
 │   ├── config/               # Django settings, urls, api.py (NinjaAPI root)
-│   ├── helpers/exceptions.py
 │   ├── manage.py
 │   ├── pyproject.toml        # Python deps (managed with uv)
-│   └── Dockerfile
+│   └── Dockerfile            # python:3.13-slim-trixie (non-root app user, HEALTHCHECK)
 ├── frontend/                 # React 19 + Vite + TypeScript SPA
 │   ├── src/
 │   │   ├── main.tsx
-│   │   ├── app/              # app-layout, app.tsx, browser-router.tsx, app.css
-│   │   ├── pages/            # home, about, contact, events, startups, ErrorPage
-│   │   └── shared/           # assets, lib, styles, ui
+│   │   ├── app/              # App shell: App.tsx, AppLayout.tsx, provider.tsx, router.tsx, routes/
+│   │   ├── components/       # layout/, theme/, three/ (3D background), ui/ (shared UI)
+│   │   ├── features/         # about, auth, contact, events, homepage, member, privacy, startups
+│   │   ├── lib/api/          # apiFetch wrapper, error normalisation, typed clients
+│   │   ├── utils/            # cn.ts, motion.ts
+│   │   └── assets/
 │   ├── package.json
 │   ├── vite.config.ts
+│   ├── vitest.config.ts      # Frontend test config (jsdom + @testing-library)
 │   ├── nginx.conf            # Serves frontend + proxies API in prod
-│   └── Dockerfile
-├── docs/                     # Documentation (contains specs.md PRD)
-├── .github/workflows/deploy.yml  # CI/CD: build → GHCR → SSH deploy
-├── docker-compose.yml        # Local dev orchestration
-├── docker-compose.prod.yml
-├── backend.code-workspace / frontend.code-workspace / fullstack.code-workspace
+│   └── Dockerfile            # node:24-alpine build stage → nginx:alpine (non-root, HEALTHCHECK)
+├── docs/                     # Documentation (specs.md PRD)
+├── .github/workflows/deploy.yml  # CI/CD: test → build → GHCR → SSH deploy
+├── docker-compose.yml        # Local dev orchestration (frontend, backend, redis)
+├── docker-compose.prod.yml   # Prod: pulls pre-built GHCR images + redis (env_file: .env at repo root; IMAGE_TAG pins the deploy)
+├── evp-website.code-workspace
+├── .gitignore                # Ignores the root-level prod `.env`
 └── README.md
 ```
 
@@ -42,25 +47,50 @@ evp-website/
 
 ### Backend
 
-- **Python ≥ 3.13**, **Django 6**, **Django Ninja 1.6** (REST API, Pydantic validation)
-- **jwtninja** for JWT auth, **django-cors-headers**, **django-jazzmin** (admin theme)
+- **Python ≥ 3.13** (`pyproject.toml`, `backend/Dockerfile`, and CI are all aligned on 3.13), **Django 6.0.5**, **Django Ninja 1.6.2** (REST API, Pydantic validation)
 - **Gunicorn** (WSGI server in prod), **uv** for dependency management
-- DB: MySQL/PyMySQL in prod (psycopg also available); SQLite (`db.sqlite3`) locally
-- Custom `User` model in `apps/accounts/models.py` — email is `USERNAME_FIELD`; no first/last name
+- **Ruff** (linter, configured in `backend/pyproject.toml`); dev deps also include **pytest**, **pytest-django**, **hypothesis**, **freezegun** (though tests currently run via `manage.py test`)
+- **django-ratelimit** — all API endpoints are rate-limited (per-IP or per-user-or-IP); see decorators on each route. Counts live in the default Django cache: **Redis** (shared across Gunicorn workers) when `CACHE_URL` is set, falling back to per-process `LocMemCache` when unset. The dev compose loads `backend/.env` via `env_file` and `.env.example` ships `CACHE_URL=redis://redis:6379/0` **active**, so a fresh dev setup is Redis-backed by default; prod is Redis-backed only if the server's root `.env` sets `CACHE_URL` (see Known Issues). Both compose files run a `redis:7-alpine` service backing it
+- **django-jazzmin** — admin theme (using default config, no custom `JAZZMIN_SETTINGS`)
+- DB: MySQL/PyMySQL in prod; SQLite (`db.sqlite3`) locally
+- Custom `User` model in `apps/accounts/models.py` — email is `USERNAME_FIELD`; `first_name`/`last_name`; **`username` is an auto-generated, globally-unique, immutable user ID** (UUID hex, never the email, never shown in the UI) that keeps a user's activity attributable even if their email changes. Four roles (`member` default, `scout`, `committee`, `admin`), elevated manually via the Django admin. Passwordless **session-based** OTP auth for members: `POST /api/accounts/otp/request` (returns `{exists}` — drives the unified login/signup flow) + `/otp/verify` (returns `{created}`; sets a Django session cookie, no JWT), `POST /api/accounts/logout`, profile `GET /api/accounts/me`, profile update `PATCH /api/accounts/me`, OTP-verified email change `POST /api/accounts/email/change`, member list `GET /api/accounts/members` (admin/committee only), admin send-all-email `POST /api/accounts/sendall` (queues the send for background delivery; response is `{queued, skipped, job_id}`) with delivery progress/results pollable at `GET /api/accounts/sendall/jobs[/{id}]` (admin only; backed by the `SendAllJob` model, also view-only in the Django admin), CSRF bootstrap at `GET /api/csrf`. **OTP codes are stored hashed** (`EmailOTP.code` holds the SHA-256 hex digest, never the plaintext; `EmailOTP.issue()` returns the plaintext exactly once for email delivery) and verified with `secrets.compare_digest` — a DB leak does not expose live codes
+- **Admin access**: superusers use a **regular password** (the standard `createsuperuser` flow — `create_superuser(..., password=...)` sets a usable password; member accounts stay passwordless). The Django admin is served at **`/evp-dev/`** (not `/admin/`) via `config/urls.py`, with a redirect from `/evp-dev/login/` to `/`. It uses the standard Django admin site with Jazzmin theming — there is **no custom admin site class** (the `SuperuserOnlyAdminSite` / `AccountsAdminConfig` referenced in earlier docs do not exist). Access is controlled by Django's default `is_staff`/`is_superuser` flags.
+- **Email service** (`apps/core/email.py`): uses the **Resend Python SDK** (`resend.Emails.send()`) directly when `RESEND_ENABLED=True`; logs to console when disabled. Emails are wrapped in a shared HTML template (`_build_email_html`). OTP emails, welcome emails, and contact-form emails all flow through `send_email()`. The only Django email backend configured is `console.EmailBackend` under DEBUG (unused by the sending path); there is no SMTP config — all real sending goes through the Resend SDK. **Admin update emails are sanitised twice**: the admin UI renders Markdown to HTML and sanitises it with DOMPurify (`src/features/member/components/widgets/render-markdown.ts`), and `sendall` sanitises the submitted HTML again server-side with **nh3** (`nh3.clean` in `apps/accounts/api.py`) — scripts, event handlers, and `javascript:` URLs never reach member inboxes even via a direct API call.
+- Startup database in `apps/startupdb/` — two record types:
+  - `Founder`: composite natural key `(first_name, last_name)` (enforced by `unique_founder_name` constraint), `occupation` choices (`bachelors`/`masters`/`phd`/`graduated`), plus `location`, `linkedin`, `email`, `notes`
+  - `StartupEntry`: unique `name`, `founders` M2M → `Founder`, `founding_date`, `description`, `website`, `linkedin`, `email`, `location`, `notes`
+  - Both carry `created_by` FK → User; the API exposes it as `created_by` = the creator's stable `username` (never the DB id). API under `/api/startupdb` gated by `RoleAuth("scout", "committee", "admin")`; edit/delete via `can_manage_entry` (own records only; admin manages all)
 
 ### Frontend
 
-- **React 19**, **TypeScript**, **Vite 8**, **React Router 7** (data router via `createBrowserRouter`)
+- **React 19**, **TypeScript 6**, **Vite 8**, **React Router 7** (data router via `createBrowserRouter`)
 - **Tailwind CSS 4** (via `@tailwindcss/vite`), **Sass**, **framer-motion**, **three.js**
 - **TanStack React Query**, **zod**, **lucide-react** / **react-icons**
-- Path alias `@/` → `src/`
+- Path aliases `@/` → `src/`
 - Tooling: ESLint (`simple-import-sort`, react-hooks), Prettier (`prettier-plugin-tailwindcss`)
+- Testing: **Vitest** (jsdom environment) with `@testing-library/react` — config in `vitest.config.ts`, setup in `src/setup-tests.ts`
+- **Routes** (defined in `src/app/router.tsx`; thin page wrappers in `src/app/routes/`, feature code in `src/features/`):
+  - `/` — Home (landing page, hero, highlights)
+  - `/about` — About (mission, history, team)
+  - `/startups` — Startups (curated showcase, not the internal database)
+  - `/events` — Events (upcoming and past)
+  - `/contact` — Contact form
+  - `/join` — Auth page (unified login/signup: email → OTP code → names if new)
+  - `/privacy` — Privacy Policy (static legal copy, collapsible sections)
+  - `/terms` — Terms of Service (static legal copy)
+  - `/member` — Member dashboard (protected route, role-based widget system)
+  - `*` — 404 error page (catch-all loader throws a 404 `Response`)
+- **Member dashboard** (`src/features/member/`): hash-based navigation (`/member#<page-id>`), role-filtered widget registry. Pages: Home (welcome + settings), Member List (committee+), Admin (admin only). The Startup Database page is currently commented out of the page registry (`TODO: reimplement`), though `StartupDatabaseWidget` and the `src/lib/api/startupdb.ts` client remain. Widgets defined in `src/features/member/components/widgets/`.
+- **Auth flow** (`src/features/auth/`): 3-step animated flow — `EmailStep` → `CodeStep` → `NamesStep` (only for newly created accounts). State managed by the `useAuthFlow` hook; session state by `AuthProvider` (`src/features/auth/components/AuthProvider.tsx`).
 
 ### Infrastructure
 
 - Docker + Docker Compose; Nginx serves frontend on port **16017** and proxies to backend (Gunicorn on **17017**)
+- Nginx also rate-limits (`limit_req_zone`: global 20r/s, API 5r/s) and handles legacy URL redirects (`/investing` → `/contact#scout-programme`, `/meet-the-team` → `/about#meet-the-team`, `/partners` → `/contact#network`)
+- **Nginx security headers** (server-level, `always`): `Strict-Transport-Security` (1 year, includeSubDomains, preload), `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy`, and a CSP for the SPA (`script-src 'self'` — the theme bootstrap is the external `/theme-init.js`, not inline; `style-src 'unsafe-inline'` for React style props/framer-motion; `img-src ... https:` for admin email previews). HSTS is enforced at the edge (not via Django's `SECURE_HSTS_*`) so it covers static files and nginx error pages too, and to avoid duplicate headers. The **Django admin (`/evp-dev/`) is exempt from the CSP** (it needs inline scripts/styles) — that location repeats the other headers because any `add_header` in a location drops the server-level set. Both proxy locations `proxy_hide_header` the headers Django's middleware also sends (`X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`) so each appears exactly once
 - Images pushed to GHCR (repo-scoped): `ghcr.io/forthfora/evp-website/frontend`, `ghcr.io/forthfora/evp-website/backend`
-- CI/CD (`.github/workflows/deploy.yml`): on push to `main` → matrix build of frontend+backend → push to GHCR → SSH deploy via `docker compose pull && up -d`
+- CI/CD (`.github/workflows/deploy.yml`): on push to `main` → matrix test (frontend lint+test+build, backend tests) → matrix build-and-push to GHCR (tagged `latest` + commit SHA) → SSH deploy. The deploy script starts the rootless Podman socket, sets `DOCKER_HOST`, logs into GHCR with the `GHCR_DEPLOY_TOKEN` PAT, exports `IMAGE_TAG` (the commit's short SHA) so `docker-compose pull` pins the exact images for that commit, runs `docker-compose up -d --remove-orphans`, then `docker image prune -f`. On PRs: test + build only (no push/deploy). GHA layer caching (`type=gha`) used for faster builds.
+- CI uses **Node 24** for frontend (matching the `node:24-alpine` Docker build; `frontend/package.json` declares `engines: node >= 22`) and **Python 3.13** for backend
 - Deploy secrets: `SERVER_HOST`, `SERVER_USER`, `SERVER_SSH_KEY`, `GHCR_DEPLOY_TOKEN`
 
 ## Common Commands
@@ -73,7 +103,7 @@ docker compose up --build
 ```
 
 - Site: http://localhost:16017
-- Admin: http://localhost:16017/admin/
+- Admin: http://localhost:16017/evp-dev/
 - API docs (Ninja): http://localhost:16017/api/docs
 
 ### Backend (standalone, inside container or venv)
@@ -85,6 +115,8 @@ uv run python manage.py migrate
 uv run python manage.py runserver
 uv run python manage.py createsuperuser
 uv run python manage.py test           # run tests
+uv run ruff check                       # lint all Python files
+uv run ruff check --fix                 # lint + auto-fix
 ```
 
 ### Frontend (standalone)
@@ -92,23 +124,50 @@ uv run python manage.py test           # run tests
 ```sh
 cd frontend
 npm install
-npm run dev        # Vite dev server
+npm run dev        # Vite dev server (proxies /api to http://127.0.0.1:16017)
 npm run build      # tsc -b && vite build
 npm run lint       # ESLint
 npm run format     # Prettier
+npm run test       # Vitest (run once)
+npm run test:watch # Vitest (watch mode)
 ```
 
 ## Conventions & Gotchas
 
-- **Backend code style**: modern typing (`from __future__ import annotations`, PEP 695 generics e.g. `class UserManager[T]`), type hints everywhere.
+- **Backend code style**: type hints everywhere (currently quoted forward references, e.g. `-> "User"`; `from __future__ import annotations` exists only in `apps/core/ratelimit.py` — there are no PEP 695 generics in the codebase yet). Linted with **Ruff** — run `uv run ruff check` before committing.
+- **Run backend commands with `uv run`**: always prefix Python commands with `uv run` (e.g. `uv run python manage.py migrate`, `uv run pytest`, `uv run ruff check`). Never invoke `python` or `.venv\Scripts\python.exe` directly — `uv run` resolves the correct venv automatically.
 - **API**: register routers in `backend/config/api.py`; URL prefix `/api/`. Schemas live next to apps (e.g. `apps/core/schemas.py`).
-- **Auth**: JWT via `jwtninja`; email+password login (no username login).
-- **Frontend pages**: each page lives in `src/pages/<name>/<Name>Page.tsx`; add routes in `src/app/browser-router.tsx` wrapped by `AppLayout`; unknown paths throw a 404 `Response`.
-- **Styling**: Tailwind utility classes preferred; merge classes with `clsx` + `tailwind-merge`.
+- **API errors**: two shapes — `{"errors": {field: [msgs]}}` (401/403/404/422 from the `config/api.py` handlers) and `{"detail": "..."}` (`HttpError`, e.g. invalid OTP or email-server 500s). The frontend normalises both into `ApiRequestError` (`frontend/src/lib/api/errors.ts`).
+- **Frontend API layer**: all fetches go through `apiFetch` (`frontend/src/lib/api/api.ts`), which sends `credentials: 'include'` and attaches `X-CSRFToken` (fetched from `GET /api/csrf`) to mutating requests, retrying once on CSRF rejection (HTML 403 only; JSON 403s are final). Responses are runtime-validated with zod via `requestJson`; both backend error shapes are normalised into `ApiRequestError` (`frontend/src/lib/api/errors.ts`). Typed clients live in `frontend/src/lib/api/{contact,startupdb}.ts` and `frontend/src/features/auth/api/api.ts`; the session auth provider is `frontend/src/features/auth/components/AuthProvider.tsx`.
+- **Frontend features**: each feature lives in `src/features/<name>/` (components, hooks, API clients); thin route wrappers live in `src/app/routes/` and are registered in `src/app/router.tsx` under `AppLayout`; unknown paths throw a 404 `Response` from the catch-all loader.
+- **Styling**: Tailwind utility classes preferred; merge classes with `clsx` + `tailwind-merge` via the `cn()` utility at `src/utils/cn.ts`. Use `cva` (class-variance-authority) for component variants. No new CSS files — extract repeated Tailwind patterns into React components in `src/components/ui/`. No `@apply` in CSS. Route files should contain only composition and data assembly, not inline component definitions.
 - **Lint/format before committing**: `npm run lint` and `npm run format` must pass.
-- **Env vars**: backend reads from `backend/.env` (python-decouple). Never commit `.env`.
+- **Env vars**: in local dev the backend reads from `backend/.env` (python-decouple; the dev compose both mounts `./backend` to `/app` and loads the file via `env_file: ./backend/.env`). `.env.example` ships `CACHE_URL=redis://redis:6379/0` active, so dev rate limits are Redis-backed by default — comment it out to fall back to per-process `LocMemCache`. In production, `docker-compose.prod.yml` uses `env_file: .env` at the **repo root** on the server — set `CACHE_URL` there for cross-worker rate limits. Never commit `.env` (the root `.gitignore` ignores the root-level one; `backend/.gitignore` and `frontend/.gitignore` cover the rest).
 - **Static files**: backend `collectstatic` output goes to the shared `django_static` Docker volume; Nginx serves it — don't change the volume wiring without updating both `docker-compose.yml` and `frontend/nginx.conf`.
 - Don't edit `backend/staticfiles/` (generated artifacts).
+
+## Known Issues & Discrepancies
+
+Findings from the 2026-09 project-wide reviews (latest pass: 2026-09-05, re-verified and fixed after the `accounts`-branch commits). Previously listed items (Python 3.12 Dockerfile, missing `MEDIA_URL`/`MEDIA_ROOT`, unused `PyJWT`/`django-redis`, SMTP dead code, `docs/adr/` references, unused `/admin/` Nginx proxy, contact-form HTML injection, per-process rate limits, OTP codes stored plaintext, unsanitised Markdown in admin update emails, missing HSTS/security headers, PATCH `null`→500s, startupdb/`sendall` N+1 queries, synchronous `sendall`, email case-sensitivity divergence, the `verify_otp` `get_or_create` race, OTP re-issue shadowing, the `backend/.dockerignore` `.env` leak, the vestigial root `package.json`/`node_modules`, the unbounded `sendall` subject, the nginx `/index.html` security-header regression, the missing `/evp-dev/` global rate-limit zone, duplicate `Cache-Control` headers on static locations, the broken CI image-name step, the unused `RoleRoute` export, the stale `@/lib/auth/api` test mock, the `Diallow` robots typo, the CI/Docker Node version mismatch, frontend tests missing from CI, `npm install` in the Docker build, missing HEALTHCHECKs and root containers, prod pulling `:latest` only, the missing root `.gitignore`, the unused `psycopg` dependency, the "occured" typos, and the `MeOut`/`MemberOut` duplication) have been resolved and removed. The email-schema fix was **partial**: `RequestOTPIn`/`VerifyOTPIn`/`EmailChangeIn` use pydantic `EmailStr`, but `ContactIn.email` and the startupdb `FounderIn`/`StartupIn` `email`/`website`/`linkedin` fields are still plain `str` with no length limits, and `FounderIn.occupation` does not enforce the model's choices — oversized values can surface as MySQL `DataError` → 500.
+
+### Security
+
+- **Prod rate-limit cache depends on the server's root `.env`**: dev is now Redis-backed by default (the dev compose loads `backend/.env` via `env_file`, and `.env.example` ships `CACHE_URL` active), but prod only reads `env_file: .env` at the repo root — if that file omits `CACHE_URL`, the OTP/auth brute-force protections are per-worker `LocMemCache`.
+- **`client_ip` (`apps/core/ratelimit.py`) trusts the first `X-Forwarded-For` value** — safe behind this project's nginx (which overwrites the header via `proxy_set_header X-Forwarded-For $remote_addr;`), but spoofable if the backend is ever exposed directly or behind an appending proxy.
+- **`founder_ids` are not ownership-checked**: any scout can attach another scout's founder records to their own startup entry (reading all founders' emails/LinkedIn is by-design for the role).
+- **OTP lockout is per-record**: 5 requests + 10 verifies per 10 min per IP allows ~50 guesses/10 min/IP against a 10⁶ code space, parallelisable across IPs (re-issue now invalidates prior unconsumed codes, so only the newest code is ever valid).
+
+### Correctness / robustness
+
+- **No pagination** on `GET /api/accounts/members`, `GET /api/startupdb/`, `GET /api/startupdb/founders` (full-table serialisation). (The startupdb lists and `sendall`'s greeting lookups are no longer N+1 — fixed 2026-09-05.)
+- **`sendall` delivery runs in a daemon thread** (fixed 2026-09-05): the response returns `{queued, skipped, job_id}` immediately, and a `SendAllJob` row tracks per-recipient `sent`/`failed` counts, polled by the admin UI via `GET /api/accounts/sendall/jobs[/{id}]` (the widget shows live progress, failure counts, and a recent-sends list). Residual: a worker restart mid-send can still silently drop the tail of a send (no resume) — the job row stays unfinished and the UI flags it as interrupted.
+- **`AdminUpdatesWidget` job polling is not unmount-safe**: the `setTimeout` poll loop (1.5 s interval, 120 s cap, 3-consecutive-error tolerance) has no cancellation/AbortSignal — if the widget unmounts mid-send it keeps fetching and calls `setJob` on an unmounted component for up to two minutes (wasted requests, no-op state updates).
+
+### Dead / stale code & tooling
+
+- **Startup Database dashboard page is intentionally disabled** (commented out of the member page registry, `TODO: reimplement` — reserved for future work), while `StartupDatabaseWidget` and the full `src/lib/api/startupdb.ts` client remain — the API is live but unreachable from the UI.
+- **GitHub Actions are pinned by major tag (not commit SHA)**, and `backend/Dockerfile` copies uv from `ghcr.io/astral-sh/uv:latest` — supply-chain hardening opportunities.
+- **Minor cleanliness**: stale Django 4.2 docstring in `config/urls.py`; unnecessary `sys.path.insert` hack in `config/settings.py`; `AuthSection.tsx` mobile-first sizing (`text-lg md:text-sm`, `max-w-48 md:max-w-32` — intentional for touch targets, but inverted from the usual pattern); `use-auth-flow.ts` leaves a 150 ms focus `setTimeout` uncleared on unmount (harmless no-op).
 
 ## Common Gotchas & Fixes
 
@@ -120,4 +179,8 @@ npm run format     # Prettier
   - The compose project name is typically the directory name — e.g. `evp-website_default.conflist`.
 
 - **SSH deploy works but `docker-compose` fails with `PermissionError(13, 'Permission denied')`**
-  - The server uses Podman rootless (no `/var/run/docker.sock`). The deploy script must set `DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock` and `DOCKER_CONFIG=$XDG_RUNTIME_DIR/containers`.
+  - The server uses Podman rootless (no `/var/run/docker.sock`). The deploy script runs `systemctl --user start podman.socket` and sets `DOCKER_HOST=unix:///run/user/$(id -u)/podman/podman.sock` before invoking `docker-compose`.
+
+- **After the non-root backend image first deploys, `collectstatic` fails with `PermissionError`**
+  - Cause: the backend container now runs as uid 1000 (`app`), but the pre-existing `django_static` volume on the server holds root-owned files from earlier root-container deploys.
+  - Fix (one-time, on the server): `docker-compose down && docker volume rm <project>_django_static && docker-compose up -d` — `collectstatic` repopulates the volume as the app user on boot. (Alternatively `podman unshare chown -R 1000:1000` the volume's directory.) Do this **before** merging the non-root backend image, or the deploy will crash-loop.

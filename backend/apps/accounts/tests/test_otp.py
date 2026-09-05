@@ -1,0 +1,186 @@
+import string
+from datetime import timedelta
+
+import hypothesis.strategies as st
+import pytest
+from django.utils import timezone
+from freezegun import freeze_time
+from hypothesis import given
+from hypothesis.extra.django import TestCase as HypothesisTestCase
+
+from apps.accounts.models import (
+    EmailOTP,
+    generate_otp_code,
+    hash_otp_code,
+    normalize_email,
+)
+
+# Strategy for generating valid 6-digit numeric codes (as strings)
+valid_code = st.text(alphabet=string.digits, min_size=6, max_size=6)
+
+
+class EmailOTPModelTests(HypothesisTestCase):
+    @given(email=st.emails(), code=valid_code)
+    def test_is_valid_true_when_unconsumed_and_not_expired(
+        self, email: str, code: str
+    ) -> None:
+        """A fresh, unconsumed, non-expired OTP is valid."""
+        otp = EmailOTP.objects.create(email=email, code=hash_otp_code(code))
+        assert otp.is_valid
+
+    @given(email=st.emails(), code=valid_code)
+    def test_is_valid_false_after_consume(self, email: str, code: str) -> None:
+        """After a successful try_consume(), is_valid is False."""
+        otp = EmailOTP.objects.create(email=email, code=hash_otp_code(code))
+        assert otp.try_consume(code) is True
+        assert not otp.is_valid
+
+    @given(email=st.emails(), code=valid_code)
+    def test_is_valid_false_after_expiry(self, email: str, code: str) -> None:
+        """An expired OTP is not valid, even if unconsumed."""
+        with freeze_time(timezone.now() - timedelta(minutes=30)):
+            otp = EmailOTP.objects.create(email=email, code=hash_otp_code(code))
+
+        # now we're back to "present" — the OTP was created 30 min ago
+        assert not otp.is_valid
+
+    @given(email=st.emails(), code=valid_code)
+    def test_try_consume_with_wrong_code_returns_false(
+        self, email: str, code: str
+    ) -> None:
+        """try_consume() with a wrong code returns False and increments attempts."""
+        otp = EmailOTP.objects.create(email=email, code=hash_otp_code(code))
+        wrong_code = str((int(code) + 1) % 1_000_000).zfill(6)
+
+        result = otp.try_consume(wrong_code)
+        assert not result
+        assert otp.attempts == 1
+
+    @given(email=st.emails(), code=valid_code)
+    def test_max_attempts_lockout(self, email: str, code: str) -> None:
+        """After max_attempts wrong tries, try_consume() always returns False
+        even with the correct code."""
+        otp = EmailOTP.objects.create(email=email, code=hash_otp_code(code))
+
+        # Exhaust attempts with wrong codes
+        wrong_code = str((int(code) + 1) % 1_000_000).zfill(6)
+        for _ in range(otp.max_attempts):
+            otp.try_consume(wrong_code)
+
+        assert otp.attempts >= otp.max_attempts
+
+        # Now even the correct code fails
+        result = otp.try_consume(code)
+        assert not result
+
+    @given(email=st.emails(), code=valid_code)
+    def test_try_consume_success_marks_consumed(self, email: str, code: str) -> None:
+        """A successful try_consume() marks the OTP consumed and returns True."""
+        otp = EmailOTP.objects.create(email=email, code=hash_otp_code(code))
+
+        result = otp.try_consume(code)
+        assert result is True
+        assert otp.consumed is True
+
+    def test_default_ttl_is_10_minutes(self) -> None:
+        """An OTP defaults to a 10-minute expiry from creation."""
+        with freeze_time(timezone.now()):
+            otp = EmailOTP.objects.create(email="delivered+test@resend.dev")
+            expected = timezone.now() + timedelta(minutes=10)
+            # Allow 1s tolerance for execution time
+            assert otp.expires_at.timestamp() == pytest.approx(
+                expected.timestamp(), abs=1
+            )
+
+    def test_cleanup_deletes_consumed_and_expired(self) -> None:
+        """cleanup() removes consumed and expired records, keeps live ones."""
+        EmailOTP.objects.create(email="delivered+live@resend.dev")
+
+        used = EmailOTP.objects.create(
+            email="delivered+used@resend.dev", code=hash_otp_code("654321")
+        )
+        assert used.try_consume("654321") is True
+
+        with freeze_time(timezone.now() - timedelta(minutes=30)):
+            EmailOTP.objects.create(email="delivered+old@resend.dev")
+
+        assert EmailOTP.cleanup() == 2
+        assert EmailOTP.objects.count() == 1
+        assert EmailOTP.objects.filter(email="delivered+live@resend.dev").exists()
+
+    def test_generate_otp_code_is_six_digits(self) -> None:
+        """generate_otp_code() produces a 6-digit numeric code."""
+        code = generate_otp_code()
+        assert len(code) == 6
+        assert code.isdigit()
+
+    def test_stored_code_is_hashed_not_plaintext(self) -> None:
+        """The persisted code is a SHA-256 hex digest, never the plaintext."""
+        plaintext = "123456"
+        otp = EmailOTP.objects.create(
+            email="delivered+test@resend.dev", code=hash_otp_code(plaintext)
+        )
+        assert otp.code != plaintext
+        assert len(otp.code) == 64
+        # The plaintext still verifies (constant-time, against the hash).
+        assert otp.try_consume(plaintext) is True
+
+    def test_default_code_is_a_hash_digest(self) -> None:
+        """A bare create() stores a 64-char hex digest (hashed random code)."""
+        otp = EmailOTP.objects.create(email="delivered+test@resend.dev")
+        assert len(otp.code) == 64
+        assert all(c in "0123456789abcdef" for c in otp.code)
+
+    def test_issue_returns_plaintext_once_and_stores_hash(self) -> None:
+        """issue() hands back the plaintext for delivery but stores only hash."""
+        otp, plaintext = EmailOTP.issue("delivered+issue@resend.dev")
+        assert len(plaintext) == 6
+        assert plaintext.isdigit()
+        assert otp.code == hash_otp_code(plaintext)
+        assert otp.code != plaintext
+        assert otp.try_consume(plaintext) is True
+
+    def test_issue_invalidates_prior_unconsumed_codes(self) -> None:
+        """A new issue() marks older unconsumed codes as consumed, so only
+        the newest code is valid at any time."""
+        otp1, code1 = EmailOTP.issue("delivered+reissue@resend.dev")
+        otp2, code2 = EmailOTP.issue("delivered+reissue@resend.dev")
+
+        otp1.refresh_from_db()
+        assert otp1.consumed is True
+        assert not otp1.is_valid
+
+        # The older code no longer verifies; the newest does.
+        assert otp1.try_consume(code1) is False
+        assert otp2.try_consume(code2) is True
+
+    def test_issue_only_invalidates_same_email(self) -> None:
+        """Re-issuing for one address leaves other addresses' codes alone."""
+        _, other_code = EmailOTP.issue("delivered+other@resend.dev")
+        EmailOTP.issue("delivered+reissue@resend.dev")
+
+        other = (
+            EmailOTP.objects.filter(email="delivered+other@resend.dev", consumed=False)
+            .order_by("-created_at")
+            .first()
+        )
+        assert other is not None
+        assert other.try_consume(other_code) is True
+
+    def test_issue_normalizes_email(self) -> None:
+        """issue() stores the address in canonical (lowercase, trimmed) form."""
+        otp, _ = EmailOTP.issue("  Delivered+Case@Resend.dev ")
+        assert otp.email == "delivered+case@resend.dev"
+
+    def test_normalize_email(self) -> None:
+        """normalize_email trims and lowercases."""
+        assert normalize_email("  User@Example.COM ") == "user@example.com"
+
+    def test_codes_are_random_per_instance(self) -> None:
+        """Each OTP instance gets a distinct stored hash (random per-instance
+        default)."""
+        codes = {
+            EmailOTP.objects.create(email=f"delivered+user{i}@resend.dev").code
+            for i in range(20)
+        }
+        assert len(codes) == 20

@@ -1,0 +1,266 @@
+import html as html_lib
+import logging
+
+from django.conf import settings
+
+logger = logging.getLogger(__name__)
+
+try:
+    import resend
+
+    resend.api_key = settings.RESEND_API_KEY
+except ImportError:
+    resend = None  # type: ignore[assignment]
+    logger.warning("resend package not installed: emails will be logged only")
+
+
+class EmailSendError(Exception):
+    """Raised when an email fails to send, for any reason."""
+
+
+def _build_email_html(
+    body_html: str, *, preheader: str = "", include_signature: bool = True
+) -> str:
+    """Wrap a chunk of body HTML in the standard EVP header/footer shell.
+
+    Args:
+        body_html: The email-specific inner content (e.g. from
+            ``_build_otp_body``). Should be a series of table rows / p tags
+            that fit inside the shared content cell.
+        preheader: Short hidden preview text shown in inbox clients.
+        include_signature: Whether to include the "Kind Regards" sign-off text.
+
+    Returns:
+        A complete, standalone HTML document ready to send.
+    """
+
+    signature_html = ""
+    if include_signature:
+        signature_html = """
+              <!-- Signature -->
+              <p style="margin:24px 0 0; font-size:15px; color:#333333;">
+                <b>
+                Kind Regards,<br>
+                The Edinburgh VenturePoint team
+                </b>
+              </p>"""
+
+    return f"""
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edinburgh VenturePoint</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f4f4f7; font-family: Arial, Helvetica, sans-serif;">
+
+  <!-- Preheader text (hidden, shows in inbox preview) -->
+  <div style="display:none; max-height:0; overflow:hidden;">
+    {preheader}
+  </div>
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f4f7; padding:24px 0;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="background-color:#ffffff; border-radius:8px; overflow:hidden;">
+
+          <!-- Body (email-specific content injected here) -->
+          <tr>
+            <td style="padding:50px;">
+              {body_html}
+{signature_html}
+
+              <!-- Image after signature -->
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin-top:32px;">
+                <tr>
+                  <td>
+                    <img
+                      src="https://www.edinburghventurepoint.com/favicon.png"
+                      alt="Edinburgh VenturePoint"
+                      width="160"
+                      style="display:block; border:0; outline:none; text-decoration:none;"
+                    >
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color:#f4f4f7; padding:16px 32px; text-align:center;">
+              <p style="margin:0 0 8px; font-size:11px; color:#999999;">
+                Edinburgh VenturePoint is an entrepreneurship and venture capital society at The University of Edinburgh.
+              </p>
+
+              <!-- Site + policy links -->
+              <p style="margin:0 0 10px; font-size:11px; color:#999999;">
+                <a href="https://www.edinburghventurepoint.com" style="color:#999999; text-decoration:underline;">edinburghventurepoint.com</a>
+                &nbsp;|&nbsp;
+                <a href="https://www.edinburghventurepoint.com/privacy" style="color:#999999; text-decoration:underline;">Privacy Policy</a>
+                &nbsp;|&nbsp;
+                <a href="https://www.edinburghventurepoint.com/terms" style="color:#999999; text-decoration:underline;">Terms of Service</a>
+              </p>
+
+              <!-- Socials -->
+              <p style="margin:0 0 10px; font-size:0; line-height:0;">
+                <a href="https://www.linkedin.com/company/edinburghventurepoint/" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">
+                  <img
+                    src="https://www.edinburghventurepoint.com/icons/linkedin.png"
+                    alt="LinkedIn"
+                    width="24"
+                    height="24"
+                    style="display:inline-block; border:0; outline:none; text-decoration:none; vertical-align:middle;"
+                  >
+                </a>
+                &nbsp;&nbsp;
+                <a href="https://www.instagram.com/edinburghventurepoint/" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">
+                  <img
+                    src="https://www.edinburghventurepoint.com/icons/instagram.png"
+                    alt="Instagram"
+                    width="24"
+                    height="24"
+                    style="display:inline-block; border:0; outline:none; text-decoration:none; vertical-align:middle;"
+                  >
+                </a>
+              </p>
+
+              <p style="margin:0; font-size:11px; color:#999999;">
+                &copy; 2026 Edinburgh VenturePoint. All rights reserved.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
+"""  # noqa: E501
+
+
+def _build_greeting_from_name(name: str) -> str:
+    """Build the greeting line for a known recipient first name."""
+    display = html_lib.escape(name.strip()) if name.strip() else "EVP Member"
+    return (
+        '<p style="margin:0 0 24px; font-size:15px; color:#333333; line-height:1.5;">'
+        f"Hi {display},</p>"
+    )
+
+
+def _build_greeting(recipients: list[str]) -> str:
+    """Build the personalised greeting line prepended to every email."""
+    name = ""
+    if len(recipients) == 1:
+        # Local import: keeps apps.core free of a hard accounts dependency
+        # at import time (accounts imports this module in its API).
+        from apps.accounts.models import User
+
+        name = (
+            User.objects.filter(email__iexact=recipients[0])
+            .values_list("first_name", flat=True)
+            .first()
+            or ""
+        )
+
+    return _build_greeting_from_name(name)
+
+
+def send_email(
+    to: str | list[str],
+    subject: str,
+    body: str,
+    *,
+    preheader: str = "",
+    from_email: str | None = None,
+    include_signature: bool = True,
+    greeting_name: str | None = None,
+):
+    """Send an email via Resend, or log it when sending is disabled.
+    Args:
+        to: Recipient email address(es). A single string or a list of strings.
+        subject: Email subject line.
+        body: Plain-text or HTML body content.
+        from_email: Sender address (defaults to ``settings.FROM_EMAIL``).
+        greeting_name: Pre-resolved recipient first name. When given, no
+            per-recipient database lookup is performed — used by bulk sends,
+            which resolve all names in a single query up front.
+
+    Raises:
+        EmailSendError: If the email API fails to load or send the email.
+    """
+    sender = from_email or settings.FROM_EMAIL
+    recipients = [to] if isinstance(to, str) else to
+
+    if greeting_name is None:
+        greeting = _build_greeting(recipients)
+    else:
+        greeting = _build_greeting_from_name(greeting_name)
+
+    html = _build_email_html(
+        greeting + body, preheader=preheader, include_signature=include_signature
+    )
+
+    if not settings.RESEND_ENABLED:
+        logger.info(
+            "[LOG-ONLY EMAIL] To: %s | Subject: %s | Body:\n%s",
+            ", ".join(recipients),
+            subject,
+            html,
+        )
+        return
+
+    try:
+        if resend is None:
+            raise ValueError("Resend API is missing.")
+
+        resend.Emails.send(
+            params={
+                "from": sender,
+                "to": recipients,
+                "subject": subject,
+                "html": html,
+            }
+        )
+
+    except Exception as err:
+        logger.error("Failed to send email via Resend: %s", err)
+        raise EmailSendError(err) from err
+
+
+def _build_otp_body(code: str) -> str:
+    """Build the inner body content for an OTP verification email."""
+    return f"""
+<p style="margin:0 0 16px; font-size:15px; color:#333333; line-height:1.5;">
+  We're sending you this because you requested a verification code for your Edinburgh VenturePoint account.
+</p>
+<hr>
+
+<p style="margin:24px 0 8px; font-size:14px; color:#333333;">
+  Here's your code:
+</p>
+<p style="margin:0 0 24px; font-size:28px; font-weight:bold; letter-spacing:0.25em; color:#0b2545; text-align:center; background-color:#f4f4f7; padding:16px; border-radius:6px;">
+  {code}
+</p>
+
+<p style="margin:0 0 16px; font-size:14px; color:#333333; line-height:1.5;">
+  <strong>Do not forward or share this code with anyone.</strong> It may allow others to access your account.
+</p>
+<p style="margin:0 0 24px; font-size:14px; color:#333333; line-height:1.5;">
+  This code expires in 10 minutes. If you didn't request it, you can safely ignore and delete this email.
+</p>
+<hr>
+"""  # noqa: E501
+
+
+def send_otp_email(email: str, code: str):
+    return send_email(
+        to=email,
+        subject="Your EVP Verification Code",
+        body=_build_otp_body(code),
+        preheader="Your Edinburgh VenturePoint verification code is inside.",
+    )

@@ -6,77 +6,140 @@ on:
   push:
     # Triggers the workflow on direct pushes to main (e.g. after a PR is merged)
     branches: [main]
+    paths-ignore:
+      - "README.md"
+      - "docs/**"
+      - "*.md"
   pull_request:
     # Triggers the workflow on PRs targeted at main
     branches: [main]
+    paths-ignore:
+      - "README.md"
+      - "docs/**"
+      - "*.md"
 
 # Global environment variables shared across all jobs in this workflow
 env:
   # The target Docker registry (GitHub Container Registry)
   REGISTRY: ghcr.io
-  # Converts the repository path (e.g., 'username/repo') into lowercase for the image name
-  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  # JOB 1: Builds the frontend and backend Docker images and pushes them to GHCR
-  build-and-push:
-    # Specifies the type of virtual machine runner to use
+  # JOB 1: Runs frontend lint/build and backend tests on every PR (fast gatekeeper)
+  test:
     runs-on: ubuntu-latest
 
-    # Permissions required to read code, publish packages to GHCR, and access the Actions cache backend (type=gha)
-    permissions:
-      contents: read
-      packages: write
-      actions: read
-
-    # Build both services defined in docker-compose.yml (frontend + backend)
     strategy:
       matrix:
         service: [frontend, backend]
 
     steps:
-      # Step 1: Clones your repository source code onto the GitHub runner
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      # Step 2: Set up Docker Buildx (creates docker-container driver needed for type=gha cache export)
+      # --- Frontend: Node.js + npm ---
+      - name: Setup Node.js
+        if: matrix.service == 'frontend'
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        if: matrix.service == 'frontend'
+        run: npm ci
+        working-directory: frontend
+
+      - name: Lint frontend
+        if: matrix.service == 'frontend'
+        run: npm run lint
+        working-directory: frontend
+
+      - name: Test frontend
+        if: matrix.service == 'frontend'
+        run: npm run test
+        working-directory: frontend
+
+      - name: Build frontend
+        if: matrix.service == 'frontend'
+        run: npm run build
+        working-directory: frontend
+
+      # --- Backend: Python + uv ---
+      - name: Setup Python
+        if: matrix.service == 'backend'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install uv
+        if: matrix.service == 'backend'
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install backend dependencies
+        if: matrix.service == 'backend'
+        run: uv sync
+        working-directory: backend
+
+      - name: Run backend tests
+        if: matrix.service == 'backend'
+        run: uv run python manage.py test
+        working-directory: backend
+        env:
+          SECRET_KEY: "dummy-key"
+          DEBUG: "False"
+
+  # JOB 2: Builds the frontend and backend Docker images and pushes them to GHCR
+  build-and-push:
+    runs-on: ubuntu-latest
+    needs: test
+    permissions:
+      contents: read
+      packages: write
+      actions: read
+    strategy:
+      matrix:
+        service: [frontend, backend]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set lower case image name
+        id: image-name
+        run: |
+          echo "image_name=${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # Step 3: Authenticates the runner against GHCR using the short-lived, built-in GITHUB_TOKEN
       - name: Log in to the Container Registry
+        if: github.event_name == 'push'
         uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Step 4: Automatically extracts tags and OCI labels based on Git commits/tags for container tracking
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v6
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.service }}
+          images: ${{ env.REGISTRY }}/${{ steps.image-name.outputs.image_name }}/${{ matrix.service }}
           tags: |
             type=raw,value=latest
             type=sha,format=short
 
-      # Step 5: Compiles the service Dockerfile and pushes it directly to GHCR (only on push, not PRs)
       - name: Build and push Docker image
         uses: docker/build-push-action@v7
         with:
-          # The build context for this service (contains its Dockerfile)
           context: ./${{ matrix.service }}
-          # Push to GHCR ONLY on merge/push to main. On PRs, this compiles and tests without pushing.
-          push: ${{ github.event_name != 'pull_request' }}
-          # Repo-scoped package: ghcr.io/<owner>/<repo>/<service>
+          push: ${{ github.event_name == 'push' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          # Scope GHA build cache by service so matrix jobs don't overwrite each other
           cache-from: type=gha,scope=${{ matrix.service }}
           cache-to: type=gha,mode=max,scope=${{ matrix.service }}
 
-  # JOB 2: Connects to your remote server to pull the new container images and launch them
+  # JOB 3: Connects to your remote server to pull the new container images and launch them
   deploy:
     # Forces this job to wait until 'build-and-push' finishes successfully
     needs: build-and-push
@@ -92,12 +155,13 @@ jobs:
         env:
           DEPLOY_USER: ${{ github.actor }}
           DEPLOY_TOKEN: ${{ secrets.GHCR_DEPLOY_TOKEN }} # GitHub PAT
+          IMAGE_TAG: ${{ github.sha }} # commit SHA
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           # Expose the env variables block explicitly to the underlying shell script execution
-          envs: DEPLOY_USER,DEPLOY_TOKEN
+          envs: DEPLOY_USER,DEPLOY_TOKEN,IMAGE_TAG
           script: |
             # 1. Stop execution immediately if any command fails
             set -e
@@ -108,6 +172,10 @@ jobs:
 
             # 2. Navigate to your app directory on the host server where your docker-compose.yml lives
             cd ~/evp-website
+
+            # Pin this deploy to the commit's short-SHA image tag (published by CI
+            # alongside :latest). Rollback = IMAGE_TAG=<old short sha> docker-compose up -d.
+            export IMAGE_TAG="$(echo "$IMAGE_TAG" | cut -c1-7)"
 
             # 3. Log into GitHub Container Registry on the REMOTE server utilizing the injected shell variables
             echo "$DEPLOY_TOKEN" | docker login ghcr.io -u "$DEPLOY_USER" --password-stdin

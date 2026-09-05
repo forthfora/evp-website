@@ -1,7 +1,7 @@
 User-agent: *
-Disallow: /admin/
-Disallow: /dashboard/
 Disallow: /api/
+Disallow: /evp-dev/
+Disallow: /member
 
 User-agent: GPTBot
 Disallow: /

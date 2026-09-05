@@ -7,9 +7,15 @@ export default defineConfig({
 	plugins: [react(), tailwindcss()],
 	resolve: {
 		alias: {
-			'@': path.resolve(__dirname, './src'),
-			'@assets': path.resolve(__dirname, './src/shared/assets'),
-			'@common': path.resolve(__dirname, './src/shared/ui/common'),
+			'@': path.resolve(import.meta.dirname, './src'),
+		},
+	},
+	server: {
+		proxy: {
+			'/api': {
+				target: 'http://127.0.0.1:16017',
+				changeOrigin: true,
+			},
 		},
 	},
 	build: {
