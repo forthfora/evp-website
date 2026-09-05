@@ -85,6 +85,9 @@ jobs:
         if: matrix.service == 'backend'
         run: uv run python manage.py test
         working-directory: backend
+        env:
+          SECRET_KEY: "dummy-key"
+          DEBUG: "False"
 
   # JOB 2: Builds the frontend and backend Docker images and pushes them to GHCR
   build-and-push:
